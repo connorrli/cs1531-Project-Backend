@@ -1,8 +1,10 @@
 function adminQuizList(authUserId) {
-    quizzes: [
-        {
-          quizId: 1,
-          name: 'My Quiz',
-        }
-      ]
+    return {
+        quizzes: [
+            {
+            quizId: 1,
+            name: 'My Quiz',
+            }
+        ]
+    }
 }
