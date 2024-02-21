@@ -9,11 +9,11 @@ function adminQuizList(authUserId) {
     return {
         quizzes: [
             {
-            quizId: 1,
-            name: 'My Quiz',
+              quizId: 1,
+              name: 'My Quiz',
             }
         ]
-    }
+    };
 }
 
 /**
@@ -52,6 +52,38 @@ function adminQuizRemove(authUserId, quizId) {
 */
 function adminQuizCreate(authUserId, name, description) {
     return {
-      quizId: 2,
-    }
+      quizId: 2
+    };
 }
+
+/**
+  * Given basic details about a new quiz, create one for the logged in user.
+  * 
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * 
+  * @returns {object} - Returns the quiz id number of the quiz
+*/
+function adminQuizInfo(authUserId, quizId) {
+    return {
+        quizId: 1,
+        name: 'My Quiz',
+        timeCreated: 1683125870,
+        timeLastEdited: 1683125871,
+        description: 'This is my quiz',
+    };
+}
+
+/**
+  * Given basic details about a new quiz, create one for the logged in user.
+  * 
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} name - Provides the name of the user who logged in for the quiz
+  * 
+  * @returns {object} - Returns the quiz id number of the quiz
+*/
+function adminQuizNameUpdate(authUserId, quizId, name) {
+    return {};
+}
+
