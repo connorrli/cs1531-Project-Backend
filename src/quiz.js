@@ -75,7 +75,7 @@ function adminQuizInfo(authUserId, quizId) {
 }
 
 /**
-  * Unsure what this function does for now 
+  * Update the name of the relevant quiz.
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
