@@ -62,7 +62,7 @@ function adminQuizCreate(authUserId, name, description) {
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
   * 
-  * @returns {object} - Returns object containing details of quiz
+  * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
 function adminQuizInfo(authUserId, quizId) {
     return {
