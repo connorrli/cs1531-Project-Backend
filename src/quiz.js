@@ -35,3 +35,10 @@ function adminQuizInfo(authUserId, quizId) {
         description: 'This is my quiz',
     }
 }
+
+/*
+    adminQuizNameUpdate stub.
+*/
+function adminQuizNameUpdate(authUserId, quizId, name) {
+    return {}
+}
