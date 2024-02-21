@@ -57,12 +57,12 @@ function adminQuizCreate(authUserId, name, description) {
 }
 
 /**
-  * Given basic details about a new quiz, create one for the logged in user.
+  * Given quizId, find and return information for that quiz
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
   * 
-  * @returns {object} - Returns the quiz id number of the quiz
+  * @returns {object} - Returns object containing details of quiz
 */
 function adminQuizInfo(authUserId, quizId) {
     return {
@@ -75,13 +75,13 @@ function adminQuizInfo(authUserId, quizId) {
 }
 
 /**
-  * Given basic details about a new quiz, create one for the logged in user.
+  * Unsure what this function does for now 
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
   * @param {string} name - Provides the name of the user who logged in for the quiz
   * 
-  * @returns {object} - Returns the quiz id number of the quiz
+  * @returns {object} - Returns object containing nothing
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
     return {};
