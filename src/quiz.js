@@ -9,11 +9,11 @@ function adminQuizList(authUserId) {
     return {
         quizzes: [
             {
-            quizId: 1,
-            name: 'My Quiz',
+              quizId: 1,
+              name: 'My Quiz',
             }
         ]
-    }
+    };
 }
 
 /**
@@ -52,8 +52,8 @@ function adminQuizRemove(authUserId, quizId) {
 */
 function adminQuizCreate(authUserId, name, description) {
     return {
-      quizId: 2,
-    }
+      quizId: 2
+    };
 }
 
 /**
@@ -71,7 +71,7 @@ function adminQuizInfo(authUserId, quizId) {
         timeCreated: 1683125870,
         timeLastEdited: 1683125871,
         description: 'This is my quiz',
-    }
+    };
 }
 
 /**
@@ -84,6 +84,6 @@ function adminQuizInfo(authUserId, quizId) {
   * @returns {object} - Returns the quiz id number of the quiz
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
-    return {}
+    return {};
 }
 
