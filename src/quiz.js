@@ -12,3 +12,13 @@ function adminQuizList(authUserId) {
 function adminQuizDescriptionUpdate(authUserId, quizId, description) {
     return {}
 }
+
+function adminQuizRemove(authUserId, quizId) {
+    return {};
+}
+
+function adminQuizCreate(authUserId, name, description) {
+    return {
+      quizID: 2,
+    }
+}
