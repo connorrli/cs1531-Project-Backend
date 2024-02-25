@@ -6,5 +6,5 @@ import { getData, setData } from './datastore.js';
 
 function clear() {
   setData({ users: [], quizzes: [] });
-  return;
+  return {};
 }
