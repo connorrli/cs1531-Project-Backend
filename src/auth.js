@@ -75,3 +75,7 @@ function adminUserDetails (authUserId) {
 function adminUserDetailsUpdate (authUserId, email, nameFirst, nameLast) {
     return {};
 }
+
+export {
+  adminAuthRegister,
+};
