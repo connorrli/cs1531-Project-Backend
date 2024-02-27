@@ -1,7 +1,7 @@
 import { adminAuthRegister } from '../auth.js';
 import { clear } from '../other.js';
 
-beforeAll(() => {
+beforeEach(() => {
     clear();
 })
 

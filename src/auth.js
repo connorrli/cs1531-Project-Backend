@@ -38,9 +38,34 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   if (invalidRegConditions(email, password, nameFirst, nameLast)) {
     return invalidRegConditions(email, password, nameFirst, nameLast);
   }
+
   const data = getData();
+  const user = {
+    userId: -1,
+    email: email,
+    password: password,
+    nameFirst: nameFirst,
+    nameLast: nameLast,
+    numSuccessfulLogins: 1,
+    numFailedPasswordsSinceLastLogin: 0,
+  }
+  if (data.users.length === 0) {
+    user.userId = 1;
+    data.users.push(user);
+  } else {
+    let maxExtantId = 0;
+    for (const extantUser of data.users) {
+      if (extantUser.userId > maxExtantId) {
+        maxExtantId = extantUser.userId;
+      }
+    }
+    user.userId = maxExtantId + 1;
+    data.users.push(user);
+  }
+
+
   return {
-        authUserId: 1
+        authUserId: user.userId,
     };
 }
 

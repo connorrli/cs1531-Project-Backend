@@ -3,11 +3,18 @@ import {
 } from './errors.js';
 import {
     getData,
-    setData,
 } from '../dataStore.js';
 import validator from 'validator';
 
-
+/*
+ * Switch statement that applies each unique error conditions to various error types.
+ *
+ * @param subject - the data to be checked for errors
+ * @param errorType - the type of error (i.e. conditions) to be checked
+ * 
+ * @returns - 0 if no errors. If there is an error, will return an object with
+ *              a relevant error msg.
+*/
 function checkForErrors(subject, errorType) {
     switch(errorType) {
         case 'nameFirstValid':
@@ -65,9 +72,17 @@ function checkForErrors(subject, errorType) {
             }
             return 0;
             break;
-        
+        case 'emailInUse':
+            const data = getData();
+            for (const extantUser of data.users) {
+                if (extantUser.email === subject) {
+                    return error.throwError('duplicateEmail');
+                }
+            }
+            return 0;
+            break;
         default:
-            return error.throwError(checkForErrorType);
+            return error.throwError('checkForErrorType');
     }
 }
 
