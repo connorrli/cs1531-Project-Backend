@@ -34,13 +34,11 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
-  
-  const data = getData();
-  
+
   if (invalidRegConditions(email, password, nameFirst, nameLast)) {
     return invalidRegConditions(email, password, nameFirst, nameLast);
   }
-
+  const data = getData();
   return {
         authUserId: 1
     };

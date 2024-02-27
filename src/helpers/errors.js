@@ -24,6 +24,9 @@ const error = {
         usedPassword: 'New password has already been used before.',
         shortPassword: 'Password is less than 8 characters.',
         easyPassword: 'Password does not contain at least one number and one letter.',
+
+        // MISC
+        checkForErrorType: 'Unknown error type passed into checkForError.',
     },
     throwError: function(errorValue) {
         if (typeof errorValue !== 'string') {
