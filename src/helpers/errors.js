@@ -26,6 +26,18 @@ const error = {
         easyPassword: 'New password does not contain at least one number and one letter.',
     },
     throwError: function(errorValue) {
+        if (typeof errorValue !== 'string') {
+            console.log('======================================');
+            console.log('                                      ');
+            console.log('ERROR: INCOMPATIBLE `errorValue` TYPE!');
+            console.log('       MUST BE PASSED AS A STRING.... ');
+            console.log('                                      ');
+            console.log('TYPE PASSED:', typeof errorValue       );
+            console.log('VALUE:', errorValue                    );
+            console.log('                                      ');
+            console.log('======================================');
+            throw new Error("Fatal error thrown while in errors.js! Check above for details.");
+        }
         if (`${errorValue}` in this.listOfErrors) {
             return {error: this.listOfErrors[`${errorValue}`]};
         } else {
