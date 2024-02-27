@@ -1,3 +1,15 @@
+import {
+  getData,
+  setData,
+} from './dataStore.js';
+import {
+  invalidRegConditions,
+} from './helpers/registErrors.js';
+import {
+  error,
+} from './helpers/errors.js';
+
+
 /**
   * Given details relating to a password change, updates the password of a logged in user.
   * 
@@ -14,7 +26,7 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 /**
   * Registers a user with an email, password, and names, then returns their authUserId value.
   * 
-  * @param {integer} email - Stores the user email as part of the registration
+  * @param {string} email - Stores the user email as part of the registration
   * @param {string} password - Stores the user password as part of the registration
   * @param {string} nameFirst - Stores the user's first name as part of the registration
   * @param {string} nameLast - Stores the user's second name as part of the registration
@@ -22,7 +34,14 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
-    return {
+  
+  const data = getData();
+  
+  if (invalidRegConditions(email, password, nameFirst, nameLast)) {
+    return invalidRegConditions(email, password, nameFirst, nameLast);
+  }
+
+  return {
         authUserId: 1
     };
 }
