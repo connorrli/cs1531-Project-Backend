@@ -1,5 +1,5 @@
 import { clear } from '../other.js';
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from '../dataStore.js';
 
 beforeEach(() => {
     // Set up some initial data before each test
