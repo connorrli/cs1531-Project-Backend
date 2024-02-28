@@ -1,9 +1,6 @@
-import { error } from './errors.js';
-// import { checkForErrors } from './checkForErrors.js';
+import { checkForErrors } from './checkForErrors.js';
 
 const NO_ERROR = 0;
-
-console.log(checkDetailsUpdate(3, 'connorli1@hotmail.com', 'Connor', 'Li'));
 
 function checkDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     const checks = new Map([
