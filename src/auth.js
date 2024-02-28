@@ -1,3 +1,9 @@
+import { getData, setData } from './dataStore.js';
+import { checkDetailsUpdate } from './helpers/userUpdateErrors.js';
+
+const NO_ERROR = 0;
+
+
 /**
   * Given details relating to a password change, updates the password of a logged in user.
   * 
@@ -73,5 +79,20 @@ function adminUserDetails (authUserId) {
   * @returns {empty object} - Returns an empty object to the user
 */
 function adminUserDetailsUpdate (authUserId, email, nameFirst, nameLast) {
-    return {};
+
+    // Error check
+    const error = checkDetailsUpdate(authUserId, email, nameFirst, nameLast);
+    if (error !== NO_ERROR) return error;
+
+    // Get and set new details
+    const userData = getData();
+    for (const user in userData['users']) {
+        if (user['userId'] === authUserId) {
+            user['email'] = email;
+            user['nameFirst'] = nameFirst;
+            user['nameLast'] = nameLast;
+        }
+    }
+
+    return { };
 }
