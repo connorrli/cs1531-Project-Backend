@@ -1,3 +1,15 @@
+import {
+  getData,
+  setData,
+} from './dataStore.js';
+import {
+  invalidRegConditions,
+} from './helpers/registErrors.js';
+import {
+  error,
+} from './helpers/errors.js';
+
+
 /**
   * Given details relating to a password change, updates the password of a logged in user.
   * 
@@ -14,7 +26,7 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 /**
   * Registers a user with an email, password, and names, then returns their authUserId value.
   * 
-  * @param {integer} email - Stores the user email as part of the registration
+  * @param {string} email - Stores the user email as part of the registration
   * @param {string} password - Stores the user password as part of the registration
   * @param {string} nameFirst - Stores the user's first name as part of the registration
   * @param {string} nameLast - Stores the user's second name as part of the registration
@@ -22,8 +34,38 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
-    return {
-        authUserId: 1
+
+  if (invalidRegConditions(email, password, nameFirst, nameLast)) {
+    return invalidRegConditions(email, password, nameFirst, nameLast);
+  }
+
+  const data = getData();
+  const user = {
+    userId: -1,
+    email: email,
+    password: password,
+    nameFirst: nameFirst,
+    nameLast: nameLast,
+    numSuccessfulLogins: 1,
+    numFailedPasswordsSinceLastLogin: 0,
+  }
+  if (data.users.length === 0) {
+    user.userId = 1;
+    data.users.push(user);
+  } else {
+    let maxExtantId = 0;
+    for (const extantUser of data.users) {
+      if (extantUser.userId > maxExtantId) {
+        maxExtantId = extantUser.userId;
+      }
+    }
+    user.userId = maxExtantId + 1;
+    data.users.push(user);
+  }
+
+
+  return {
+        authUserId: user.userId,
     };
 }
 
@@ -75,3 +117,7 @@ function adminUserDetails (authUserId) {
 function adminUserDetailsUpdate (authUserId, email, nameFirst, nameLast) {
     return {};
 }
+
+export {
+  adminAuthRegister,
+};

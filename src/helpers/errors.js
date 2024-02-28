@@ -18,12 +18,15 @@ const error = {
         nameFirstOutOfRange: 'First name length must be >= 2 and <= 20.',
         nameLastOutOfRange: 'Last name length must be >= 2 and <= 20.',
 
-        // PASSWORD UPDATE ERRORS:
+        // PASSWORD UPDATE OR CREATE ERRORS:
         incorrectOldPassword: 'Old password is incorrect.',
         identicalPassword: 'New password is the same as old password.',
         usedPassword: 'New password has already been used before.',
-        shortPassword: 'New password is less than 8 characters.',
-        easyPassword: 'New password does not contain at least one number and one letter.',
+        shortPassword: 'Password is less than 8 characters.',
+        easyPassword: 'Password does not contain at least one number and one letter.',
+
+        // MISC
+        checkForErrorType: 'Unknown error type passed into checkForError.',
     },
     throwError: function(errorValue) {
         if (typeof errorValue !== 'string') {
