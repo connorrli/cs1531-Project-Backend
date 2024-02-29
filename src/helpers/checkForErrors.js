@@ -1,10 +1,20 @@
-import {
-    error,
-} from './errors.js';
-import {
-    getData,
-} from '../dataStore.js';
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// IMPORTS /////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+import { error } from './errors.js';
+import { getData } from '../dataStore.js';
 import validator from 'validator';
+
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// CONSTANTS ////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+const NO_ERROR = 0;
+
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// FUNCTIONS ////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
 /*
  * Switch statement that applies each unique error conditions to various error types.
@@ -16,7 +26,12 @@ import validator from 'validator';
  *              a relevant error msg.
 */
 function checkForErrors(subject, errorType) {
+    const data = getData();
     switch(errorType) {
+        case 'authUserIdValid':
+            const theUser = data['users'].find(user => user.userId === subject);
+            if (theUser === undefined) return error.throwError('invalidUser');
+            return 0;
         case 'nameFirstValid':
             if (subject.length < 2 || subject.length > 20) {
                 return error.throwError('nameFirstOutOfRange');
@@ -29,8 +44,7 @@ function checkForErrors(subject, errorType) {
                     }
                 }
             }
-            return 0;    
-            break;
+            return NO_ERROR;    
         case 'nameLastValid':
             if (subject.length < 2 || subject.length > 20) {
                 return error.throwError('nameLastOutOfRange');
@@ -43,8 +57,7 @@ function checkForErrors(subject, errorType) {
                     }
                 }
             }
-            return 0;    
-            break;
+            return NO_ERROR;    
         case 'passwordValid': 
             if (subject.length < 8) {
                 return error.throwError('shortPassword');
@@ -64,28 +77,28 @@ function checkForErrors(subject, errorType) {
             if (!(passHasNum * passHasLet)) {
                 return error.throwError('easyPassword');
             }
-            return 0;
-            break;
+            return NO_ERROR;
         case 'emailValid':
             if (!validator.isEmail(subject)) {
                 return error.throwError('invalidEmail');
             }
-            return 0;
-            break;
+            return NO_ERROR;
         case 'emailInUse':
-            const data = getData();
             for (const extantUser of data.users) {
                 if (extantUser.email === subject) {
                     return error.throwError('duplicateEmail');
                 }
             }
-            return 0;
-            break;
+            return NO_ERROR;
         default:
             return error.throwError('checkForErrorType');
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// EXPORTS /////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
 export {
     checkForErrors,
-}
+};
