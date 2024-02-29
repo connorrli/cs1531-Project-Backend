@@ -12,6 +12,12 @@ import validator from 'validator';
 
 const NO_ERROR = 0;
 
+// For easy referencing of errors (don't have to check errors.js)
+const errors = error['listOfErrors'];
+for (const key of Object.keys(errors)) {
+    errors[key] = `${key}`;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -26,73 +32,98 @@ const NO_ERROR = 0;
  *              a relevant error msg.
 */
 function checkForErrors(subject, errorType) {
-    const data = getData();
     switch(errorType) {
         case 'authUserIdValid':
-            const theUser = data['users'].find(user => user.userId === subject);
-            if (theUser === undefined) return error.throwError('invalidUser');
-            return 0;
+            return authUserIdCheck(subject);
         case 'nameFirstValid':
-            if (subject.length < 2 || subject.length > 20) {
-                return error.throwError('nameFirstOutOfRange');
-            } 
-            for (let i = 0; i < subject.length; i++) {
-                let currChar = subject.toLowerCase()[i];
-                if (currChar > 'z' || currChar < 'a') {
-                    if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
-                        return error.throwError('nameFirstInvalid');
-                    }
-                }
-            }
-            return NO_ERROR;    
+            return nameFirstValidCheck(subject);
         case 'nameLastValid':
-            if (subject.length < 2 || subject.length > 20) {
-                return error.throwError('nameLastOutOfRange');
-            } 
-            for (let i = 0; i < subject.length; i++) {
-                let currChar = subject.toLowerCase()[i];
-                if (currChar > 'z' || currChar < 'a') {
-                    if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
-                        return error.throwError('nameLastInvalid');
-                    }
-                }
-            }
-            return NO_ERROR;    
+            return nameLastValidCheck(subject);
         case 'passwordValid': 
-            if (subject.length < 8) {
-                return error.throwError('shortPassword');
-            }
-            let passHasNum = 0;
-            let passHasLet = 0;
-            for (let i = 0; i < 10; i++) {
-                if (subject.includes(`${i}`)) {
-                    passHasNum++;
-                }
-            }
-            for (let i = 0; i < 27; i++) {
-                if (subject.toLowerCase().includes(String.fromCharCode(i + 97))) {
-                    passHasLet++;
-                }
-            }
-            if (!(passHasNum * passHasLet)) {
-                return error.throwError('easyPassword');
-            }
-            return NO_ERROR;
+            return passwordValidCheck(subject);
         case 'emailValid':
-            if (!validator.isEmail(subject)) {
-                return error.throwError('invalidEmail');
-            }
-            return NO_ERROR;
+            return emailValidCheck(subject);
         case 'emailInUse':
-            for (const extantUser of data.users) {
-                if (extantUser.email === subject) {
-                    return error.throwError('duplicateEmail');
-                }
-            }
-            return NO_ERROR;
+            return emailInUseCheck(subject);
         default:
             return error.throwError('checkForErrorType');
     }
+}
+
+function authUserIdCheck(authUserId) {
+    const data = getData();
+    const theUser = data['users'].find(user => user.userId === authUserId);
+    if (theUser === undefined) return error.throwError(errors['invalidUser']);
+    return NO_ERROR;
+}
+
+function nameFirstValidCheck(nameFirst) {
+    if (nameFirst.length < 2 || nameFirst.length > 20) {
+        return error.throwError(errors['nameFirstOutOfRange']);
+    } 
+    for (let i = 0; i < nameFirst.length; i++) {
+        let currChar = nameFirst.toLowerCase()[i];
+        if (currChar > 'z' || currChar < 'a') {
+            if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
+                return error.throwError(errors['nameFirstInvalid']);
+            }
+        }
+    }
+    return NO_ERROR;    
+}
+
+function nameLastValidCheck(nameLast) {
+    if (nameLast.length < 2 || nameLast.length > 20) {
+        return error.throwError(errors['nameLastOutOfRange']);
+    } 
+    for (let i = 0; i < nameLast.length; i++) {
+        let currChar = nameLast.toLowerCase()[i];
+        if (currChar > 'z' || currChar < 'a') {
+            if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
+                return error.throwError(errors['nameLastInvalid']);
+            }
+        }
+    }
+    return NO_ERROR;    
+}
+
+function passwordValidCheck(password) {
+    if (password.length < 8) {
+        return error.throwError(errors['shortPassword']);
+    }
+    let passHasNum = 0;
+    let passHasLet = 0;
+    for (let i = 0; i < 10; i++) {
+        if (password.includes(`${i}`)) {
+            passHasNum++;
+        }
+    }
+    for (let i = 0; i < 27; i++) {
+        if (password.toLowerCase().includes(String.fromCharCode(i + 97))) {
+            passHasLet++;
+        }
+    }
+    if (!(passHasNum * passHasLet)) {
+        return error.throwError(errors['easyPassword']);
+    }
+    return NO_ERROR;
+}
+
+function emailValidCheck(email) {
+    if (!validator.isEmail(email)) {
+        return error.throwError(errors['invalidEmail']);
+    }
+    return NO_ERROR;
+}
+
+function emailInUseCheck(email) {
+    const data = getData();
+    for (const extantUser of data.users) {
+        if (extantUser.email === email) {
+            return error.throwError(errors['duplicateEmail']);
+        }
+    }
+    return NO_ERROR;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
