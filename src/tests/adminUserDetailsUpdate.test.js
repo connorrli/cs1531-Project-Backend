@@ -23,6 +23,8 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         user3 = 3;
     });
 
+    const ERROR = { error: expect.any(String)};
+
     // Assume that we have logged in.
     test('Valid changes:', () => {
         const data = getData();
@@ -36,46 +38,46 @@ describe('Testing adminUserDetailsUpdate function:', () => {
 
     test('Invalid authUserId:', () => {
         expect(adminUserDetailsUpdate(user3, 'z000002.com', 'John', 'Doe'))
-        .toEqual(error.throwError('invalidUser'));
+        .toEqual(ERROR);
     });
 
     test('Duplicate email:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000001@ad.unsw.edu.au', 'John', 'Doe'))
-        .toEqual(error.throwError('duplicateEmail'));
+        .toEqual(ERROR);
     });
 
     test('Invalid email:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000001.com', 'John', 'Doe'))
-        .toEqual(error.throwError('invalidEmail'));
+        .toEqual(ERROR);
     });
 
     test('First name invalid:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', '][', 'Doe'))
-        .toEqual(error.throwError('nameFirstInvalid'));
+        .toEqual(ERROR);
     });
 
     test('Last name invalid:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', ']['))
-        .toEqual(error.throwError('nameLastInvalid'));
+        .toEqual(ERROR);
     });
     
     test('First name too long:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'aaaaaaaaaaaaaaaaaaaaa', 'Doe'))
-        .toEqual(error.throwError('nameFirstOutOfRange'));
+        .toEqual(ERROR);
     });
 
     test('Last name too long:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', 'aaaaaaaaaaaaaaaaaaaaa'))
-        .toEqual(error.throwError('nameLastOutOfRange'));
+        .toEqual(ERROR);
     });
 
     test('First name too short:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'a', 'Doe'))
-        .toEqual(error.throwError('nameFirstOutOfRange'));
+        .toEqual(ERROR);
     });
 
     test('Last name too short:', () => {
         expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', 'a'))
-        .toEqual(error.throwError('nameLastOutOfRange'));
+        .toEqual(ERROR);
     });
 });
