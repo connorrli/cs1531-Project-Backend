@@ -1,6 +1,11 @@
 import {
     checkForErrors
 } from './checkForErrors.js';
+import {
+    getData
+} from '../dataStore.js';
+
+const NO_ERROR = 0;
 
 /*
  * Applies the checkForErrors cases relevant to adminAuthRegister.
@@ -22,10 +27,14 @@ function invalidRegConditions(email, password, nameFirst, nameLast) {
     if (checkForErrors(password, 'passwordValid')) {
         return checkForErrors(password, 'passwordValid');
     }
-    if (checkForErrors(email, 'emailInUse')) {
-        return checkForErrors(email, 'emailInUse');
+    
+    data = getData();
+    for (const extantUser of data.users) {
+        if (extantUser.email === email) {
+            return error.throwError(errors['duplicateEmail']);
+        }
     }
-    return 0;
+    return NO_ERROR;
 }
 
 export {
