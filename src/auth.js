@@ -147,4 +147,5 @@ function adminUserDetailsUpdate (authUserId, email, nameFirst, nameLast) {
 export {
   adminAuthRegister,
   adminUserDetailsUpdate,
+  adminAuthLogin,
 };
