@@ -5,6 +5,7 @@
 import { checkDetailsUpdate } from './helpers/userUpdateErrors.js';
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/registErrors.js';
+import { error } from './helpers/errors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -84,9 +85,19 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthLogin(email, password) {
-    return {
-        authUserId: 1
-    };
+  const data = getData();
+  const logger = (data.users).find(user => user.email === email);
+  if (logger === undefined) {
+    return error.throwError('noEmail');
+  }
+  if (password !== logger.password) {
+    logger.numFailedPasswordsSinceLastLogin++;
+    return error.throwError('wrongPassword');
+  }
+  logger.numSuccessfulLogins++;
+  return {
+        authUserId: logger.userId
+  };
 }
 
 /**
