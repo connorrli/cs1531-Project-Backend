@@ -41,8 +41,8 @@ const error = {
             console.log('======================================');
             throw new Error("Fatal error thrown while in errors.js! Check above for details.");
         }
-        if (`${errorValue}` in this.listOfErrors) {
-            return {error: this.listOfErrors[`${errorValue}`]};
+        if (errorValue in this.listOfErrors) {
+            return {error: this.listOfErrors[errorValue]};
         } else {
             return {error: 'Error unknown.'};
         }
