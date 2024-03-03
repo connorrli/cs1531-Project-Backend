@@ -25,6 +25,9 @@ const error = {
         shortPassword: 'Password is less than 8 characters.',
         easyPassword: 'Password does not contain at least one number and one letter.',
 
+        //LOGGING IN ERRORS
+        wrongPassword: 'Password entered is incorrect.',
+        noEmail: 'Email entered is not associated with any user.',
         // MISC
         checkForErrorType: 'Unknown error type passed into checkForError.',
     },
