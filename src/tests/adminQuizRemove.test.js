@@ -2,9 +2,6 @@ import { adminQuizRemove, adminQuizCreate } from '../quiz.js';
 import { adminAuthRegister } from '../auth.js';
 import { clear } from '../other.js';
 
-
-
-
 describe('adminQuizRemove function tests', () => {
 
     beforeEach(() => {
