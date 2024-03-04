@@ -38,9 +38,8 @@ describe('adminQuizInfo function tests', () => {
         const { authUserId: userId2 } = adminAuthRegister('user2@example.com', 'password', 'Second', 'User');
         const { quizId } = adminQuizCreate(userId1, 'User 1 Quiz', 'This is a quiz created by user 1');
         const quizInfo = adminQuizInfo(userId2, quizId);
-        expect(quizInfo).toEqual({ error: 'authUserId does not own quiz with ID quizId' });
+        expect(quizInfo).toEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
 
     });
 
-    
 });

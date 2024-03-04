@@ -61,10 +61,10 @@ function adminQuizCreate(authUserId, name, description) {
 */
 function adminQuizRemove(authUserId, quizId) {
   if (!isValidUser(authUserId)) {
-    return {error: 'Not a valid authUserId'};
+    return {error: 'Not a valid authUserId.'};
   }
   if (!isValidQuiz(quizId)) {
-    return {error: 'Not a valid quizId'};
+    return {error: 'Not a valid quizId.'};
   }
   if (!isOwner(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
@@ -86,14 +86,24 @@ function adminQuizRemove(authUserId, quizId) {
   * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
 function adminQuizInfo(authUserId, quizId) {
-  
-  
+  if (!isValidUser(authUserId)) {
+    return {error: 'Not a valid authUserId.'};
+  }
+  if (!isValidQuiz(quizId)) {
+    return {error: 'Not a valid quizId.'};
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const quiz = getData().quizzes.find(quiz => quiz.quizId === quizId);
+
   return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz',
+    quizId: quiz.quizId,
+    name: quiz.name,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
+    description: quiz.description
   };
 }
 
