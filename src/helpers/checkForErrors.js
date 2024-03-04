@@ -97,6 +97,24 @@ function emailValidCheck(email) {
     return NO_ERROR;
 }
 
+// Returns true if quizId exists and false if quizId does not exist
+function isValidQuiz(quizId) {
+    if (getData().quizzes.length === 0) {
+      return false;
+    }
+    const quiz = getData().quizzes.find(q => q.quizId === quizId);
+    return !!quiz;
+}
+
+// Returns true if authUserId exists and false if authUserId does not exist
+function isValidUser(authUserId) {
+    if (getData().users.length === 0) {
+      return false;
+    }
+    const user = getData().users.find(u => u.authUserId === authUserId);
+    return !!user;
+  }
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -107,4 +125,6 @@ export {
     nameLastValidCheck,
     passwordValidCheck,
     emailValidCheck,
+    isValidQuiz,
+    isValidUser,
 };
