@@ -26,11 +26,14 @@ import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
 function adminQuizList(authUserId) {
-    return {
+  if (!isValidUser(authUserId)) {
+    return {error: 'AuthUserId is not a valid user'};
+  }  
+  return {
         quizzes: [
             {
-              quizId: 1,
-              name: 'My Quiz',
+              quizId: getData().quizzes.findIndex(quiz => quiz.quizId === quizId),
+              name: getData().quizzes.findIndex(quiz => quiz.name === name), //check here
             }
         ]
     };
@@ -84,8 +87,50 @@ function adminQuizRemove(authUserId, quizId) {
   * @returns {object} - Returns the quiz id number of the quiz
 */
 function adminQuizCreate(authUserId, name, description) {
-    return {
-      quizId: 2
+  let data = getData();
+  
+  /*if (!isValidUser(authUserId)) {  ///////// Some issues here
+    return {error: 'AuthUserId is not a valid user'};
+  }*/
+
+  // Quiz name < 3 characters
+  if (name.length < 3) {
+    return { error: 'Quiz name is < 3 characters' };
+  }
+
+  // Quiz name > 30 characters
+  if (name.length > 30) {
+    return { error: 'Quiz name is > 30 characters' };
+  }
+
+  // Quiz description > 100 characters
+  if (description.length > 100) {
+    return { error: 'Quiz description is > 100 characters' };
+  }
+
+  // Quiz name already in use
+  for (const quizname of data.quizzes) {
+    if (quizname.name === name) {
+      return { error: 'Quiz name is already in use' };
+    }
+  }
+  /*let data = getData(); //for the alpha numeric issue part. Not sure how to implement it
+
+  for (const user of data.quizzes) {
+    if () {
+
+    }
+  }*/
+  data.quizzes.push({
+    quizId: 1,
+    name: name,
+    //timeCreated: ,
+    //timeLastEdited: ,
+    description: 'des',
+  })
+  
+  return {
+      quizId: data.quizzes.quizId,
     };
 }
 
