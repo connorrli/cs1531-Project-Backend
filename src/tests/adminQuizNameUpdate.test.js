@@ -61,15 +61,15 @@ describe('adminQuizNameUpdate function tests', () => {
         const authUserId = adminAuthRegister("test@example.com", "password", "John", "Doe").authUserId;
         const quizId = adminQuizCreate(authUserId, "Quiz 1", "Description").quizId;
         const result = adminQuizNameUpdate(authUserId, quizId, "A");
-        expect(result).toEqual({ error: 'Name must be 3 or more characters long.' });
+        expect(result).toEqual({ error: 'Name must be between 3 and 30 characters long.' });
     });
 
     test('Should return error when name is more than 30 characters long', () => {
         const authUserId = adminAuthRegister("test@example.com", "password", "John", "Doe").authUserId;
         const quizId = adminQuizCreate(authUserId, "Quiz 1", "Description").quizId;
-        const thirtyCharName = "abcdefghijklmnopqrstuvwxyzABCDE"
-        const result = adminQuizNameUpdate(authUserId, quizId, thirtyCharName);
-        expect(result).toEqual({ error: 'Name is either less than 3 characters long or more than 30 characters long.' });
+        const thirtyOneCharName = "abcdefghijklmnopqrstuvwxyzABCDE"
+        const result = adminQuizNameUpdate(authUserId, quizId, thirtyOneCharName);
+        expect(result).toEqual({ error: 'Name must be between 3 and 30 characters long.' });
     });
 
     test('Should return error when name is already used by the current logged in user for another quiz', () => {
