@@ -2,7 +2,13 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { checkForErrors } from './checkForErrors.js';
+import { 
+    authUserIdCheck, 
+    emailValidCheck, 
+    nameFirstValidCheck, 
+    nameLastValidCheck 
+} from './checkForErrors.js';
+
 import { getData } from '../dataStore.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +16,7 @@ import { getData } from '../dataStore.js';
 ///////////////////////////////////////////////////////////////////////////////////
 
 const NO_ERROR = 0;
+const NOT_FOUND = 'undefined';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -23,32 +30,32 @@ const NO_ERROR = 0;
   * @param {string} nameFirst - The user's current or updated first name
   * @param {string} nameLast - The user's current or updated last name
   * 
-  * @returns {error object or NO_ERROR} - Returns either an error object or NO_ERROR (0)
+  * @returns {object || number} - Returns either an error object or NO_ERROR (0)
 */
 function checkDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     const data = getData();
-    const checks = new Map([
-        [authUserId, ['authUserIdValid']],
-        [email, ['emailValid']], 
-        [nameFirst, ['nameFirstValid']],
-        [nameLast, ['nameLastValid']],
-    ]);
+    let error = NO_ERROR; 
 
-    // Only check email is in use if it's not the user's current email
-    const theUser = data['users'].find(user => user.userId === authUserId);
-    if (theUser !== undefined) {
-        if (theUser['email'] !== email) {
-            checks.set(email, ['emailValid', 'emailInUse']);
-        }
+    error = authUserIdCheck(authUserId);
+    if (error !== NO_ERROR) return error;
+
+    const userWithEmail = data['users'].find(user => user.email === email);
+    if (typeof userWithEmail !== NOT_FOUND && userWithEmail.userId !== authUserId) {
+        return { error: 'email already in use' };
     }
 
-    // Do all checks mapped to each user detail
-    for (const [key, value] of checks.entries()) {
-        for (const check of value) {
-            let error = checkForErrors(key, check);
-            if (error !== NO_ERROR) return error;
-        }
-    }
+    error = emailValidCheck(email);
+    if (error !== NO_ERROR) return error;
+
+    error = nameFirstValidCheck(nameFirst);
+    if (error !== NO_ERROR) return error;
+
+    error = nameFirstValidCheck(nameFirst);
+    if (error !== NO_ERROR) return error;
+
+    error = nameLastValidCheck(nameLast);
+    if (error !== NO_ERROR) return error;
+
     return NO_ERROR;
 }
 
