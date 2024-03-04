@@ -11,11 +11,13 @@ describe('Testing QuizCreate function:', () => {
         clear();
     });
 
-    /*test('AuthUserId is not a valid user', () => { //something is wrong here
-        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        const result = adminQuizCreate(authUserId + 1, 'testing', 'Test authuserid not valid');
+    test('AuthUserId is not a valid user', () => { /////////////////////something is wrong here
+        //const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
+        //const result = adminQuizCreate(authUserId + 1, 'testing', 'Test authuserid not valid');
+        let authUserId1 = adminAuthRegister('123@email.com', '1234qwe', 'test', 'ting');
+        quiz1 = adminQuizCreate(authUserId1 + 1, 'name', 'description')
         expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
-    });*/
+    });
 
     /*test('Name contains an invalid character', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
@@ -24,24 +26,17 @@ describe('Testing QuizCreate function:', () => {
     });*/
 
     // Quiz name
-    test('Name < 3 or > 30 characters long', () => {
+    test('Name < 3 characters', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
         quiz1 = adminQuizCreate(authUserId, 'qu', 'simple description');
         expect(quiz1).toEqual({ error: 'Quiz name is < 3 characters' });
     });
 
-    test('Name > 30 characters long', () => {
+    test('Name > 30 characters', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
         quiz1 = adminQuizCreate(authUserId, 'quizname that would be more than 30 characters long', 'simple description');
         expect(quiz1).toEqual({ error: 'Quiz name is > 30 characters' });
     });
-
-    /*test('Name is already in use by another logged in user', () => {
-        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        const result = adminQuizCreate(authUserId + 1);
-        expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
-    });*/
-
 
     // Quiz description
    test('Description > 100 characters', () => {
@@ -56,18 +51,12 @@ describe('Testing QuizCreate function:', () => {
         expect(quiz1).toEqual({ error: 'Quiz description is > 100 characters' });
     });
 
-    test('Description = 100 characters', () => {
-        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        quiz1 = adminQuizCreate(authUserId, 'quizname', 'Thequickbrownfoxjumpsoverthelazydogprovingthedogslackofmotivationforanyactionwhatsoever');
-        expect(quiz1).toEqual({ error: 'Quiz description is > 100 characters' });
-    });
-
     // Quiz name already in use
     test('Quiz name is already in use', () => {
-        const { authUserId: userId1 } = adminAuthRegister('test1@egmail.com', 'password', 'Walt', 'Smith');
-        const { authUserId: userId2 } = adminAuthRegister('test2@egmail.com', 'password', 'Tom', 'Jerry');
-        quiz1 = adminQuizCreate(userId1, 'samequizname', 'simple description');
-        quiz2 = adminQuizCreate(userId2, 'samequizname', 'description');
-        expect(quiz2).toEqual({ error: 'Quiz name is already in use' });
+        let authUserId1 = adminAuthRegister('123@email.com', '1234qwe', 'test', 'ting');
+        let authUserId2 = adminAuthRegister('123456@email.com', '1234qwe456', 'test6', '6ting');
+        quiz1 = adminQuizCreate(authUserId1, 'samename', 'simple description');
+        quiz2 = adminQuizCreate(authUserId2, 'samename', 'description');
+        expect(quiz2).toStrictEqual({ error: 'Quiz name is already in use' });
     })
 });
