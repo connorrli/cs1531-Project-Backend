@@ -117,7 +117,31 @@ function adminQuizInfo(authUserId, quizId) {
   * @returns {object} - Returns object containing nothing
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
-    return {};
+  if (!isValidUser(authUserId)) {
+    return {error: 'Not a valid authUserId.'};
+  }
+  if (!isValidQuiz(quizId)) {
+    return {error: 'Not a valid quizId.'};
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+  if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+    return { error: 'Name contains invalid characters. Valid characters are alphanumeric and spaces.' };
+  }
+  if (name.length < 3 || name.length > 30) {
+    return { error: 'Name must be between 3 and 30 characters long.' };
+  }
+  const allQuizzes = getData().quizzes;
+  const userOtherQuizzes = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId !== quizId);
+  const quizWithSameName = userOtherQuizzes.find(q => q.name === name);
+  if (quizWithSameName) {
+    return { error: 'Name is already used by the current logged in user for another quiz' };
+  }
+
+  const currentQuiz = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId === quizId);
+  currentQuiz[0].name = name;
+  return {};
 }
 
 /**
@@ -141,5 +165,6 @@ export {
   adminQuizList,
   adminQuizCreate,
   adminQuizRemove,
-  adminQuizInfo
+  adminQuizInfo,
+  adminQuizNameUpdate
 };
