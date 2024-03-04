@@ -34,9 +34,8 @@ const NOT_FOUND = 'undefined';
 */
 function checkDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     const data = getData();
-    let error = NO_ERROR; 
 
-    error = authUserIdCheck(authUserId);
+    let error = authUserIdCheck(authUserId);
     if (error !== NO_ERROR) return error;
 
     const userWithEmail = data['users'].find(user => user.email === email);
