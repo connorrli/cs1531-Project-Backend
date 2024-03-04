@@ -113,7 +113,23 @@ function isValidUser(authUserId) {
     }
     const user = getData().users.find(u => u.authUserId === authUserId);
     return !!user;
-  }
+}
+
+// Returns true if authUserId owns quizId; returns false if authUserId is not 
+// the owner of quizId
+function isOwner(authUserId, quizId) {
+    if (getData().users.length === 0) {
+        return false;
+    }
+    if (getData().quizzes.length === 0) {
+        return false;
+    }
+    const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+        return false;
+    }
+    return true
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
@@ -127,4 +143,5 @@ export {
     emailValidCheck,
     isValidQuiz,
     isValidUser,
+    isOwner,
 };

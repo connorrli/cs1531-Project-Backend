@@ -5,7 +5,7 @@
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/registErrors.js';
 import { error } from './helpers/errors.js';
-import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
+import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -37,16 +37,18 @@ function adminQuizList(authUserId) {
 }
 
 /**
-  * Update the description of the relevant quiz.
+  * Given basic details about a new quiz, create one for the logged in user.
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
-  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} name - Provides the name of the user who logged in for the quiz
   * @param {string} description - Displays the quiz questions in textual form for the user
   * 
-  * @returns {empty object} - Returns an empty object to the user
+  * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-    return {};
+function adminQuizCreate(authUserId, name, description) {
+  return {
+    quizId: 2
+  };
 }
 
 /**
@@ -64,30 +66,16 @@ function adminQuizRemove(authUserId, quizId) {
   if (!isValidQuiz(quizId)) {
     return {error: 'Not a valid quizId'};
   }
-  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
-  if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+  if (!isOwner(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
   }
 
+  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
   getData().quizzes.splice(quizIndex, 1);
 
   return {};
 }
 
-/**
-  * Given basic details about a new quiz, create one for the logged in user.
-  * 
-  * @param {integer} authUserId - Stores user authentication and quiz details
-  * @param {string} name - Provides the name of the user who logged in for the quiz
-  * @param {string} description - Displays the quiz questions in textual form for the user
-  * 
-  * @returns {object} - Returns the quiz id number of the quiz
-*/
-function adminQuizCreate(authUserId, name, description) {
-    return {
-      quizId: 2
-    };
-}
 
 /**
   * Given quizId, find and return information for that quiz
@@ -98,13 +86,15 @@ function adminQuizCreate(authUserId, name, description) {
   * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
 function adminQuizInfo(authUserId, quizId) {
-    return {
-        quizId: 1,
-        name: 'My Quiz',
-        timeCreated: 1683125870,
-        timeLastEdited: 1683125871,
-        description: 'This is my quiz',
-    };
+  
+  
+  return {
+    quizId: 1,
+    name: 'My Quiz',
+    timeCreated: 1683125870,
+    timeLastEdited: 1683125871,
+    description: 'This is my quiz',
+  };
 }
 
 /**
@@ -118,6 +108,19 @@ function adminQuizInfo(authUserId, quizId) {
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
     return {};
+}
+
+/**
+  * Update the description of the relevant quiz.
+  * 
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} description - Displays the quiz questions in textual form for the user
+  * 
+  * @returns {empty object} - Returns an empty object to the user
+*/
+function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
