@@ -34,7 +34,7 @@ for (const key of Object.keys(errors)) {
 function authUserIdCheck(authUserId) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
-    if (theUser === undefined) return error.throwError(errors['invalidUser']);
+    if (typeof theUser === 'undefined') return error.throwError(errors['invalidUser']);
     return NO_ERROR;
 }
 
