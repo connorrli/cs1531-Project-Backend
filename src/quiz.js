@@ -5,7 +5,7 @@
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/registErrors.js';
 import { error } from './helpers/errors.js';
-import { authUserIdCheck, isValidQuiz } from './helpers/checkForErrors.js';
+import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -58,6 +58,19 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   * @returns {empty object} - Returns an empty object to the user
 */
 function adminQuizRemove(authUserId, quizId) {
+  if (!isValidUser(authUserId)) {
+    return {error: 'Not a valid authUserId'};
+  }
+  if (!isValidQuiz(quizId)) {
+    return {error: 'Not a valid quizId'};
+  }
+  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
+  if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  getData().quizzes.splice(quizIndex, 1);
+
   return {};
 }
 

@@ -1,7 +1,29 @@
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 let data = {
-  users: [],
-  quizzes: [],
+  users: [
+    {
+        authUserId: 1,
+        nameFirst: 'user1',
+    },
+    {
+        authUserId: 2,
+        nameFirst: 'user2',
+    },
+
+  ],
+  quizzes: [
+    {
+        quizId: 1,
+        name: 'quiz1',
+        authUserId: 1,
+    },
+    {
+        quizId: 2,
+        name: 'quiz2',
+        authUserId: 1,
+    },
+
+  ],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
