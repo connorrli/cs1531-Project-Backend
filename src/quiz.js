@@ -141,5 +141,6 @@ export {
   adminQuizList,
   adminQuizCreate,
   adminQuizRemove,
-  adminQuizInfo
+  adminQuizInfo,
+  adminQuizNameUpdate
 };
