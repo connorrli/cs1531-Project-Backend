@@ -31,25 +31,6 @@ for (const key of Object.keys(errors)) {
  * @returns - 0 if no errors. If there is an error, will return an object with
  *              a relevant error msg.
 */
-function checkForErrors(subject, errorType) {
-    switch(errorType) {
-        case 'authUserIdValid':
-            return authUserIdCheck(subject);
-        case 'nameFirstValid':
-            return nameFirstValidCheck(subject);
-        case 'nameLastValid':
-            return nameLastValidCheck(subject);
-        case 'passwordValid': 
-            return passwordValidCheck(subject);
-        case 'emailValid':
-            return emailValidCheck(subject);
-        case 'emailInUse':
-            return emailInUseCheck(subject);
-        default:
-            return error.throwError('checkForErrorType');
-    }
-}
-
 function authUserIdCheck(authUserId) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
@@ -116,20 +97,34 @@ function emailValidCheck(email) {
     return NO_ERROR;
 }
 
-function emailInUseCheck(email) {
-    const data = getData();
-    for (const extantUser of data.users) {
-        if (extantUser.email === email) {
-            return error.throwError(errors['duplicateEmail']);
-        }
+// Returns true if quizId exists and false if quizId does not exist
+function isValidQuiz(quizId) {
+    if (getData().quizzes.length === 0) {
+      return false;
     }
-    return NO_ERROR;
+    const quiz = getData().quizzes.find(q => q.quizId === quizId);
+    return !!quiz;
 }
+
+// Returns true if authUserId exists and false if authUserId does not exist
+function isValidUser(authUserId) {
+    if (getData().users.length === 0) {
+      return false;
+    }
+    const user = getData().users.find(u => u.authUserId === authUserId);
+    return !!user;
+  }
 
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
 export {
-    checkForErrors,
+    authUserIdCheck,
+    nameFirstValidCheck,
+    nameLastValidCheck,
+    passwordValidCheck,
+    emailValidCheck,
+    isValidQuiz,
+    isValidUser,
 };

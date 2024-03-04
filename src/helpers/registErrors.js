@@ -1,6 +1,17 @@
 import {
-    checkForErrors
+    nameFirstValidCheck,
+    nameLastValidCheck,
+    passwordValidCheck,
+    emailValidCheck,
 } from './checkForErrors.js';
+import {
+    error
+} from './errors.js';
+import {
+    getData
+} from '../dataStore.js';
+
+const NO_ERROR = 0;
 
 /*
  * Applies the checkForErrors cases relevant to adminAuthRegister.
@@ -10,22 +21,26 @@ import {
  * @returns 0 for no errors, or an object with a relevant error msg if there is an error.
 */
 function invalidRegConditions(email, password, nameFirst, nameLast) {
-    if (checkForErrors(nameFirst, 'nameFirstValid')) {
-        return checkForErrors(nameFirst, 'nameFirstValid');
+    if (nameFirstValidCheck(nameFirst) !== NO_ERROR) {
+        return nameFirstValidCheck(nameFirst);
     }
-    if (checkForErrors(nameLast, 'nameLastValid')) {
-        return checkForErrors(nameLast, 'nameLastValid');
+    if (nameLastValidCheck(nameLast) !== NO_ERROR) {
+        return nameLastValidCheck(nameLast);
     }
-    if (checkForErrors(email, 'emailValid')) {
-        return checkForErrors(email, 'emailValid');
+    if (emailValidCheck(email) !== NO_ERROR) {
+        return emailValidCheck(email);
     }
-    if (checkForErrors(password, 'passwordValid')) {
-        return checkForErrors(password, 'passwordValid');
+    if (passwordValidCheck(password) !== NO_ERROR) {
+        return passwordValidCheck(password);
     }
-    if (checkForErrors(email, 'emailInUse')) {
-        return checkForErrors(email, 'emailInUse');
+
+    const data = getData();
+    for (const extantUser of data.users) {
+        if (extantUser.email === email) {
+            return error.throwError('duplicateEmail');
+        }
     }
-    return 0;
+    return NO_ERROR;
 }
 
 export {
