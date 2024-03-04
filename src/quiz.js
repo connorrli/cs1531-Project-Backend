@@ -5,7 +5,7 @@
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/registErrors.js';
 import { error } from './helpers/errors.js';
-import { isValidUser, isValidQuiz } from './helpers/validatorUserQuiz.js';
+import { authUserIdCheck, isValidQuiz } from './helpers/checkForErrors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -16,18 +16,6 @@ import { isValidUser, isValidQuiz } from './helpers/validatorUserQuiz.js';
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
-
-/*
-// Helper function to check if a user exists
-function isValidUser(authUserId) {
-  if (getData().users.length === 0) {
-    return false;
-  }
-  const user = getData().users.find(u => u.userId === authUserId);
-  console.log(user);
-  return !!user;
-}
-*/
 
 
 /**
