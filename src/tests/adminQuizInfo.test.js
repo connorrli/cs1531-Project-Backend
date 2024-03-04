@@ -42,5 +42,4 @@ describe('adminQuizInfo function tests', () => {
 
     });
 
-    
 });

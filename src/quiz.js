@@ -86,8 +86,7 @@ function adminQuizRemove(authUserId, quizId) {
   * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
 function adminQuizInfo(authUserId, quizId) {
-  
-  
+    
   return {
     quizId: 1,
     name: 'My Quiz',
