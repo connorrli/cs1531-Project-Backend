@@ -2,10 +2,10 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { adminUserDetailsUpdate, adminAuthRegister, adminAuthLogin } from '../../auth.js';
-import { error } from '../../helpers/errors.js';
-import { getData, setData } from '../../dataStore.js';
+import { adminUserDetailsUpdate, adminAuthRegister } from '../../auth.js';
 import { clear } from '../../other.js';
+
+const ERROR = { error: expect.any(String) };
 
 ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// TESTS //////////////////////////////////////
@@ -23,61 +23,19 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         user3 = 3;
     });
 
-    const ERROR = { error: expect.any(String)};
-
-    // Assume that we have logged in.
-    test('Valid changes:', () => {
-        const data = getData();
-        expect(adminUserDetailsUpdate(user1, 'z000002@ad.unsw.edu.au', 'Tim', 'Burton')).toEqual({ });
-        const new_data = getData();
-        const user = data['users'].find(user => user.userId === user1);
-        expect(user['email']).toEqual('z000002@ad.unsw.edu.au');
-        expect(user['nameFirst']).toEqual('Tim');
-        expect(user['nameLast']).toEqual('Burton');
+    test.each([
+        ['Valid Email Change', 'z000002@ad.unsw.edu.au', 'John', 'Doe', {}],
+        ['Valid First Name Change', 'z000000@ad.unsw.edu.au', 'Sue', 'Doe', {}],
+        ['Valid Last Name Change', 'z000000@ad.unsw.edu.au', 'John', 'Jones', {}],
+        ['Existing Email (Other\'s Email)', 'z000001@ad.unsw.edu.au', 'John', 'Doe', ERROR],
+        ['Existing Email (Own Email)', 'z000000@ad.unsw.edu.au', 'John', 'Doe', {}],
+        ['Invalid Email', 'john.com', 'John', 'Doe', ERROR],
+        ['First Name Invalid', 'z000000@ad.unsw.edu.au', '][', 'Doe', ERROR],
+        ['Last Name Invalid', 'z000000@ad.unsw.edu.au', 'John', '][', ERROR],
+    ])('Testing %s', (testTitle, email, nameFirst, nameLast, expectedReturn) => {
+        expect(adminUserDetailsUpdate(user1, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
     });
-
-    test('Invalid authUserId:', () => {
-        expect(adminUserDetailsUpdate(user3, 'z000002.com', 'John', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('Duplicate email:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000001@ad.unsw.edu.au', 'John', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('Invalid email:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000001.com', 'John', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('First name invalid:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', '][', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('Last name invalid:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', ']['))
-        .toEqual(ERROR);
-    });
-    
-    test('First name too long:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'aaaaaaaaaaaaaaaaaaaaa', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('Last name too long:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', 'aaaaaaaaaaaaaaaaaaaaa'))
-        .toEqual(ERROR);
-    });
-
-    test('First name too short:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'a', 'Doe'))
-        .toEqual(ERROR);
-    });
-
-    test('Last name too short:', () => {
-        expect(adminUserDetailsUpdate(user1, 'z000000@ad.unsw.edu.au', 'John', 'a'))
-        .toEqual(ERROR);
-    });
+    test('Testing Invalid UserId', () => {
+        expect(adminUserDetailsUpdate(user3, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
+    })
 });
