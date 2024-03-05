@@ -2,9 +2,10 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { checkDetailsUpdate } from './helpers/userUpdateErrors.js';
+import { checkDetailsUpdate } from './helpers/auth/userUpdateErrors.js';
+import { checkUserPasswordUpdate } from './helpers/auth/userPasswordUpdateErrors.js';
 import { getData, setData } from './dataStore.js';
-import { invalidRegConditions } from './helpers/registErrors.js';
+import { invalidRegConditions } from './helpers/auth/registErrors.js';
 import { error } from './helpers/errors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +28,17 @@ const NO_ERROR = 0;
   * @returns {empty object} - Returns an empty object to the user
 */
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-    return {};
+  const data = getData();
+  const userData = data['users'].find(user => user.userId === authUserId);
+
+  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  if (error !== NO_ERROR) return error;
+
+  userData['password'] = newPassword;
+  userData['previousPasswords'].push(oldPassword);
+  setData(data);
+
+  return { };
 }
 
 /**
@@ -54,6 +65,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
     nameFirst: nameFirst,
     nameLast: nameLast,
     numSuccessfulLogins: 1,
+    previousPasswords: [],
     numFailedPasswordsSinceLastLogin: 0,
   }
   if (data.users.length === 0) {
@@ -159,4 +171,5 @@ export {
   adminAuthRegister,
   adminUserDetailsUpdate,
   adminAuthLogin,
+  adminUserPasswordUpdate,
 };
