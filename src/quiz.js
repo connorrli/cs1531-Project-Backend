@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 import { getData, setData } from './dataStore.js';
-import { invalidRegConditions } from './helpers/registErrors.js';
+import { invalidRegConditions } from './helpers/auth/registErrors.js';
 import { error } from './helpers/errors.js';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors.js';
 
