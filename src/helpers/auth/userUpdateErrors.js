@@ -7,9 +7,9 @@ import {
     emailValidCheck, 
     nameFirstValidCheck, 
     nameLastValidCheck 
-} from './checkForErrors.js';
+} from '../checkForErrors.js';
 
-import { getData } from '../dataStore.js';
+import { getData } from '../../dataStore.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
