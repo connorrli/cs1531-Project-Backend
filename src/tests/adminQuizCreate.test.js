@@ -1,4 +1,4 @@
-import { adminQuizCreate, adminQuizList, adminQuizInfo } from '../quiz.js';
+import { adminQuizCreate } from '../quiz.js';
 import { adminAuthRegister } from '../auth.js';
 import { clear } from '../other.js';
 
@@ -6,26 +6,33 @@ describe('Testing QuizCreate function:', () => {
     
     let quiz1;
     let quiz2;
+    let user1;
 
     beforeEach(() => {
         clear();
+        user1 = adminAuthRegister('test@gmail.com', 'Password123', 'John', 'Doe').authUserId;
     });
 
-    test('AuthUserId is not a valid user', () => { /////////////////////something is wrong here
-        //const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        //const result = adminQuizCreate(authUserId + 1, 'testing', 'Test authuserid not valid');
-        let authUserId1 = adminAuthRegister('123@email.com', '1234qwe', 'test', 'ting');
-        quiz1 = adminQuizCreate(authUserId1 + 1, 'name', 'description')
-        expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
+    // AuthUserId is not valid
+    test('AuthUserId is not a valid user', () => {
+        quiz1 = adminQuizCreate(user1 + 1, 'name', 'description');
+        expect(quiz1).toEqual({ error: 'AuthUserId is not a valid user' });
     });
 
-    /*test('Name contains an invalid character', () => {
+    //Invalid character in name
+    test('Name contains an invalid character', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
         quiz1 = adminQuizCreate(authUserId, '@@@@', 'simple description');
         expect(quiz1).toEqual({ error: 'Name contains an invalid character' });
-    });*/
+    });
 
-    // Quiz name
+    test('Name contains an invalid character', () => {
+        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
+        quiz1 = adminQuizCreate(authUserId, 'Johnny@1', 'simple description');
+        expect(quiz1).toEqual({ error: 'Name contains an invalid character' });
+    });
+
+    // Quiz name < 3 or > 30
     test('Name < 3 characters', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
         quiz1 = adminQuizCreate(authUserId, 'qu', 'simple description');
@@ -38,13 +45,7 @@ describe('Testing QuizCreate function:', () => {
         expect(quiz1).toEqual({ error: 'Quiz name is > 30 characters' });
     });
 
-    // Quiz description
-   test('Description > 100 characters', () => {
-        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        quiz1 = adminQuizCreate(authUserId, 'quizname', 'simple description to test if it is over 100 characters long. This should be more than 100 dgqiudgiqdhuqwhdiuqhwiudhiqwhiduqwhuidhqw');
-        expect(quiz1).toEqual({ error: 'Quiz description is > 100 characters' });
-    });
-
+    // Quiz description > 100
     test('Description > 100 characters', () => {
         const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
         quiz1 = adminQuizCreate(authUserId, 'quizname', 'The inexorable march of technological advancement continues unabated, revolutionizing industries, reshaping economies, and fundamentally altering the way we live, work, and interact with the world around us.');
