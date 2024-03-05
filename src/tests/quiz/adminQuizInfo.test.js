@@ -1,6 +1,6 @@
-import { adminAuthRegister } from "../auth";
-import { adminQuizCreate, adminQuizInfo } from "../quiz";
-import { clear } from "../other";
+import { adminAuthRegister } from "../../auth";
+import { adminQuizCreate, adminQuizInfo } from "../../quiz";
+import { clear } from "../../other";
 
 describe('adminQuizInfo function tests', () => {
 

@@ -2,10 +2,10 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { adminUserDetailsUpdate, adminAuthRegister, adminAuthLogin } from '../auth.js';
-import { error } from '../helpers/errors.js';
-import { getData, setData } from '../dataStore.js';
-import { clear } from '../other.js';
+import { adminUserDetailsUpdate, adminAuthRegister, adminAuthLogin } from '../../auth.js';
+import { error } from '../../helpers/errors.js';
+import { getData, setData } from '../../dataStore.js';
+import { clear } from '../../other.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// TESTS //////////////////////////////////////
