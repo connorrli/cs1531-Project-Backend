@@ -1,6 +1,6 @@
-import { adminQuizRemove, adminQuizCreate, adminQuizInfo } from '../quiz.js';
-import { adminAuthRegister, adminUserDetails } from '../auth.js';
-import { clear } from '../other.js';
+import { adminQuizRemove, adminQuizCreate, adminQuizInfo } from '../../quiz.js';
+import { adminAuthRegister, adminUserDetails } from '../../auth.js';
+import { clear } from '../../other.js';
 
 describe('adminQuizRemove function tests', () => {
 
