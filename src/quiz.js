@@ -5,7 +5,7 @@
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/registErrors.js';
 import { error } from './helpers/errors.js';
-import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
+import { isValidUser, isValidQuiz, authUserIdCheck } from './helpers/checkForErrors.js';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -26,9 +26,9 @@ import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
 function adminQuizList(authUserId) {
-  /*if (!isValidUser(authUserId)) {
+  if (!authUserIdCheck(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
-  }  */
+  }
 
   /*const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId);
   if (getData().quizzes[quizIndex].authUserId !== authUserId) {
@@ -105,7 +105,7 @@ function adminQuizCreate(authUserId, name, description) {
   let data = getData();
 
   // Invalid user Id
-  if (!isValidUser(authUserId)) {
+  if (!authUserIdCheck(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
 
