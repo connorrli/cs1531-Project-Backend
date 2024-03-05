@@ -26,17 +26,32 @@ import { isValidUser, isValidQuiz } from './helpers/checkForErrors.js';
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
 function adminQuizList(authUserId) {
-  if (!isValidUser(authUserId)) {
+  /*if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
-  }  
+  }  */
+
+  /*const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId);
+  if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
   return {
         quizzes: [
             {
               quizId: getData().quizzes.findIndex(quiz => quiz.quizId === quizId),
-              name: getData().quizzes.findIndex(quiz => quiz.name === name), //check here
+              name: getData().quizzes.findIndex(quiz => quiz.name === name),
             }
         ]
-    };
+    };*/
+    let data = getData();
+
+  const quizList = data.quizzes.filter(quiz => quiz.authUserId === authUserId).map(quiz => ({
+    id: quizList.id,
+    name: quizList.name, 
+  }));
+  if (!quizList) {
+    return { error: 'You do not have any quizzes' };
+  }
+  return { quizList };
 }
 
 /**
@@ -88,10 +103,16 @@ function adminQuizRemove(authUserId, quizId) {
 */
 function adminQuizCreate(authUserId, name, description) {
   let data = getData();
-  
-  /*if (!isValidUser(authUserId)) {  ///////// Some issues here
+
+  // Invalid user Id
+  if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
-  }*/
+  }
+
+  // Invalid character in name
+  if (!name.match(/^[a-zA-Z0-9 ]+$/)) {
+    return { error: 'Name contains an invalid character' };
+  }
 
   // Quiz name < 3 characters
   if (name.length < 3) {
@@ -114,23 +135,31 @@ function adminQuizCreate(authUserId, name, description) {
       return { error: 'Quiz name is already in use' };
     }
   }
-  /*let data = getData(); //for the alpha numeric issue part. Not sure how to implement it
 
-  for (const user of data.quizzes) {
-    if () {
+  const quiz = {
+    quizId: 0,
+    name,
+    timeCreated: Date(),
+    timeLastEdited: Date(),
+    description,
+  }
 
+  if (data.quizzes.length === 0) {
+    quiz.quizId = 1,
+    data.quizzes.push(quiz);
+  } else {
+    let ExtantQuizId = 0;
+    for (const element of data.quizzes) {
+      if (element.quizId > ExtantQuizId) {
+        ExtantQuizId = element.quizId;
+      }
     }
-  }*/
-  data.quizzes.push({
-    quizId: 1,
-    name: name,
-    //timeCreated: ,
-    //timeLastEdited: ,
-    description: 'des',
-  })
+    quiz.quizId = ExtantQuizId + 1;
+    data.quizzes.push(quiz);
+  }
   
   return {
-      quizId: data.quizzes.quizId,
+      quizId: quiz.quizId,
     };
 }
 
