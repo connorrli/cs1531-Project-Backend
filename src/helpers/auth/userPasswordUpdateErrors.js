@@ -16,7 +16,7 @@ const NO_ERROR = 0;
 ///////////////////////////////////////////////////////////////////////////////////
 
 /**
-  * Check updated details of a user for any errors
+  * Check updated password for a user for any errors
   * 
   * @param {object} userData - The user's object within dataStore
   * @param {string} oldPassword - The user's current password
