@@ -14,7 +14,7 @@ describe('Testing QuizCreate function:', () => {
     });
 
     // AuthUserId is not valid
-    test('AuthUserId is not a valid user', () => {
+    test('AuthUserId is not a valid user', () => { //Other tests work but with this, it overrides them and give "AuthuserId is not valid"
         quiz1 = adminQuizCreate(user1 + 1, 'name', 'description');
         expect(quiz1).toEqual({ error: 'AuthUserId is not a valid user' });
     });

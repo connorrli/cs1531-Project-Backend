@@ -25,7 +25,7 @@ import { isValidUser, isValidQuiz, authUserIdCheck } from './helpers/checkForErr
   * 
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
-function adminQuizList(authUserId) {
+function adminQuizList(authUserId) { //unsure on how to return quizId and quizName
   if (!authUserIdCheck(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
