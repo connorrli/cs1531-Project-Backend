@@ -13,11 +13,13 @@ describe('adminQuizDescriptionUpdate function tests', () => {
         const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
 
         const newDescription = 'This is an updated test quiz description';
-        adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
 
-        const result = adminQuizRemove(authUserId + 1, quizId);
+        const invalidAuthUserId = authUserId + 1;
+
+        const result = adminQuizDescriptionUpdate(invalidAuthUserId, quizId, newDescription);
         expect(result).toEqual({ error: 'Not a valid authUserId.' });
     });
+
 
     test('Should return an error when AuthUserId is not a valid user', () => {
     
