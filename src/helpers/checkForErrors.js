@@ -108,10 +108,11 @@ function isValidQuiz(quizId) {
 
 // Returns true if authUserId exists and false if authUserId does not exist
 function isValidUser(authUserId) {
-    if (getData().users.length === 0) {
+    const data = getData();
+    if (data.users.length === 0) {
       return false;
     }
-    const user = getData().users.find(u => u.authUserId === authUserId);
+    const user = data.users.find(u => u.userId === authUserId);
     return !!user;
 }
 
