@@ -166,5 +166,6 @@ export {
   adminQuizCreate,
   adminQuizRemove,
   adminQuizInfo,
-  adminQuizNameUpdate
+  adminQuizNameUpdate,
+  adminQuizDescriptionUpdate
 };
