@@ -172,4 +172,5 @@ export {
   adminUserDetailsUpdate,
   adminAuthLogin,
   adminUserPasswordUpdate,
+  adminUserDetails,
 };
