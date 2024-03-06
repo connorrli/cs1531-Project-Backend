@@ -54,6 +54,8 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 */
 function adminAuthRegister(email, password, nameFirst, nameLast) {
 
+  email = email.toLowerCase();
+
   if (invalidRegConditions(email, password, nameFirst, nameLast)) {
     return invalidRegConditions(email, password, nameFirst, nameLast);
   }
@@ -98,6 +100,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthLogin(email, password) {
+  email = email.toLowerCase();
   const data = getData();
   const logger = (data.users).find(user => user.email === email);
   if (logger === undefined) {

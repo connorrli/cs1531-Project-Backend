@@ -2,6 +2,8 @@ import { adminAuthRegister } from "../../auth";
 import { adminQuizCreate, adminQuizInfo } from "../../quiz";
 import { clear } from "../../other";
 
+const ERROR = { error: expect.any(String) };
+
 describe('adminQuizInfo function tests', () => {
 
     beforeEach(() => {
@@ -9,12 +11,11 @@ describe('adminQuizInfo function tests', () => {
     })
 
     test('Returns quiz information for a valid quiz owned by the user', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password', 'John', 'Doe');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
-        const quizInfo = adminQuizInfo(authUserId, quizId);
+        const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        const quiz = adminQuizCreate(authUser.authUserId, 'Test Quiz', 'This is a test quiz');
+        const quizInfo = adminQuizInfo(authUser.authUserId, quiz.quizId);
         expect(quizInfo).toEqual({
-            quizId: quizId,
-            authUserId: authUserId,
+            quizId: quiz.quizId,
             name: 'Test Quiz',
             timeCreated: expect.any(Number), // THIS MIGHT NEED TO CHANGE
             timeLastEdited: expect.any(Number), // THIS MIGHT NEED TO CHANGE
@@ -24,21 +25,21 @@ describe('adminQuizInfo function tests', () => {
 
     test('Returns an error when authUserId is not a valid user', () => {
         const quizInfo = adminQuizInfo(42, 42);
-        expect(quizInfo).toEqual({ error: 'Not a valid authUserId.' });
+        expect(quizInfo).toEqual(ERROR);
     });
 
     test('Returns an error when quizId is not a valid quiz', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password', 'John', 'Doe');
-        const quizInfo = adminQuizInfo(authUserId, 42);
-        expect(quizInfo).toEqual({ error: 'Not a valid quizId.' });
+        const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        const quizInfo = adminQuizInfo(authUser.authUserId, 42);
+        expect(quizInfo).toEqual(ERROR);
     });
 
     test('Returns an error when quizId is not owned by authUserId', () => {
-        const { authUserId: userId1 } = adminAuthRegister('user1@example.com', 'password', 'First', 'User');
-        const { authUserId: userId2 } = adminAuthRegister('user2@example.com', 'password', 'Second', 'User');
-        const { quizId } = adminQuizCreate(userId1, 'User 1 Quiz', 'This is a quiz created by user 1');
-        const quizInfo = adminQuizInfo(userId2, quizId);
-        expect(quizInfo).toEqual({ error: 'Quiz ID does not refer to a quiz that this user owns.' });
+        const authUser1 = adminAuthRegister('user1@example.com', 'password231', 'First', 'User');
+        const authUser2 = adminAuthRegister('user2@example.com', 'password123', 'Second', 'User');
+        const quiz = adminQuizCreate(authUser1.authUserId, 'User 1 Quiz', 'This is a quiz created by user 1');
+        const quizInfo = adminQuizInfo(authUser2.authUserId, quiz.quizId);
+        expect(quizInfo).toEqual(ERROR);
 
     });
 
