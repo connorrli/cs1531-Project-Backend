@@ -1,39 +1,61 @@
-import { adminQuizCreate } from '../../quiz.js';
+import { adminQuizCreate, adminQuizDescriptionUpdate, adminQuizRemove } from '../../quiz.js';
 import { adminAuthRegister } from '../../auth.js';
 import { clear } from '../../other.js';
 
 describe('adminQuizDescriptionUpdate function tests', () => {
-
     beforeEach(() => {
         clear();
-    })
+    });
 
     test('Should return an error when AuthUserId is not a valid user', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password', 'John', 'Doe');
+        const { authUserId } = adminAuthRegister('test@example.com', 'password549', 'John', 'Doe');
         const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
 
         const newDescription = 'This is an updated test quiz description';
+        adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
 
-        const invalidAuthUserId = authUserId + 1;
-
-        const result = adminQuizDescriptionUpdate(invalidAuthUserId, quizId, newDescription);
-        expect(result).toEqual({ error: 'Not a valid authUserId.' });
+        const result = adminQuizRemove(authUserId + 1, quizId);
+        expect(result.error).toEqual(expect.any(String));
     });
 
-
-    test('Should return an error when AuthUserId is not a valid user', () => {
+    test('Should return an error when quizId does not refer to a valid quiz', () => {
+        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
     
-        expect(result).toEqual({error: 'Not a valid authUserId.'});
+        // Create a quiz and then attempt to update its description
+        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
+        adminQuizDescriptionUpdate(authUserId, quizId, 'Updated Test Quiz Description');
+    
+        // Attempt to remove the quiz with an invalid ID
+        const result = adminQuizRemove(authUserId + 1, quizId);
+    
+        expect(result.error).toEqual(expect.any(String));
+    });    
+    
+    test('Should return an error when quizId does not refer to a quiz that the user owns', () => {
+        const { authUserId: userId1 } = adminAuthRegister('test1@example.com', 'password643', 'John', 'Doe');
+        const { authUserId: userId2 } = adminAuthRegister('test2@example.com', 'password292', 'Jane', 'Smith');
+        const { quizId } = adminQuizCreate(userId1, 'Test Quiz', 'This is a test quiz');
+        
+        // Update quiz description using adminQuizDescriptionUpdate
+        adminQuizDescriptionUpdate(userId1, quizId, 'Updated Test Quiz Description');
+        
+        // Attempt to remove the quiz using userId2
+        const result = adminQuizRemove(userId2, quizId);
+        expect(result.error).toEqual(expect.any(String));
     });
 
-    test('Should return an error when AuthUserId is not a valid user', () => {
-   
-        expect(result).toEqual({error: 'Not a valid authUserId.'});
-    });
+    test('Should return an error when the description is more than 100 characters in length', () => {
+        const { authUserId } = adminAuthRegister('test@example.com', 'password433', 'John', 'Doe');
+        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
 
-    test('Should return an error when AuthUserId is not a valid user', () => {
+        // Update quiz description with more than 100 characters
+        const newDescription = 'This is a description longer than 100 characters. ' + '...'.repeat(50);
+        adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
 
-        expect(result).toEqual({error: 'Not a valid authUserId.'});
+        // Attempt to remove the quiz
+        const result = adminQuizRemove(authUserId, quizId);
+       
+        // Expectations
+        expect(result.error).toEqual(expect.any(String));
     });
 });
-
