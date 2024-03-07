@@ -126,7 +126,7 @@ function isOwner(authUserId, quizId) {
         return false;
     }
     const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
-    if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+    if (getData().quizzes[quizIndex].quizOwner !== authUserId) {
         return false;
     }
     return true
