@@ -116,7 +116,7 @@ function adminQuizCreate(authUserId, name, description) {
 
   // Quiz name already in use
   for (const quizname of data.quizzes) {
-    if (quizname.name === name) {
+    if (quizname.name === name && quizname.quizOwner === authUserId) {
       return { error: 'Quiz name is already in use' };
     }
   }
