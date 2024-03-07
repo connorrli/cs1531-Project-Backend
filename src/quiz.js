@@ -26,7 +26,7 @@ import { isValidUser, isValidQuiz, authUserIdCheck } from './helpers/checkForErr
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
 function adminQuizList(authUserId) { //unsure on how to return quizId and quizName
-  if (!isValidQuiz(authUserId)) {
+  if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
 let data = getData();
@@ -93,7 +93,7 @@ function adminQuizCreate(authUserId, name, description) {
   let data = getData();
 
   // Invalid user Id
-  if (!authUserIdCheck(authUserId)) {
+  if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
 
@@ -126,6 +126,7 @@ function adminQuizCreate(authUserId, name, description) {
 
   const quiz = {
     quizId: 0,
+    quizOwner: authUserId,
     name,
     timeCreated: Date(),
     timeLastEdited: Date(),
