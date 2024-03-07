@@ -45,16 +45,6 @@ return { quizzes: ownedQuizzes };
 }
 
 /**
-  * Given basic details about a new quiz, create one for the logged in user.
-  * 
-  * @param {integer} authUserId - Stores user authentication and quiz details
-  * @param {string} name - Provides the name of the user who logged in for the quiz
-  * @param {string} description - Displays the quiz questions in textual form for the user
-  * 
-  * @returns {object} - Returns the quiz id number of the quiz
-*/
-
-/**
   * Given a particular quiz, permanently remove the quiz.
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
