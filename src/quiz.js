@@ -204,15 +204,16 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   if (name.length < 3 || name.length > 30) {
     return { error: 'Name must be between 3 and 30 characters long.' };
   }
-  const allQuizzes = getData().quizzes;
-  const userOtherQuizzes = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId !== quizId);
-  const quizWithSameName = userOtherQuizzes.find(q => q.name === name);
-  if (quizWithSameName) {
+  const data = getData();
+  const allQuizzes = data.quizzes;
+  const usersQuizzes = allQuizzes.filter(q => q.quizOwner === authUserId);
+  const quizWithName = usersQuizzes.find(q => q.name === name);
+  if (quizWithName !== undefined && quizWithName.quizId !== quizId) {
     return { error: 'Name is already used by the current logged in user for another quiz' };
   }
 
-  const currentQuiz = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId === quizId);
-  currentQuiz[0].name = name;
+  const currentQuiz = usersQuizzes.find(q => q.quizId === quizId);
+  currentQuiz.name = name;
   return {};
 }
 
