@@ -1,4 +1,4 @@
-import { adminQuizCreate, adminQuizDescriptionUpdate, adminQuizRemove } from '../../quiz.js';
+import { adminQuizCreate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizInfo } from '../../quiz.js';
 import { adminAuthRegister } from '../../auth.js';
 import { clear } from '../../other.js';
 
@@ -58,4 +58,20 @@ describe('adminQuizDescriptionUpdate function tests', () => {
         // Expectations
         expect(result.error).toEqual(expect.any(String));
     });
+
+    test('Should update the quiz description successfully', () => {
+        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
+
+        // Update quiz description
+        const newDescription = 'This is an updated test quiz description';
+        adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
+
+        // Retrieve quiz information
+        const quizInfo = adminQuizInfo(authUserId, quizId);
+
+        // Expectations
+        expect(quizInfo.error).toBeUndefined();
+    });
 });
+
