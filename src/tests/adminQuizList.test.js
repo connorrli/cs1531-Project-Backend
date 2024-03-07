@@ -13,7 +13,7 @@ describe('Testing quizList function:', () => {
     });
 
     // AuthUserId is not valid
-    test('AuthUserId is not a valid user', () => { //Other tests work but with this, it overrides them and give "AuthuserId is not valid"
+    test('AuthUserId is not a valid user', () => {
         list1 = adminQuizCreate(user1, 'name', 'description');
         const result = adminQuizList(user1 + 1);
         expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
