@@ -26,32 +26,20 @@ import { isValidUser, isValidQuiz, authUserIdCheck } from './helpers/checkForErr
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
 function adminQuizList(authUserId) { //unsure on how to return quizId and quizName
-  if (!authUserIdCheck(authUserId)) {
+  if (!isValidQuiz(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
+let data = getData();
 
-  /*const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId);
-  if (getData().quizzes[quizIndex].authUserId !== authUserId) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
-  }
-  return {
-        quizzes: [
-            {
-              quizId: getData().quizzes.findIndex(quiz => quiz.quizId === quizId),
-              name: getData().quizzes.findIndex(quiz => quiz.name === name),
-            }
-        ]
-    };*/
-    let data = getData();
+const ownedQuizzes = [];
 
-  const quizList = data.quizzes.filter(quiz => quiz.authUserId === authUserId).map(quiz => ({
-    id: quizList.id,
-    name: quizList.name, 
-  }));
-  if (!quizList) {
-    return { error: 'You do not have any quizzes' };
+for (const quiz in data['quizzes']) {
+  if (quiz['quizOwner'] === authUserId) {
+    ownedQuizzes.push(quiz);
   }
-  return { quizList };
+}
+
+return { quizzes: ownedQuizzes };
 }
 
 /**
