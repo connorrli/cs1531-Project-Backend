@@ -17,8 +17,8 @@ describe('adminQuizInfo function tests', () => {
         expect(quizInfo).toEqual({
             quizId: quiz.quizId,
             name: 'Test Quiz',
-            timeCreated: expect.any(Number), // THIS MIGHT NEED TO CHANGE
-            timeLastEdited: expect.any(Number), // THIS MIGHT NEED TO CHANGE
+            timeCreated: expect.any(String), 
+            timeLastEdited: expect.any(String), 
             description: 'This is a test quiz'
         });
     });
