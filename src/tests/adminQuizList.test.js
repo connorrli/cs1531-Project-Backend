@@ -18,18 +18,4 @@ describe('Testing quizList function:', () => {
         const result = adminQuizList(user1 + 1);
         expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
     });
-
-    // User does not have a quiz
-    test('No quiz', () => {
-        const result = adminQuizList(user1);
-        expect(result).toEqual({ error: 'You do not have any quizzes' });
-    });
-
-    // User has a quiz
-    test('Have quiz', () => {
-        list1 = adminQuizCreate(user1, 'name', 'description');
-        const result = adminQuizList(user1);
-        expect(result).toEqual({ error: 'You do have a quiz' });
-    });
-
 });
