@@ -5,7 +5,9 @@
 import { getData, setData } from './dataStore.js';
 import { invalidRegConditions } from './helpers/auth/registErrors.js';
 import { error } from './helpers/errors.js';
-import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors.js';
+
+import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors.js';
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -25,15 +27,21 @@ import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors.js';
   * 
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
-function adminQuizList(authUserId) {
-    return {
-        quizzes: [
-            {
-              quizId: 1,
-              name: 'My Quiz',
-            }
-        ]
-    };
+function adminQuizList(authUserId) { //unsure on how to return quizId and quizName
+  if (!isValidUser(authUserId)) {
+    return {error: 'AuthUserId is not a valid user'};
+  }
+let data = getData();
+
+const ownedQuizzes = [];
+
+for (const quiz in data['quizzes']) {
+  if (quiz['quizOwner'] === authUserId) {
+    ownedQuizzes.push(quiz);
+  }
+}
+
+return { quizzes: ownedQuizzes };
 }
 
 /**
@@ -75,7 +83,77 @@ function adminQuizRemove(authUserId, quizId) {
 
   return {};
 }
+/**
+  * Given basic details about a new quiz, create one for the logged in user.
+  * 
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {string} name - Provides the name of the user who logged in for the quiz
+  * @param {string} description - Displays the quiz questions in textual form for the user
+  * 
+  * @returns {object} - Returns the quiz id number of the quiz
+*/
+function adminQuizCreate(authUserId, name, description) {
+  let data = getData();
 
+  // Invalid user Id
+  if (!isValidUser(authUserId)) {
+    return {error: 'AuthUserId is not a valid user'};
+  }
+
+  // Invalid character in name
+  if (!name.match(/^[a-zA-Z0-9 ]+$/)) {
+    return { error: 'Name contains an invalid character' };
+  }
+
+  // Quiz name < 3 characters
+  if (name.length < 3) {
+    return { error: 'Quiz name is < 3 characters' };
+  }
+
+  // Quiz name > 30 characters
+  if (name.length > 30) {
+    return { error: 'Quiz name is > 30 characters' };
+  }
+
+  // Quiz description > 100 characters
+  if (description.length > 100) {
+    return { error: 'Quiz description is > 100 characters' };
+  }
+
+  // Quiz name already in use
+  for (const quizname of data.quizzes) {
+    if (quizname.name === name) {
+      return { error: 'Quiz name is already in use' };
+    }
+  }
+
+  const quiz = {
+    quizId: 0,
+    quizOwner: authUserId,
+    name,
+    timeCreated: Date(),
+    timeLastEdited: Date(),
+    description,
+  }
+
+  if (data.quizzes.length === 0) {
+    quiz.quizId = 1,
+    data.quizzes.push(quiz);
+  } else {
+    let ExtantQuizId = 0;
+    for (const element of data.quizzes) {
+      if (element.quizId > ExtantQuizId) {
+        ExtantQuizId = element.quizId;
+      }
+    }
+    quiz.quizId = ExtantQuizId + 1;
+    data.quizzes.push(quiz);
+  }
+  
+  return {
+      quizId: quiz.quizId,
+    };
+}
 
 /**
   * Given quizId, find and return information for that quiz
