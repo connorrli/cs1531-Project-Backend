@@ -3,9 +3,11 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 import { getData, setData } from './dataStore.js';
-import { invalidRegConditions } from './helpers/registErrors.js';
+import { invalidRegConditions } from './helpers/auth/registErrors.js';
 import { error } from './helpers/errors.js';
-import { isValidUser, isValidQuiz, authUserIdCheck } from './helpers/checkForErrors.js';
+
+import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors.js';
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -43,16 +45,18 @@ return { quizzes: ownedQuizzes };
 }
 
 /**
-  * Update the description of the relevant quiz.
+  * Given basic details about a new quiz, create one for the logged in user.
   * 
   * @param {integer} authUserId - Stores user authentication and quiz details
-  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} name - Provides the name of the user who logged in for the quiz
   * @param {string} description - Displays the quiz questions in textual form for the user
   * 
-  * @returns {empty object} - Returns an empty object to the user
+  * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-    return {};
+function adminQuizCreate(authUserId, name, description) {
+  return {
+    quizId: 2
+  }
 }
 
 /**
@@ -65,21 +69,20 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 */
 function adminQuizRemove(authUserId, quizId) {
   if (!isValidUser(authUserId)) {
-    return {error: 'Not a valid authUserId'};
+    return {error: 'Not a valid authUserId.'};
   }
   if (!isValidQuiz(quizId)) {
-    return {error: 'Not a valid quizId'};
+    return {error: 'Not a valid quizId.'};
   }
-  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
-  if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+  if (!isOwner(authUserId, quizId)) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
   }
 
+  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
   getData().quizzes.splice(quizIndex, 1);
 
   return {};
 }
-
 /**
   * Given basic details about a new quiz, create one for the logged in user.
   * 
@@ -161,13 +164,25 @@ function adminQuizCreate(authUserId, name, description) {
   * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
 function adminQuizInfo(authUserId, quizId) {
-    return {
-        quizId: 1,
-        name: 'My Quiz',
-        timeCreated: 1683125870,
-        timeLastEdited: 1683125871,
-        description: 'This is my quiz',
-    };
+  if (!isValidUser(authUserId)) {
+    return {error: 'Not a valid authUserId.'};
+  }
+  if (!isValidQuiz(quizId)) {
+    return {error: 'Not a valid quizId.'};
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const quiz = getData().quizzes.find(quiz => quiz.quizId === quizId);
+
+  return {
+    quizId: quiz.quizId,
+    name: quiz.name,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
+    description: quiz.description
+  };
 }
 
 /**
@@ -180,7 +195,44 @@ function adminQuizInfo(authUserId, quizId) {
   * @returns {object} - Returns object containing nothing
 */
 function adminQuizNameUpdate(authUserId, quizId, name) {
-    return {};
+  if (!isValidUser(authUserId)) {
+    return {error: 'Not a valid authUserId.'};
+  }
+  if (!isValidQuiz(quizId)) {
+    return {error: 'Not a valid quizId.'};
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+  if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+    return { error: 'Name contains invalid characters. Valid characters are alphanumeric and spaces.' };
+  }
+  if (name.length < 3 || name.length > 30) {
+    return { error: 'Name must be between 3 and 30 characters long.' };
+  }
+  const allQuizzes = getData().quizzes;
+  const userOtherQuizzes = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId !== quizId);
+  const quizWithSameName = userOtherQuizzes.find(q => q.name === name);
+  if (quizWithSameName) {
+    return { error: 'Name is already used by the current logged in user for another quiz' };
+  }
+
+  const currentQuiz = allQuizzes.filter(q => q.authUserId === authUserId && q.quizId === quizId);
+  currentQuiz[0].name = name;
+  return {};
+}
+
+/**
+  * Update the description of the relevant quiz.
+  * 
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} description - Displays the quiz questions in textual form for the user
+  * 
+  * @returns {empty object} - Returns an empty object to the user
+*/
+function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -191,5 +243,7 @@ export {
   adminQuizList,
   adminQuizCreate,
   adminQuizRemove,
-  adminQuizInfo
+  adminQuizInfo,
+  adminQuizNameUpdate,
+  adminQuizDescriptionUpdate
 };

@@ -3,13 +3,13 @@ import {
     nameLastValidCheck,
     passwordValidCheck,
     emailValidCheck,
-} from './checkForErrors.js';
+} from '../checkForErrors.js';
 import {
     error
-} from './errors.js';
+} from '../errors.js';
 import {
     getData
-} from '../dataStore.js';
+} from '../../dataStore.js';
 
 const NO_ERROR = 0;
 

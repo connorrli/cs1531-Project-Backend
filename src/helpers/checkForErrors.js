@@ -34,7 +34,7 @@ for (const key of Object.keys(errors)) {
 function authUserIdCheck(authUserId) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
-    if (theUser === undefined) return error.throwError(errors['invalidUser']);
+    if (typeof theUser === 'undefined') return error.throwError(errors['invalidUser']);
     return NO_ERROR;
 }
 
@@ -108,12 +108,30 @@ function isValidQuiz(quizId) {
 
 // Returns true if authUserId exists and false if authUserId does not exist
 function isValidUser(authUserId) {
-    if (getData().users.length === 0) {
+    const data = getData();
+    if (data.users.length === 0) {
       return false;
     }
-    const user = getData().users.find(u => u.authUserId === authUserId);
+    const user = data.users.find(u => u.userId === authUserId);
     return !!user;
-  }
+}
+
+// Returns true if authUserId owns quizId; returns false if authUserId is not 
+// the owner of quizId
+function isOwner(authUserId, quizId) {
+    if (getData().users.length === 0) {
+        return false;
+    }
+    if (getData().quizzes.length === 0) {
+        return false;
+    }
+    const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (getData().quizzes[quizIndex].authUserId !== authUserId) {
+        return false;
+    }
+    return true
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
@@ -127,4 +145,5 @@ export {
     emailValidCheck,
     isValidQuiz,
     isValidUser,
+    isOwner,
 };
