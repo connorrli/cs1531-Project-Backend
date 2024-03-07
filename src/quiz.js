@@ -53,11 +53,6 @@ return { quizzes: ownedQuizzes };
   * 
   * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizCreate(authUserId, name, description) {
-  return {
-    quizId: 2
-  }
-}
 
 /**
   * Given a particular quiz, permanently remove the quiz.
