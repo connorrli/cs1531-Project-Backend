@@ -53,11 +53,6 @@ return { quizzes: ownedQuizzes };
   * 
   * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizCreate(authUserId, name, description) {
-  return {
-    quizId: 2
-  }
-}
 
 /**
   * Given a particular quiz, permanently remove the quiz.
@@ -232,6 +227,28 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   * @returns {empty object} - Returns an empty object to the user
 */
 function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  const data = getData();
+  const user = data.users.find(u => u.userId === authUserId);
+  const quiz = data.quizzes.find(q => q.quizId === quizId);
+
+  if (user === undefined) {
+    return {error: "not a valid user"};
+  }
+
+  if (quiz === undefined) {
+    return {error: "not a valid quiz"};
+  }
+
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  if (description.length > 100) {
+      return { error: "Description length is too long" };
+  }
+
+  quiz.description = description;
+
   return {};
 }
 
