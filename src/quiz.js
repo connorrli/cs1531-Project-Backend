@@ -31,17 +31,16 @@ function adminQuizList(authUserId) { //unsure on how to return quizId and quizNa
   if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
-let data = getData();
+  let data = getData();
+  const ownedQuizzes = [];
 
-const ownedQuizzes = [];
-
-for (const quiz in data['quizzes']) {
-  if (quiz['quizOwner'] === authUserId) {
-    ownedQuizzes.push(quiz);
+  for (const quiz of data.quizzes) {
+    if (quiz.quizOwner === authUserId) {
+      ownedQuizzes.push(quiz);
+    }
   }
-}
+  return { quizzes: ownedQuizzes };
 
-return { quizzes: ownedQuizzes };
 }
 
 /**
