@@ -34,7 +34,8 @@ function adminQuizList(authUserId) { //unsure on how to return quizId and quizNa
 
   for (const quiz of data.quizzes) {
     if (quiz.quizOwner === authUserId) {
-      ownedQuizzes.push({ quizId: quiz.quizId, name: quiz.name });
+      let obj = { quizId: quiz.quizId, name: quiz.name };
+      ownedQuizzes.push(obj);
     }
   }
   return { quizzes: ownedQuizzes };
