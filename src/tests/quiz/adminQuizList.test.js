@@ -17,16 +17,5 @@ describe('Testing quizList function:', () => {
         list1 = adminQuizCreate(user1, 'name', 'description');
         const result = adminQuizList(user1 + 1);
         expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
-    });
-    test('Check if there is a quiz list for invalid user', () => {
-        const test1 = adminQuizList(user1.authUserId + 1);
-        expect(test1).toStrictEqual({ error: 'AuthUserId is not a valid user'});
-
-    });
-
-    test('AuthUserId is not a valid user', () => {
-        const { authUserId } = adminAuthRegister('test@egmail.com', 'password', 'Walt', 'Smith');
-        const result = adminQuizList(authUserId + 1);
-        expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
-    });
+    })
 });
