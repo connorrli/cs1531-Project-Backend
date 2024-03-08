@@ -13,24 +13,16 @@ import validator from 'validator';
 const NO_ERROR = 0;
 
 // For easy referencing of errors (don't have to check errors.js)
-const errors = error['listOfErrors'];
-for (const key of Object.keys(errors)) {
-    errors[key] = `${key}`;
-}
+// To be commented out for actual submission, to reduce unneccessary computation
+// const errors = error['listOfErrors'];
+// for (const key of Object.keys(errors)) {
+//     errors[key] = `${key}`;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-/*
- * Switch statement that applies each unique error conditions to various error types.
- *
- * @param subject - the data to be checked for errors
- * @param errorType - the type of error (i.e. conditions) to be checked
- * 
- * @returns - 0 if no errors. If there is an error, will return an object with
- *              a relevant error msg.
-*/
 function authUserIdCheck(authUserId) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
