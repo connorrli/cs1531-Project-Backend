@@ -3,11 +3,9 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 import { getData, setData } from './dataStore.js';
+import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors.js';
 import { invalidRegConditions } from './helpers/auth/registErrors.js';
 import { error } from './helpers/errors.js';
-
-import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors.js';
-
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -36,11 +34,10 @@ function adminQuizList(authUserId) { //unsure on how to return quizId and quizNa
 
   for (const quiz of data.quizzes) {
     if (quiz.quizOwner === authUserId) {
-      ownedQuizzes.push(quiz);
+      ownedQuizzes.push({ quizId: quiz.quizId, name: quiz.name });
     }
   }
   return { quizzes: ownedQuizzes };
-
 }
 
 /**
@@ -234,7 +231,7 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   }
 
   if (description.length > 100) {
-      return { error: "Description length is too long" };
+    return { error: "Description length is too long" };
   }
 
   quiz.description = description;
