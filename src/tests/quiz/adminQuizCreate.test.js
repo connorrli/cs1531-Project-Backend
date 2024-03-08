@@ -12,7 +12,14 @@ describe('Testing QuizCreate function:', () => {
         clear();
         user1 = adminAuthRegister('test@gmail.com', 'Password123', 'John', 'Doe').authUserId;
     });
-
+    test('successful output upon successful input', () => {
+        quiz1 = adminQuizCreate(user1, "Scrimbo", "bloink");
+        expect(quiz1).toStrictEqual({ quizId: expect.any(Number) });
+        quiz2 = adminQuizCreate(user1, "scrimbo TWO", "buebr");
+        expect(quiz2).toStrictEqual({ quizId: expect.any(Number) });
+        expect(quiz1.quizId).not.toEqual(quiz2.quizId);
+    });
+    // Auth
     // AuthUserId is not valid
     test('AuthUserId is not a valid user', () => {
         quiz1 = adminQuizCreate(user1 + 1, 'name', 'description');
