@@ -18,4 +18,12 @@ describe('Testing quizList function:', () => {
         const result = adminQuizList(user1 + 1);
         expect(result).toEqual({ error: 'AuthUserId is not a valid user' });
     })
+
+    // Checking if function produces correct output
+    test('Correctly print quiz list', () => {
+        list1 = adminQuizCreate(user1, 'nameOfQuiz', 'description');
+        const result = adminQuizList(user1);
+        expect(result).toEqual({ quizzes : [{ quizId: list1.quizId, name: 'nameOfQuiz' }]});
+        console.log(result);
+    })
 });
