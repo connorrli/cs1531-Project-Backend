@@ -1,6 +1,7 @@
 import { adminQuizCreate, adminQuizDescriptionUpdate, adminQuizInfo } from '../../quiz.js';
 import { adminAuthRegister } from '../../auth.js';
 import { clear } from '../../other.js';
+const ERROR = { error: expect.any(String) };
 
 describe('adminQuizDescriptionUpdate function tests', () => {
     beforeEach(() => {
@@ -49,5 +50,12 @@ describe('adminQuizDescriptionUpdate function tests', () => {
 
         expect(quizInfo.error).toBeUndefined();
         expect(quizInfo.description).toBe(newDescription);
+    });
+
+    test('Should return an error when authUserId is invalid', () => {
+        const { authUserId } = adminAuthRegister('test@example.com', 'password976', 'Peter', 'Kim');
+        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
+        const result = adminQuizDescriptionUpdate(authUserId + 1, quizId, "");
+        expect(result).toEqual(ERROR);
     });
 });
