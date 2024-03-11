@@ -946,7 +946,7 @@ In this iteration, you are expected to:
 
 4. Ensure your code is linted to the provided style guide.
 
-    * `eslint` should be added to your repo via `npm` and then added to your `package.json` file to run when the command `npm run lint` is run. The provided `.eslintrc.json` file is *very* lenient, so there is no reason you should have to disable any additional checks. See section 4.5 below for instructions on adding linting to your pipeline.
+    * `eslint` should be added to your repo via `npm` and then added to your `package.json` file to run when the command `npm run lint` is run. The provided `.eslintrc.json` file is *very* lenient, so there is no reason you should have to disable any additional checks. See section 4.6 below for instructions on adding linting to your pipeline.
 
     * You are required to edit the `gitlab-ci.yml` file, as per section 4.5 to add linting to the code on `master`. **You must do this BEFORE merging anything from iteration 2 into `master`**, so that you ensure `master` is always stable.
 
@@ -1027,7 +1027,7 @@ You will need to check as appropriate for each success/error condition:
 * The behaviour (side effects) of the endpoint; and
 * The status code of the response.
 
-An example of how you would now test the echo interface is in `echo.test.ts`.
+An example of how you would now test the echo interface is in `newecho.test.ts`.
 
 ### 🐝 4.5. Testing time-based properties
 
