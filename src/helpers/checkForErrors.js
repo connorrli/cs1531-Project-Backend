@@ -12,12 +12,10 @@ import validator from 'validator';
 
 const NO_ERROR = 0;
 
-// For easy referencing of errors (don't have to check errors.js)
-// To be commented out for actual submission, to reduce unneccessary computation
-// const errors = error['listOfErrors'];
-// for (const key of Object.keys(errors)) {
-//     errors[key] = `${key}`;
-// }
+const errors = error['listOfErrors'];
+for (const key of Object.keys(errors)) {
+    errors[key] = `${key}`;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
