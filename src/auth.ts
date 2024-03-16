@@ -10,9 +10,8 @@ import { error } from './helpers/errors';
 import { authUserIdCheck }  from './helpers/checkForErrors';
 
 import { 
-  DataStore,
   ErrorObject,
-  User
+  User,
 } from './interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +52,7 @@ interface AdminUserDetailsReturn { user: UserDetails; }
   * @returns {empty object} - Returns an empty object to the user
 */
 function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
-  const data : DataStore = getData();
+  const data = getData();
   const userData : User | undefined = data['users'].find(user => user.userId === authUserId);
 
   const error : ErrorObject | number = checkUserPasswordUpdate(userData, oldPassword, newPassword);
@@ -83,7 +82,7 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
   const error : ErrorObject | number = invalidRegConditions(email, password, nameFirst, nameLast);
   if (error !== NO_ERROR) return error as ErrorObject;
 
-  const data : DataStore = getData();
+  const data = getData();
   const newUser : User = {
     userId: -1,
     email: email,
@@ -121,7 +120,7 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
 */
 function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn | ErrorObject {
   email = email.toLowerCase();
-  const data : DataStore = getData();
+  const data = getData();
   const logger : User | undefined = (data.users).find(user => user.email === email);
   if (logger === undefined) return error.throwError('noEmail');
   if (password !== logger.password) {
@@ -146,7 +145,7 @@ function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorOb
     return error.throwError('invalidUser');
   }  
 
-  const data : DataStore = getData();
+  const data = getData();
   const userData = data.users.find(u => u.userId === authUserId);
   
   const user : UserDetails = {
@@ -177,7 +176,7 @@ function adminUserDetailsUpdate (authUserId: number, email: string, nameFirst: s
     if (error !== NO_ERROR) return error;
 
     // Get and set new details
-    const data : DataStore = getData();
+    const data = getData();
     const userData : User | undefined = data.users.find(user => user.userId === authUserId);
     userData!.email = email;
     userData!.nameFirst = nameFirst;
