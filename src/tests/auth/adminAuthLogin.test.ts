@@ -1,10 +1,10 @@
 import {
     adminAuthRegister,
     adminAuthLogin,
-} from '../../auth.js';
+} from '../../auth';
 import {
     clear,
-} from '../../other.js';
+} from '../../other';
 
 const ERROR = { error: expect.any(String) };
 
