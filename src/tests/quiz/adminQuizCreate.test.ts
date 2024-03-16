@@ -1,6 +1,6 @@
-import { adminQuizCreate } from '../../quiz.js';
-import { adminAuthRegister } from '../../auth.js';
-import { clear } from '../../other.js';
+import { adminQuizCreate } from '../../quiz';
+import { adminAuthRegister } from '../../auth';
+import { clear } from '../../other';
 
 describe('Testing QuizCreate function:', () => {
     

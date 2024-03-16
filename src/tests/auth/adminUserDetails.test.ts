@@ -2,10 +2,10 @@ import {
     adminAuthRegister,
     adminAuthLogin,
     adminUserDetails
-} from '../../auth.js';
+} from '../../auth';
 import {
     clear
-} from '../../other.js';
+} from '../../other';
 
 beforeEach(() => {
     clear();
