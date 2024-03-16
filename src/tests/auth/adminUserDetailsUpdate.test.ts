@@ -2,8 +2,8 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { adminUserDetailsUpdate, adminAuthRegister } from '../../auth.js';
-import { clear } from '../../other.js';
+import { adminUserDetailsUpdate, adminAuthRegister } from '../../auth';
+import { clear } from '../../other';
 
 const ERROR = { error: expect.any(String) };
 
@@ -14,13 +14,15 @@ const ERROR = { error: expect.any(String) };
 describe('Testing adminUserDetailsUpdate function:', () => {
     let user1;
     let user2;
-    let user3;
+    let user1_id : number;
+    let user3_id : number;
 
     beforeEach(() => {
         clear();
-        user1 = adminAuthRegister('z000000@ad.unsw.edu.au','Password123','John','Doe').authUserId;
-        user2 = adminAuthRegister('z000001@ad.unsw.edu.au','Password321','Sally','Seashells').authUserId;
-        user3 = 3;
+        user1 = adminAuthRegister('z000000@ad.unsw.edu.au','Password123','John','Doe');
+        user2 = adminAuthRegister('z000001@ad.unsw.edu.au','Password123','Sally','Seashells');
+        if ('authUserId' in user1) user1_id = user1.authUserId;
+        user3_id = -1;
     });
 
     test.each([
@@ -37,9 +39,9 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         ['Last Name Invalid (too short, < 2)', 'z000000@ad.unsw.edu.au', 'John', 'a', ERROR],
         ['Last Name Invalid (too long, > 20)', 'z000000@ad.unsw.edu.au', 'John', 'aaaaaaaaaaaaaaaaaaaaa', ERROR],
     ])('Testing %s', (testTitle, email, nameFirst, nameLast, expectedReturn) => {
-        expect(adminUserDetailsUpdate(user1, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
+        expect(adminUserDetailsUpdate(user1_id, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
     });
     test('Testing Invalid UserId', () => {
-        expect(adminUserDetailsUpdate(user3, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
+        expect(adminUserDetailsUpdate(user3_id, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
     })
 });
