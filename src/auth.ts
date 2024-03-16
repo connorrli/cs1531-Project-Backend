@@ -53,9 +53,9 @@ interface AdminUserDetailsReturn { user: UserDetails; }
 */
 function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
   const data = getData();
-  const userData : User | undefined = data['users'].find(user => user.userId === authUserId);
+  const userData = data['users'].find(user => user.userId === authUserId);
 
-  const error : ErrorObject | number = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
   if (error !== NO_ERROR) return error;
 
   userData!.password = newPassword;
@@ -79,8 +79,8 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
 
   email = email.toLowerCase();
 
-  const error : ErrorObject | number = invalidRegConditions(email, password, nameFirst, nameLast);
-  if (error !== NO_ERROR) return error as ErrorObject;
+  const error = invalidRegConditions(email, password, nameFirst, nameLast);
+  if (error !== NO_ERROR) return error;
 
   const data = getData();
   const newUser : User = {
@@ -121,7 +121,7 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
 function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn | ErrorObject {
   email = email.toLowerCase();
   const data = getData();
-  const logger : User | undefined = (data.users).find(user => user.email === email);
+  const logger = (data.users).find(user => user.email === email);
   if (logger === undefined) return error.throwError('noEmail');
   if (password !== logger.password) {
     logger.numFailedPasswordsSinceLastLogin++;
@@ -172,12 +172,12 @@ function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorOb
 function adminUserDetailsUpdate (authUserId: number, email: string, nameFirst: string, nameLast: string): AdminUserDetailsUpdateReturn | ErrorObject {
 
     // Error check
-    const error : ErrorObject | number = checkDetailsUpdate(authUserId, email, nameFirst, nameLast);
+    const error = checkDetailsUpdate(authUserId, email, nameFirst, nameLast);
     if (error !== NO_ERROR) return error;
 
     // Get and set new details
     const data = getData();
-    const userData : User | undefined = data.users.find(user => user.userId === authUserId);
+    const userData = data.users.find(user => user.userId === authUserId);
     userData!.email = email;
     userData!.nameFirst = nameFirst;
     userData!.nameLast = nameLast;

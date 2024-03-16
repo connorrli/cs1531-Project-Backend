@@ -5,7 +5,6 @@
 import { error } from './errors';
 import { getData } from '../dataStore';
 import validator from 'validator';
-import { DataStore } from '../interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -18,7 +17,7 @@ const NO_ERROR = 0;
 ///////////////////////////////////////////////////////////////////////////////////
 
 function authUserIdCheck(authUserId: number) {
-    const data : DataStore = getData();
+    const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
     if (typeof theUser === 'undefined') return error.throwError('invalidUser');
     return NO_ERROR;
@@ -85,7 +84,7 @@ function emailValidCheck(email: string) {
 
 // Returns true if quizId exists and false if quizId does not exist
 function isValidQuiz(quizId: number) {
-    const data : DataStore = getData();
+    const data = getData();
     if (data.quizzes.length === 0) {
       return false;
     }
@@ -95,7 +94,7 @@ function isValidQuiz(quizId: number) {
 
 // Returns true if authUserId exists and false if authUserId does not exist
 function isValidUser(authUserId: number) {
-    const data : DataStore = getData();
+    const data = getData();
     if (data.users.length === 0) {
       return false;
     }
@@ -106,7 +105,7 @@ function isValidUser(authUserId: number) {
 // Returns true if authUserId owns quizId; returns false if authUserId is not 
 // the owner of quizId
 function isOwner(authUserId: number, quizId: number) {
-    const data : DataStore = getData();
+    const data = getData();
     if (data.users.length === 0) {
         return false;
     }
