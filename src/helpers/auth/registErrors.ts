@@ -3,13 +3,14 @@ import {
     nameLastValidCheck,
     passwordValidCheck,
     emailValidCheck,
-} from '../checkForErrors.js';
+} from '../checkForErrors';
 import {
     error
-} from '../errors.js';
+} from '../errors';
 import {
     getData
-} from '../../dataStore.js';
+} from '../../dataStore';
+import { DataStore, ErrorObject } from '../../interface';
 
 const NO_ERROR = 0;
 
@@ -20,7 +21,7 @@ const NO_ERROR = 0;
  * 
  * @returns 0 for no errors, or an object with a relevant error msg if there is an error.
 */
-function invalidRegConditions(email, password, nameFirst, nameLast) {
+function invalidRegConditions(email: string, password: string, nameFirst: string, nameLast: string) {
     if (nameFirstValidCheck(nameFirst) !== NO_ERROR) {
         return nameFirstValidCheck(nameFirst);
     }
@@ -34,7 +35,7 @@ function invalidRegConditions(email, password, nameFirst, nameLast) {
         return passwordValidCheck(password);
     }
 
-    const data = getData();
+    const data : DataStore = getData();
     for (const extantUser of data.users) {
         if (extantUser.email === email) {
             return error.throwError('duplicateEmail');
