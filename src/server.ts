@@ -9,7 +9,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
-import { adminAuthRegister } from './auth';
 
 // Set up web app
 const app = express();
