@@ -21,7 +21,7 @@ export function generateSession(userId: number): generateSessionReturn {
   });
   setData(data);
 
-  return { token: token };
+  return { token: encodeURIComponent(token) };
 }
 
 /**
@@ -34,3 +34,4 @@ function halfToken(): string {
 
   return halfOfToken;
 }
+
