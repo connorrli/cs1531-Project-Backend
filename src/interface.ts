@@ -23,9 +23,11 @@ interface Quiz {
   description: string;
 }
 
+// Interface describing a session object
 interface Session {
   token: string;
   userId: number;
+  timeCreated: number;
 }
 
 // Interface describing the dataStore object

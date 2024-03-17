@@ -16,7 +16,8 @@ export function generateSession(userId: number): generateSessionReturn {
 
   data.sessions.push({
     token: token,
-    userId: userId
+    userId: userId,
+    timeCreated: Math.floor(Date.now() / 1000),
   });
   setData(data);
 
