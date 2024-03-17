@@ -143,8 +143,8 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
     quizId: 0,
     quizOwner: authUserId,
     name,
-    timeCreated: Date(),
-    timeLastEdited: Date(),
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
     description,
   }
 
