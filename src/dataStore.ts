@@ -4,6 +4,7 @@ import { DataStore } from "./interface";
 let data : DataStore = {
   users: [],
   quizzes: [],
+  sessions: [],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
