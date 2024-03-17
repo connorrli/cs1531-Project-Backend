@@ -22,6 +22,7 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         user1 = adminAuthRegister('z000000@ad.unsw.edu.au','Password123','John','Doe');
         user2 = adminAuthRegister('z000001@ad.unsw.edu.au','Password123','Sally','Seashells');
         if ('authUserId' in user1) user1_id = user1.authUserId;
+        else user1_id = -2; // Just in case
         user3_id = -1;
     });
 
