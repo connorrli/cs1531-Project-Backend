@@ -2,8 +2,9 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
+import { ErrorObject, User } from "../../interface";
 import { passwordValidCheck } from "../checkForErrors";
-import { error as errors } from '../errors.js';
+import { error as errors } from '../errors';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -22,13 +23,13 @@ const NO_ERROR = 0;
   * @param {string} oldPassword - The user's current password
   * @param {string} newPassword - The user's new password
   * 
-  * @returns {object || number} - Returns either an error object or NO_ERROR (0)
+  * @returns {object | number} - Returns either an error object or NO_ERROR (0)
 */
-function checkUserPasswordUpdate(userData, oldPassword, newPassword) {
-  let error = NO_ERROR;
+function checkUserPasswordUpdate(userData: User | undefined, oldPassword: string, newPassword: string) {
+  let error : ErrorObject | number = NO_ERROR;
 
   if (typeof userData === 'undefined') {
-    return errors.throwError('invalidUser');;
+    return errors.throwError('invalidUser');
   } else if (oldPassword !== userData['password']) { 
     return { error: 'Old password is incorrect' };
   } else if (oldPassword === newPassword) {

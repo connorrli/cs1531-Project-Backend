@@ -2,11 +2,13 @@
   * Resets the state of the application back to the start. This function does not take in any parameters or return anything.
 */
 
-import { getData, setData } from './dataStore.js';
+interface ClearReturn { }
 
-function clear() {
+import { getData, setData } from './dataStore';
+
+function clear(): ClearReturn {
   setData({ users: [], quizzes: [] });
   return {};
 }
 
-export {clear};
+export { clear };

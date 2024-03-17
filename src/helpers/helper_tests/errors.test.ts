@@ -1,4 +1,4 @@
-import { error } from '../errors.js'
+import { error } from '../errors'
 
 // Testing for errors in errors.js. This has relatively simple code so hopefully we don't get errors thrown here.
 describe("Error tests", () => {

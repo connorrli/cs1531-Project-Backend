@@ -3,19 +3,21 @@ import {
   adminAuthRegister, 
   adminAuthLogin,
   adminUserDetails, 
-} from "../../auth.js";
-import { clear } from '../../other.js';
+} from "../../auth";
+import { clear } from '../../other';
 
 const ERROR = { error: expect.any(String) };
 
 describe('Testing adminUserPasswordUpdate function:', () => {
-  let user1, user2;
+  let user1;
+  let user1_id : number;
+  let user2_id : number;
   const password = 'Password123';
   beforeEach(() => {
     clear();
-    user1 = adminAuthRegister('z000000@ad.unsw.edu.au', password,'John','Doe').authUserId;
-    user2 = undefined;
-    adminUserPasswordUpdate(user1, password, '')
+    user1 = adminAuthRegister('z000000@ad.unsw.edu.au', password,'John','Doe');
+    if ('authUserId' in user1) user1_id = user1.authUserId;
+    user2_id = -1;
   });
   test.each([
     ['Valid Password Change', password, 'Password321', {}, 2],
@@ -25,20 +27,22 @@ describe('Testing adminUserPasswordUpdate function:', () => {
     ['New Password No Numbers', password, 'Password', ERROR, 1],
     ['New Password No Letters', password, '12345678', ERROR, 1],
   ])('Testing %s:', (testName, oldPassword, newPassword, expectedReturn1, expectedReturn2) => {
-    expect(adminUserPasswordUpdate(user1, oldPassword, newPassword)).toStrictEqual(expectedReturn1);
+    expect(adminUserPasswordUpdate(user1_id, oldPassword, newPassword)).toStrictEqual(expectedReturn1);
     // Check that new password either worked or didn't work depending on if it changed or not
     adminAuthLogin('z000000@ad.unsw.edu.au', newPassword);
-    expect(adminUserDetails(user1).user.numSuccessfulLogins).toStrictEqual(expectedReturn2);
+    const userDetails = adminUserDetails(user1_id);
+    if ('user' in userDetails) expect(userDetails.user.numSuccessfulLogins).toStrictEqual(expectedReturn2);
   });
   test('User Doesn\'t Exist', () => {
     const newPassword = 'password321';
-    expect(adminUserPasswordUpdate(user2, password, newPassword)).toStrictEqual(ERROR);
+    expect(adminUserPasswordUpdate(user2_id, password, newPassword)).toStrictEqual(ERROR);
   });
   test('New Password is a Previous Password', () => {
     const newPassword = 'password321';
-    adminUserPasswordUpdate(user1, password, newPassword);
-    expect(adminUserPasswordUpdate(user1, 'Password321', password)).toStrictEqual(ERROR);
+    adminUserPasswordUpdate(user1_id, password, newPassword);
+    expect(adminUserPasswordUpdate(user1_id, 'Password321', password)).toStrictEqual(ERROR);
     adminAuthLogin('z000000@ad.unsw.edu.au', password);
-    expect(adminUserDetails(user1).user.numSuccessfulLogins).toStrictEqual(1);
+    const userDetails = adminUserDetails(user1_id);
+    if ('user' in userDetails) expect(userDetails.user.numSuccessfulLogins).toStrictEqual(1);
   });
 });

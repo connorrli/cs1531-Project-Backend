@@ -2,16 +2,46 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { getData, setData } from './dataStore.js';
-import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors.js';
-import { invalidRegConditions } from './helpers/auth/registErrors.js';
-import { error } from './helpers/errors.js';
+import { getData, setData } from './dataStore';
+import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/checkForErrors';
+import { invalidRegConditions } from './helpers/auth/registErrors';
+import { error } from './helpers/errors';
+import { ErrorObject, Quiz } from './interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-// INSERT CONSTANTS HERE
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// LOCAL INTERFACES /////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+interface OwnedQuizObject {
+  quizId: number;
+  name: string;
+}
+
+interface AdminQuizListReturn {
+  quizzes: OwnedQuizObject[];
+}
+
+interface AdminQuizRemoveReturn { }
+
+interface AdminQuizCreateReturn {
+  quizId: number;
+}
+
+interface AdminQuizInfoReturn {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+}
+
+interface AdminQuizNameUpdateReturn { }
+
+interface AdminQuizDescriptionUpdateReturn { }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -25,16 +55,16 @@ import { error } from './helpers/errors.js';
   * 
   * @returns {object} - Returns the quiz id number and name of the quiz
 */
-function adminQuizList(authUserId) { //unsure on how to return quizId and quizName
+function adminQuizList(authUserId: number): AdminQuizListReturn | ErrorObject {
   if (!isValidUser(authUserId)) {
     return {error: 'AuthUserId is not a valid user'};
   }
   let data = getData();
-  const ownedQuizzes = [];
+  const ownedQuizzes : OwnedQuizObject[] = [];
 
   for (const quiz of data.quizzes) {
     if (quiz.quizOwner === authUserId) {
-      let obj = { quizId: quiz.quizId, name: quiz.name };
+      let obj : OwnedQuizObject = { quizId: quiz.quizId, name: quiz.name };
       ownedQuizzes.push(obj);
     }
   }
@@ -49,7 +79,7 @@ function adminQuizList(authUserId) { //unsure on how to return quizId and quizNa
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminQuizRemove(authUserId, quizId) {
+function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveReturn | ErrorObject {
   if (!isValidUser(authUserId)) {
     return {error: 'Not a valid authUserId.'};
   }
@@ -74,7 +104,7 @@ function adminQuizRemove(authUserId, quizId) {
   * 
   * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizCreate(authUserId, name, description) {
+function adminQuizCreate(authUserId: number, name: string, description: string): AdminQuizCreateReturn | ErrorObject {
   let data = getData();
 
   // Invalid user Id
@@ -109,12 +139,12 @@ function adminQuizCreate(authUserId, name, description) {
     }
   }
 
-  const quiz = {
+  const quiz : Quiz = {
     quizId: 0,
     quizOwner: authUserId,
     name,
-    timeCreated: Date(),
-    timeLastEdited: Date(),
+    timeCreated: Math.floor(Date.now() / 1000),
+    timeLastEdited: Math.floor(Date.now() / 1000),
     description,
   }
 
@@ -132,9 +162,7 @@ function adminQuizCreate(authUserId, name, description) {
     data.quizzes.push(quiz);
   }
   
-  return {
-      quizId: quiz.quizId,
-    };
+  return { quizId: quiz.quizId };
 }
 
 /**
@@ -145,7 +173,7 @@ function adminQuizCreate(authUserId, name, description) {
   * 
   * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
 */
-function adminQuizInfo(authUserId, quizId) {
+function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn | ErrorObject {
   if (!isValidUser(authUserId)) {
     return {error: 'Not a valid authUserId.'};
   }
@@ -156,14 +184,14 @@ function adminQuizInfo(authUserId, quizId) {
     return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
   }
 
-  const quiz = getData().quizzes.find(quiz => quiz.quizId === quizId);
+  const quiz : Quiz | undefined = getData().quizzes.find(quiz => quiz.quizId === quizId);
 
   return {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description
+    quizId: quiz!.quizId,
+    name: quiz!.name,
+    timeCreated: quiz!.timeCreated,
+    timeLastEdited: quiz!.timeLastEdited,
+    description: quiz!.description
   };
 }
 
@@ -176,7 +204,7 @@ function adminQuizInfo(authUserId, quizId) {
   * 
   * @returns {object} - Returns object containing nothing
 */
-function adminQuizNameUpdate(authUserId, quizId, name) {
+function adminQuizNameUpdate(authUserId: number, quizId: number, name: string): AdminQuizNameUpdateReturn | ErrorObject {
   if (!isValidUser(authUserId)) {
     return {error: 'Not a valid authUserId.'};
   }
@@ -201,7 +229,7 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   }
 
   const currentQuiz = usersQuizzes.find(q => q.quizId === quizId);
-  currentQuiz.name = name;
+  currentQuiz!.name = name;
   return {};
 }
 
@@ -214,7 +242,7 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+function adminQuizDescriptionUpdate(authUserId: number, quizId: number, description: string): AdminQuizDescriptionUpdateReturn | ErrorObject {
   const data = getData();
   const user = data.users.find(u => u.userId === authUserId);
   const quiz = data.quizzes.find(q => q.quizId === quizId);

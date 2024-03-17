@@ -2,18 +2,41 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { checkDetailsUpdate } from './helpers/auth/userUpdateErrors.js';
-import { checkUserPasswordUpdate } from './helpers/auth/userPasswordUpdateErrors.js';
-import { getData, setData } from './dataStore.js';
-import { invalidRegConditions } from './helpers/auth/registErrors.js';
-import { error } from './helpers/errors.js';
-import { authUserIdCheck }  from './helpers/checkForErrors.js';
+import { checkDetailsUpdate } from './helpers/auth/userUpdateErrors';
+import { checkUserPasswordUpdate } from './helpers/auth/userPasswordUpdateErrors';
+import { getData, setData } from './dataStore';
+import { invalidRegConditions } from './helpers/auth/registErrors';
+import { error } from './helpers/errors';
+import { authUserIdCheck }  from './helpers/checkForErrors';
+
+import { 
+  ErrorObject,
+  User,
+} from './interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
 const NO_ERROR = 0;
+
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// LOCAL INTERFACES /////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+interface AdminUserPasswordUpdateReturn { }
+interface AdminUserDetailsUpdateReturn { }
+interface AdminAuthRegisterReturn { authUserId: number; }
+interface AdminAuthLoginReturn { authUserId: number; }
+interface UserDetails {
+  userId: number;
+  name: string;
+  email: string;
+  numSuccessfulLogins: number;
+  numFailedPasswordsSinceLastLogin: number;
+}
+interface AdminUserDetailsReturn { user: UserDetails; }
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -28,15 +51,15 @@ const NO_ERROR = 0;
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
   const data = getData();
   const userData = data['users'].find(user => user.userId === authUserId);
 
   const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
   if (error !== NO_ERROR) return error;
 
-  userData['password'] = newPassword;
-  userData['previousPasswords'].push(oldPassword);
+  userData!.password = newPassword;
+  userData!.previousPasswords.push(oldPassword);
   setData(data);
 
   return { };
@@ -52,16 +75,15 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   * 
   * @returns {object} - Returns the authentication user id
 */
-function adminAuthRegister(email, password, nameFirst, nameLast) {
+function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): AdminAuthRegisterReturn | ErrorObject {
 
   email = email.toLowerCase();
 
-  if (invalidRegConditions(email, password, nameFirst, nameLast)) {
-    return invalidRegConditions(email, password, nameFirst, nameLast);
-  }
+  const error = invalidRegConditions(email, password, nameFirst, nameLast);
+  if (error !== NO_ERROR) return error;
 
   const data = getData();
-  const user = {
+  const newUser : User = {
     userId: -1,
     email: email,
     password: password,
@@ -72,8 +94,8 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
     numFailedPasswordsSinceLastLogin: 0,
   }
   if (data.users.length === 0) {
-    user.userId = 1;
-    data.users.push(user);
+    newUser.userId = 1;
+    data.users.push(newUser);
   } else {
     let maxExtantId = 0;
     for (const extantUser of data.users) {
@@ -81,14 +103,11 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
         maxExtantId = extantUser.userId;
       }
     }
-    user.userId = maxExtantId + 1;
-    data.users.push(user);
+    newUser.userId = maxExtantId + 1;
+    data.users.push(newUser);
   }
 
-
-  return {
-        authUserId: user.userId,
-    };
+  return { authUserId: newUser.userId };
 }
 
 /**
@@ -99,21 +118,18 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   * 
   * @returns {object} - Returns the authentication user id
 */
-function adminAuthLogin(email, password) {
+function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn | ErrorObject {
   email = email.toLowerCase();
   const data = getData();
   const logger = (data.users).find(user => user.email === email);
-  if (logger === undefined) {
-    return error.throwError('noEmail');
-  }
+  if (logger === undefined) return error.throwError('noEmail');
   if (password !== logger.password) {
     logger.numFailedPasswordsSinceLastLogin++;
     return error.throwError('wrongPassword');
   }
   logger.numSuccessfulLogins++;
-  return {
-        authUserId: logger.userId
-  };
+
+  return { authUserId: logger.userId };
 }
 
 /**
@@ -124,22 +140,23 @@ function adminAuthLogin(email, password) {
   * 
   * @returns {empty object} - Returns the user id number, name, email, count of successful logins and the times where the password has been entered incorrectly
 */
-function adminUserDetails (authUserId) {
+function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorObject {
   if (authUserIdCheck(authUserId) !== NO_ERROR) {
     return error.throwError('invalidUser');
   }  
-  const user = {userId: undefined, name: undefined, email: undefined, numSuccessfulLogins: undefined, numFailedPasswordsSinceLastLogin: undefined};
 
   const data = getData();
   const userData = data.users.find(u => u.userId === authUserId);
-  user.userId = userData.userId;
-  user.name = userData.nameFirst + ' ' + userData.nameLast;
-  user.email = userData.email;
-  user.numSuccessfulLogins = userData.numSuccessfulLogins;
-  user.numFailedPasswordsSinceLastLogin = userData.numFailedPasswordsSinceLastLogin;
-  return {
-      user
-  }
+  
+  const user : UserDetails = {
+    userId: userData!.userId,
+    name: userData!.nameFirst + ' ' + userData!.nameLast,
+    email: userData!.email,
+    numSuccessfulLogins: userData!.numSuccessfulLogins,
+    numFailedPasswordsSinceLastLogin: userData!.numFailedPasswordsSinceLastLogin,
+  };
+
+  return { user };
 }
 
 /**
@@ -152,22 +169,20 @@ function adminUserDetails (authUserId) {
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserDetailsUpdate (authUserId, email, nameFirst, nameLast) {
+function adminUserDetailsUpdate (authUserId: number, email: string, nameFirst: string, nameLast: string): AdminUserDetailsUpdateReturn | ErrorObject {
 
     // Error check
     const error = checkDetailsUpdate(authUserId, email, nameFirst, nameLast);
     if (error !== NO_ERROR) return error;
 
     // Get and set new details
-    const userData = getData();
-    for (const user of userData['users']) {
-        if (user['userId'] === authUserId) {
-            user['email'] = email;
-            user['nameFirst'] = nameFirst;
-            user['nameLast'] = nameLast;
-        }
-    }
-    setData(userData);
+    const data = getData();
+    const userData = data.users.find(user => user.userId === authUserId);
+    userData!.email = email;
+    userData!.nameFirst = nameFirst;
+    userData!.nameLast = nameLast;
+
+    setData(data);
 
     return { };
 }

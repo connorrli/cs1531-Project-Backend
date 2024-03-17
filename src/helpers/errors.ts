@@ -31,7 +31,7 @@ const error = {
         // MISC
         checkForErrorType: 'Unknown error type passed into checkForError.',
     },
-    throwError: function(errorValue) {
+    throwError: function(errorValue: string) {
         if (typeof errorValue !== 'string') {
             console.log('======================================');
             console.log('                                      ');

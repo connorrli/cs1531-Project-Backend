@@ -2,8 +2,8 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { error } from './errors.js';
-import { getData } from '../dataStore.js';
+import { error } from './errors';
+import { getData } from '../dataStore';
 import validator from 'validator';
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -12,55 +12,50 @@ import validator from 'validator';
 
 const NO_ERROR = 0;
 
-const errors = error['listOfErrors'];
-for (const key of Object.keys(errors)) {
-    errors[key] = `${key}`;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-function authUserIdCheck(authUserId) {
+function authUserIdCheck(authUserId: number) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
-    if (typeof theUser === 'undefined') return error.throwError(errors['invalidUser']);
+    if (typeof theUser === 'undefined') return error.throwError('invalidUser');
     return NO_ERROR;
 }
 
-function nameFirstValidCheck(nameFirst) {
+function nameFirstValidCheck(nameFirst: string) {
     if (nameFirst.length < 2 || nameFirst.length > 20) {
-        return error.throwError(errors['nameFirstOutOfRange']);
+        return error.throwError('nameFirstOutOfRange');
     } 
     for (let i = 0; i < nameFirst.length; i++) {
         let currChar = nameFirst.toLowerCase()[i];
         if (currChar > 'z' || currChar < 'a') {
             if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
-                return error.throwError(errors['nameFirstInvalid']);
+                return error.throwError('nameFirstInvalid');
             }
         }
     }
     return NO_ERROR;    
 }
 
-function nameLastValidCheck(nameLast) {
+function nameLastValidCheck(nameLast: string) {
     if (nameLast.length < 2 || nameLast.length > 20) {
-        return error.throwError(errors['nameLastOutOfRange']);
+        return error.throwError('nameLastOutOfRange');
     } 
     for (let i = 0; i < nameLast.length; i++) {
         let currChar = nameLast.toLowerCase()[i];
         if (currChar > 'z' || currChar < 'a') {
             if (currChar !== ' ' && currChar !== '-' && currChar !== "'") {
-                return error.throwError(errors['nameLastInvalid']);
+                return error.throwError('nameLastInvalid');
             }
         }
     }
     return NO_ERROR;    
 }
 
-function passwordValidCheck(password) {
+function passwordValidCheck(password: string) {
     if (password.length < 8) {
-        return error.throwError(errors['shortPassword']);
+        return error.throwError('shortPassword');
     }
     let passHasNum = 0;
     let passHasLet = 0;
@@ -75,29 +70,30 @@ function passwordValidCheck(password) {
         }
     }
     if (!(passHasNum * passHasLet)) {
-        return error.throwError(errors['easyPassword']);
+        return error.throwError('easyPassword');
     }
     return NO_ERROR;
 }
 
-function emailValidCheck(email) {
+function emailValidCheck(email: string) {
     if (!validator.isEmail(email)) {
-        return error.throwError(errors['invalidEmail']);
+        return error.throwError('invalidEmail');
     }
     return NO_ERROR;
 }
 
 // Returns true if quizId exists and false if quizId does not exist
-function isValidQuiz(quizId) {
-    if (getData().quizzes.length === 0) {
+function isValidQuiz(quizId: number) {
+    const data = getData();
+    if (data.quizzes.length === 0) {
       return false;
     }
-    const quiz = getData().quizzes.find(q => q.quizId === quizId);
+    const quiz = data.quizzes.find(q => q.quizId === quizId);
     return !!quiz;
 }
 
 // Returns true if authUserId exists and false if authUserId does not exist
-function isValidUser(authUserId) {
+function isValidUser(authUserId: number) {
     const data = getData();
     if (data.users.length === 0) {
       return false;
@@ -108,15 +104,16 @@ function isValidUser(authUserId) {
 
 // Returns true if authUserId owns quizId; returns false if authUserId is not 
 // the owner of quizId
-function isOwner(authUserId, quizId) {
-    if (getData().users.length === 0) {
+function isOwner(authUserId: number, quizId: number) {
+    const data = getData();
+    if (data.users.length === 0) {
         return false;
     }
-    if (getData().quizzes.length === 0) {
+    if (data.quizzes.length === 0) {
         return false;
     }
-    const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
-    if (getData().quizzes[quizIndex].quizOwner !== authUserId) {
+    const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (data.quizzes[quizIndex].quizOwner !== authUserId) {
         return false;
     }
     return true
