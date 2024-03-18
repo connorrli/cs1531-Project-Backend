@@ -1,5 +1,5 @@
 import { setData, getData } from '../dataStore';
-import { UserSession } from '../interface';
+import { ErrorObject, UserSession } from '../interface';
 
 interface generateSessionReturn { token: string }
 
@@ -36,15 +36,19 @@ function halfToken(): string {
   return halfOfToken;
 }
 
+console.log(getSession('12948'));
+
 /**
   * Gets the session object associated with the given token
   * 
-  * @returns {UserSession | undefined}
+  * @returns {UserSession | ErrorObject}
 */
-export function getSession(token: string): UserSession | undefined {
+export function getSession(token: string): UserSession | ErrorObject {
   const data = getData();
   const decodedToken = decodeURIComponent(token);
-  const session = data.sessions.find(session => session.token === decodedToken);
+
+  let session = data.sessions.find(session => session.token === decodedToken);
+  if (typeof session === 'undefined') return { error: 'session with token { ' + token + ' } is undefined' };
 
   return session;
 }
