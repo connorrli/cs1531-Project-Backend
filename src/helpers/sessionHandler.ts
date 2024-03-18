@@ -36,8 +36,6 @@ function halfToken(): string {
   return halfOfToken;
 }
 
-console.log(getSession('12948'));
-
 /**
   * Gets the session object associated with the given token
   * 
