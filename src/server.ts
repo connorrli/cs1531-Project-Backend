@@ -54,6 +54,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
   if ('error' in response) return res.status(400).json(response);
 
+  save();
   res.json(response);
 })
 
