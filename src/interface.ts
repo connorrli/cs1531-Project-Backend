@@ -23,10 +23,18 @@ interface Quiz {
   description: string;
 }
 
+// Interface describing a session object
+interface UserSession {
+  token: string;
+  userId: number;
+  timeCreated: number;
+}
+
 // Interface describing the dataStore object
 interface DataStore {
   users: User[];
   quizzes: Quiz[];
+  sessions: UserSession[];
 }
 
 // Interface describing an error object
@@ -43,4 +51,5 @@ export {
   User,
   Quiz,
   DataStore,
+  UserSession,
 }

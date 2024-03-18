@@ -7,7 +7,7 @@ interface ClearReturn { }
 import { getData, setData } from './dataStore';
 
 function clear(): ClearReturn {
-  setData({ users: [], quizzes: [] });
+  setData({ users: [], quizzes: [], sessions: [] });
   return {};
 }
 
