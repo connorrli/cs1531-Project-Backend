@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
+import { generateSession, getSession } from './helpers/sessionHandler';
+import { adminAuthRegister, adminUserPasswordUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -43,6 +45,17 @@ load();
 const save = () => {
   fs.writeFileSync('./database.json', JSON.stringify(getData()));
 }
+
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
+  if ('error' in response) return res.status(400).json(response);
+
+  res.json(response);
+})
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
