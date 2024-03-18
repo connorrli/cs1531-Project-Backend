@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { setData, getData } from './dataStore';
 
 // Set up web app
 const app = express();
@@ -28,6 +29,20 @@ const HOST: string = process.env.IP || 'localhost';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
+
+// Loads the database.json file and sets the data into dataStore if it exists
+const load = () => {
+  if (fs.existsSync('./database.json')) {
+    const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
+    setData(JSON.parse(file));
+  }
+}
+load();
+
+// Save current `data` dataStore object state into database.json
+const save = () => {
+  fs.writeFileSync('./database.json', JSON.stringify(getData()));
+}
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
