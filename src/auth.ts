@@ -12,7 +12,9 @@ import { authUserIdCheck }  from './helpers/checkForErrors';
 import { 
   ErrorObject,
   User,
+  UserSession,
 } from './interface';
+import { getSession } from './helpers/sessionHandler';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -51,11 +53,12 @@ interface AdminUserDetailsReturn { user: UserDetails; }
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
-  const data = getData();
-  const userData = data['users'].find(user => user.userId === authUserId);
+function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
 
-  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  const data = getData();
+  const userData = data['users'].find(user => user.userId === session.userId);
+
+  const error = checkUserPasswordUpdate(userData!, oldPassword, newPassword);
   if (error !== NO_ERROR) return error;
 
   userData!.password = newPassword;
