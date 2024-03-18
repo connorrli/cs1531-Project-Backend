@@ -4,12 +4,12 @@ import { url, port } from '../config.json';
 const SERVER_URL = `${url}:${port}`;
 
 export const clearRequest = () => {
-  const response = request('DELETE', SERVER_URL + 'v1/clear', { qs: { } });
+  const response = request('DELETE', SERVER_URL + '/v1/clear', { qs: { } });
   return JSON.parse(response.body.toString());
 }
 
 export const loginRequest = (email: string, password: string) => {
-  const response = request('POST', SERVER_URL + 'v1/admin/auth/login', { json: { email, password } });
+  const response = request('POST', SERVER_URL + '/v1/admin/auth/login', { json: { email, password } });
   return JSON.parse(response.body.toString());
 }
 
