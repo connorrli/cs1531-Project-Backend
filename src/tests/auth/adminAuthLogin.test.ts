@@ -36,8 +36,8 @@ describe ('Should throw an error message under error conditions', () => {
         expect(adminAuthLogin('johndoe@gmail.com', 'Password123')).toEqual(ERROR);
     })
     test('Should throw error, if correct password correlates with a different correct email', () => {
-        adminAuthLogin('johndoe@gmail.com', 'password123', 'John', 'Doe');
-        adminAuthLogin('janedoe@gmail.com', 'diffpassw0rd', 'Jane', 'Doe');
+        adminAuthRegister('johndoe@gmail.com', 'password123', 'John', 'Doe');
+        adminAuthRegister('janedoe@gmail.com', 'diffpassw0rd', 'Jane', 'Doe');
         expect(adminAuthLogin('johndoe@gmail.com', 'diffpassw0rd')).toEqual(ERROR);
     })
 })
