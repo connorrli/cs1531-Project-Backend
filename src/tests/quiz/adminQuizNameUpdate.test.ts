@@ -11,75 +11,115 @@ describe('adminQuizNameUpdate function tests', () => {
     })
 
     test('Should correctly update the quiz name', () => {
-        const authUserId = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe').authUserId;
-        const quizId = adminQuizCreate(authUserId, 'Quiz 1', 'Description').quizId;
-        const updatedQuizName = 'Updated Quiz Name';
-        const result = adminQuizNameUpdate(authUserId, quizId, updatedQuizName);
-        expect(result).toEqual({});
-        const quizInfo = adminQuizInfo(authUserId, quizId);
-        expect(quizInfo.name).toEqual(updatedQuizName);
+        const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, 'Quiz 1', 'Description');
+            if ('quizId' in quiz) {
+                const updatedQuizName = 'Updated Quiz Name';
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz.quizId, updatedQuizName);
+                expect(result).toStrictEqual({});
+                const quizInfo = adminQuizInfo(authUser.authUserId, quiz.quizId);
+                if ('name' in quizInfo) {
+                    expect(quizInfo.name).toStrictEqual(updatedQuizName);
+                }
+            }
+        }
     });
 
     test('Should return an error when authUserId is invalid', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
-        const result = adminQuizNameUpdate(authUserId + 1, quizId, 'name');
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, 'Test Quiz', 'This is a test quiz');
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser.authUserId + 1, quiz.quizId, 'name');
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
 
     test('Should return an error when quizId does not refer to a valid quiz', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
-        const result = adminQuizNameUpdate(authUserId, quizId + 1, 'name');
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, 'Test Quiz', 'This is a test quiz');
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz.quizId + 1, 'name');
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
     
     test('Should return an error when quizId does not refer to a quiz that the user owns', () => {
-        const { authUserId: userId1 } = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
-        const { authUserId: userId2 } = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
-        const { quizId } = adminQuizCreate(userId1, 'Test Quiz', 'This is a test quiz');
-        const result = adminQuizNameUpdate(userId2, quizId, 'name');
-        expect(result).toEqual(ERROR);
+        const authUser1 = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
+        const authUser2 = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
+
+        if ('authUserId' in authUser1 && 'authUserId' in authUser2) {
+            const quiz = adminQuizCreate(authUser1.authUserId, 'Test Quiz', 'This is a test quiz');
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser2.authUserId, quiz.quizId, 'name');
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
 
     test('Should NOT return an error when quizId DOES refer to a quiz that the user owns', () => {
-        const { authUserId: userId1 } = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
-        const { authUserId: userId2 } = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
-        const { quizId } = adminQuizCreate(userId1, 'Test Quiz', 'This is a test quiz');
-        const result = adminQuizNameUpdate(userId1, quizId, 'name');
-        expect(result).not.toHaveProperty('error');
-        const quizInfo = adminQuizInfo(userId1, quizId);
-        expect(quizInfo.name).toEqual('name');
+        const authUser1 = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
+        const authUser2 = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
+        if ('authUserId' in authUser1 && 'authUserId' in authUser2) {
+            const quiz = adminQuizCreate(authUser1.authUserId, 'Test Quiz', 'This is a test quiz');
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser1.authUserId, quiz.quizId, 'name');
+                expect(result).not.toHaveProperty('error');
+                const quizInfo = adminQuizInfo(authUser1.authUserId, quiz.quizId);
+                if ('name' in quizInfo) {
+                    expect(quizInfo.name).toStrictEqual('name');
+                }
+            }
+        }
     });
 
     test('Should return error when name has invalid characters', () => {
-        const authUserId = adminAuthRegister("test@example.com", "password123", "John", "Doe").authUserId;
-        const quizId = adminQuizCreate(authUserId, "Quiz 1", "Description").quizId;
-        const result = adminQuizNameUpdate(authUserId, quizId, "Updated Name $");
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister("test@example.com", "password123", "John", "Doe");
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, "Quiz 1", "Description");
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz.quizId, "Updated Name $");
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
 
     test('Should return error when name is less than 3 characters long', () => {
-        const authUserId = adminAuthRegister("test@example.com", "password123", "John", "Doe").authUserId;
-        const quizId = adminQuizCreate(authUserId, "Quiz 1", "Description").quizId;
-        const result = adminQuizNameUpdate(authUserId, quizId, "A");
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister("test@example.com", "password123", "John", "Doe");
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, "Quiz 1", "Description");
+            if ('quizId' in quiz) {
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz.quizId, "A");
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
 
     test('Should return error when name is more than 30 characters long', () => {
-        const authUserId = adminAuthRegister("test@example.com", "password123", "John", "Doe").authUserId;
-        const quizId = adminQuizCreate(authUserId, "Quiz 1", "Description").quizId;
-        const thirtyOneCharName = "abcdefghijklmnopqrstuvwxyzABCDE"
-        const result = adminQuizNameUpdate(authUserId, quizId, thirtyOneCharName);
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister("test@example.com", "password123", "John", "Doe");
+        if ('authUserId' in authUser) {
+            const quiz = adminQuizCreate(authUser.authUserId, "Quiz 1", "Description");
+            if ('quizId' in quiz) {
+                const thirtyOneCharName = "abcdefghijklmnopqrstuvwxyzABCDE"
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz.quizId, thirtyOneCharName);
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
 
     test('Should return error when name is already used by the current logged in user for another quiz', () => {
-        const authUserId = adminAuthRegister("test@example.com", "password123", "John", "Doe").authUserId;
-        adminQuizCreate(authUserId, "Quiz 1", "Description1");
-        const secondQuizId = adminQuizCreate(authUserId, "Quiz 2", "Description2").quizId;
-        const result = adminQuizNameUpdate(authUserId, secondQuizId, "Quiz 1");
-        expect(result).toEqual(ERROR);
+        const authUser = adminAuthRegister("test@example.com", "password123", "John", "Doe");
+        if ('authUserId' in authUser) {
+            adminQuizCreate(authUser.authUserId, "Quiz 1", "Description1");
+            const quiz2 = adminQuizCreate(authUser.authUserId, "Quiz 2", "Description2");
+            if ('quizId' in quiz2) {
+                const result = adminQuizNameUpdate(authUser.authUserId, quiz2.quizId, "Quiz 1");
+                expect(result).toStrictEqual(ERROR);
+            }
+        }
     });
-    
 });
