@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
+import { adminAuthRegister } from './auth';
 
 // Set up web app
 const app = express();
@@ -29,6 +30,14 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
+//adminAuthRegister post
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const nameFirst = req.body.nameFirst as string;
+  const nameLast = req.body.nameLast as string;
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+  return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
+});
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
@@ -49,6 +58,8 @@ app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string;
   return res.json(echo(data));
 });
+
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
