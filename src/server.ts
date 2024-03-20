@@ -37,7 +37,9 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const nameLast = req.body.nameLast as string;
   const email = req.body.email as string;
   const pass = req.body.password as string;
-  return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
+  const response = adminAuthRegister(email, pass, nameFirst, nameLast);
+  if ('error' in response) { res.status(400) } else { res.status(200) };
+  return res.json(response);
 });
 
 // Loads the database.json file and sets the data into dataStore if it exists
@@ -55,8 +57,14 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   let userId : number;
   if ('userId' in session) {
     userId = session.userId;
-  } else { res.json({ "error": "invalid session" })};
-  res.json(adminUserDetails(userId));
+    res.status(200);
+  } else { 
+    res.status(401);
+    res.json({ "error": "invalid session" });
+  };
+  const response = adminUserDetails(userId);
+  if ('error' in response) { res.status(400) };
+  return res.json(response);
 })
 
 // Save current `data` dataStore object state into database.json
