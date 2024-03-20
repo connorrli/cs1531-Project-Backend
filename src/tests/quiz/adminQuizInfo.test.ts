@@ -1,8 +1,15 @@
-import { adminAuthRegister } from "../../auth";
 import { adminQuizCreate, adminQuizInfo } from "../../quiz";
 import { clear } from "../../other";
+import { url, port } from '../../config.json';
+import request from 'sync-request-curl';
 
+const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
+
+const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+    const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
+    return JSON.parse(result.body.toString());
+}
 
 describe('adminQuizInfo function tests', () => {
 
