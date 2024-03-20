@@ -10,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister } from './auth';
+import { adminUserDetails, adminAuthRegister, adminAuthLogin } from './auth';
 
 // Set up web app
 const app = express();
@@ -39,6 +39,26 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const pass = req.body.password as string;
   return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
 });
+//adminUserDetails .get
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const session = getSession(token);
+  let userId : number;
+  if ('userId' in session) {
+    userId = session.userId;
+  } else { res.json({ "error": "invalid session" })};
+  res.json(adminUserDetails(userId));
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+  const response = adminAuthLogin(email, pass);
+  if ('error' in response) {
+    res.status(400);
+  } else { res.status(200) };
+  return res.json(response);
+});
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
@@ -48,16 +68,6 @@ const load = () => {
   }
 }
 load();
-
-app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const session = getSession(token);
-  let userId : number;
-  if ('userId' in session) {
-    userId = session.userId;
-  } else { res.json({ "error": "invalid session" })};
-  res.json(adminUserDetails(userId));
-})
 
 // Save current `data` dataStore object state into database.json
 const save = () => {

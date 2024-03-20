@@ -37,7 +37,7 @@ describe('Should give correct user details', () => {
         const user1 = authRegisterReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
         expect(user1).toStrictEqual(TOKEN);
         if ('token' in user1) {
-            const token = user1.token;
+            const token = user1.token as string;
             expect(userDetailsReq(token)).toStrictEqual({ user: 
                 {
                     userId: expect.any(Number), 
@@ -47,7 +47,7 @@ describe('Should give correct user details', () => {
                     numFailedPasswordsSinceLastLogin: 0
             }});
 
-            const newToken = authLoginReq('yabbadabbadoo@gmail.com', 'yabba123dabbA');
+            const newToken = authLoginReq('yabbadabbadoo@gmail.com', 'yabba123dabbA') as string;
             let userDetails = userDetailsReq(newToken);
             if ('user' in userDetails) {
                 expect(userDetails.user.numSuccessfulLogins).toEqual(2);
