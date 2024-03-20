@@ -131,6 +131,7 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
     return error.throwError('wrongPassword');
   }
   logger.numSuccessfulLogins++;
+  logger.numFailedPasswordsSinceLastLogin = 0;
   const token = generateSession(logger.userId);
   return token;
 }
