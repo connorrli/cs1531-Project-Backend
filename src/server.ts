@@ -57,6 +57,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   if ('error' in response) {
     res.status(400);
   } else { res.status(200) };
+  save();
   return res.json(response);
 });
 
