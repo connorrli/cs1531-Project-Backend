@@ -1,6 +1,6 @@
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
-import morgan from 'morgan';
+import morgan, { token } from 'morgan';
 import config from './config.json';
 import cors from 'cors';
 import YAML from 'yaml';
@@ -10,8 +10,7 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister, adminAuthLogin } from './auth';
-
+import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
 import { adminQuizCreate, adminQuizList } from './quiz';
 
 // Set up web app
@@ -33,27 +32,6 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
-//adminAuthRegister post
-app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
-  const nameFirst = req.body.nameFirst as string;
-  const nameLast = req.body.nameLast as string;
-  const email = req.body.email as string;
-  const pass = req.body.password as string;
-  const response = adminAuthRegister(email, pass, nameFirst, nameLast);
-  if ('error' in response) { res.status(400) } else { res.status(200) };
-  return res.json(response);
-});
-
-app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const email = req.body.email as string;
-  const pass = req.body.password as string;
-  const response = adminAuthLogin(email, pass);
-  if ('error' in response) {
-    res.status(400);
-  } else { res.status(200) };
-  save();
-  return res.json(response);
-});
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
@@ -64,19 +42,68 @@ const load = () => {
 }
 load();
 
+// Save current `data` dataStore object state into database.json
+const save = () => {
+  fs.writeFileSync('./database.json', JSON.stringify(getData()));
+} 
+
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
+
   const session = getSession(token);
-  let userId : number;
-  if ('userId' in session) {
-    userId = session.userId;
-    res.status(200);
-  } else { 
-    res.status(401);
-    res.json({ "error": "invalid session" });
-  };
-  const response = adminUserDetails(userId);
-  if ('error' in response) { res.status(400) };
+  if ('error' in session) return res.status(401).json(session);
+  
+  const response = adminUserDetails(session.userId);
+  return res.json(response);
+});
+
+// adminAuthRegister POST request route
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const nameFirst = req.body.nameFirst as string;
+  const nameLast = req.body.nameLast as string;
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+  
+  const response = adminAuthRegister(email, pass, nameFirst, nameLast);
+  if ('error' in response) return res.status(400).json(response);
+
+  save();
+  return res.json(response);
+});
+
+// adminAuthLogin POST request route
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+
+  const response = adminAuthLogin(email, pass);
+  if ('error' in response) res.status(400).json(response);
+  
+  save();
+  return res.json(response);
+});
+
+// adminUserDetails GET request route
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+  
+  return res.json(adminUserDetails(session.userId));
+});
+
+// adminUserPasswordUpdate PUT request route
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
+  if ('error' in response) return res.status(400).json(response);
+
+  save();
   return res.json(response);
 });
 
@@ -111,14 +138,9 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// Save current `data` dataStore object state into database.json
-const save = () => {
-  fs.writeFileSync('./database.json', JSON.stringify(getData()));
-}
-
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
-  const data = req.query.echo as string;
+  const data = req.query.echo as string; 
   return res.json(echo(data));
 });
 
