@@ -1,6 +1,6 @@
 import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
-
+import { setData, getData } from '../../dataStore';
 const SERVER_URL = `${url}:${port}`;
 
 beforeEach(() => {
@@ -37,7 +37,7 @@ describe('Should give correct user details', () => {
         const user1 = authRegisterReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
         expect(user1).toStrictEqual(TOKEN);
         if ('token' in user1) {
-            const token = user1.token as string;
+            const token: string = user1.token;
             expect(userDetailsReq(token)).toStrictEqual({ user: 
                 {
                     userId: expect.any(Number), 
@@ -47,11 +47,11 @@ describe('Should give correct user details', () => {
                     numFailedPasswordsSinceLastLogin: 0
             }});
 
-            const newToken = authLoginReq('yabbadabbadoo@gmail.com', 'yabba123dabbA') as string;
+            const newToken = authLoginReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA').token as string;
             let userDetails = userDetailsReq(newToken);
             if ('user' in userDetails) {
                 expect(userDetails.user.numSuccessfulLogins).toEqual(2);
-                authLoginReq('yabbadabbadoo@gmail.com', 'password123');
+                authLoginReq('yabbadabbadooidonotexist@gmail.com', 'password123');
             }
             // Re-fetch details with updated login data
             userDetails = userDetailsReq(newToken);
