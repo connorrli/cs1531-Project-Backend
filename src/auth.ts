@@ -30,7 +30,7 @@ const NO_ERROR = 0;
 interface AdminUserPasswordUpdateReturn { }
 interface AdminUserDetailsUpdateReturn { }
 interface AdminAuthRegisterReturn { token: String; }
-interface AdminAuthLoginReturn { authUserId: number; }
+interface AdminAuthLoginReturn { token: String; }
 interface UserDetails {
   userId: number;
   name: string;
@@ -126,14 +126,16 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   email = email.toLowerCase();
   const data = getData();
   const logger = (data.users).find(user => user.email === email);
-  if (logger === undefined) return error.throwError('noEmail');
+  if (logger === undefined) {
+    return error.throwError('noEmail');
+  }
   if (password !== logger.password) {
     logger.numFailedPasswordsSinceLastLogin++;
     return error.throwError('wrongPassword');
   }
   logger.numSuccessfulLogins++;
-
-  return { authUserId: logger.userId };
+  const token = generateSession(logger.userId);
+  return token;
 }
 
 /**
