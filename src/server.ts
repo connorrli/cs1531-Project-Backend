@@ -10,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister } from './auth';
+import { adminUserDetails, adminAuthRegister, adminUserPasswordUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -31,15 +31,6 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
-//adminAuthRegister post
-app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
-  const nameFirst = req.body.nameFirst as string;
-  const nameLast = req.body.nameLast as string;
-  const email = req.body.email as string;
-  const pass = req.body.password as string;
-  return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
-});
-
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
   if (fs.existsSync('./database.json')) {
@@ -49,6 +40,21 @@ const load = () => {
 }
 load();
 
+// Save current `data` dataStore object state into database.json
+const save = () => {
+  fs.writeFileSync('./database.json', JSON.stringify(getData()));
+} 
+
+// adminAuthRegister POST request route
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const nameFirst = req.body.nameFirst as string;
+  const nameLast = req.body.nameLast as string;
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+  return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
+});
+
+// adminUserDetails GET request route
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const session = getSession(token);
@@ -59,10 +65,18 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   res.json(adminUserDetails(userId));
 })
 
-// Save current `data` dataStore object state into database.json
-const save = () => {
-  fs.writeFileSync('./database.json', JSON.stringify(getData()));
-}
+// adminUserPasswordUpdate PUT request route
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
+  if ('error' in response) return res.status(400).json(response);
+
+  save();
+  res.json(response);
+})
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
