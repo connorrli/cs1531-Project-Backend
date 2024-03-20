@@ -1,6 +1,6 @@
 import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
-import { setData, getData } from '../../dataStore';
+
 const SERVER_URL = `${url}:${port}`;
 
 beforeEach(() => {
