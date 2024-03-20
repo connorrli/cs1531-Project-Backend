@@ -9,7 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
-import { adminAuthRegister } from './auth';
+import { getSession } from './helpers/sessionHandler';
+import { adminUserDetails, adminAuthRegister } from './auth';
 
 // Set up web app
 const app = express();
@@ -47,6 +48,16 @@ const load = () => {
   }
 }
 load();
+
+app.get('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const session = getSession(token);
+  let userId : number;
+  if ('userId' in session) {
+    userId = session.userId;
+  } else { res.json({ "error": "invalid session" })};
+  res.json(adminUserDetails(userId));
+})
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
