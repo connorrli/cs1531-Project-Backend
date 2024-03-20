@@ -8,6 +8,7 @@ import { getData, setData } from './dataStore';
 import { invalidRegConditions } from './helpers/auth/registErrors';
 import { error } from './helpers/errors';
 import { authUserIdCheck }  from './helpers/checkForErrors';
+import { getSession, generateSession } from './helpers/sessionHandler';
 
 import { 
   ErrorObject,
@@ -26,7 +27,7 @@ const NO_ERROR = 0;
 
 interface AdminUserPasswordUpdateReturn { }
 interface AdminUserDetailsUpdateReturn { }
-interface AdminAuthRegisterReturn { authUserId: number; }
+interface AdminAuthRegisterReturn { token: String; }
 interface AdminAuthLoginReturn { authUserId: number; }
 interface UserDetails {
   userId: number;
@@ -106,8 +107,8 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
     newUser.userId = maxExtantId + 1;
     data.users.push(newUser);
   }
-
-  return { authUserId: newUser.userId };
+  const token = generateSession(newUser.userId);
+  return token;
 }
 
 /**
