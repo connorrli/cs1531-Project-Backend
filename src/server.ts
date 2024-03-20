@@ -1,6 +1,6 @@
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
-import morgan from 'morgan';
+import morgan, { token } from 'morgan';
 import config from './config.json';
 import cors from 'cors';
 import YAML from 'yaml';
@@ -51,23 +51,26 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const nameLast = req.body.nameLast as string;
   const email = req.body.email as string;
   const pass = req.body.password as string;
-  return res.json(adminAuthRegister(email, pass, nameFirst, nameLast));
+  
+  const response = adminAuthRegister(email, pass, nameFirst, nameLast);
+  if ('error' in response) return res.status(400).json(response);
+  return res.json(response);
 });
 
 // adminUserDetails GET request route
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
+
   const session = getSession(token);
-  let userId : number;
-  if ('userId' in session) {
-    userId = session.userId;
-  } else { res.json({ "error": "invalid session" })};
-  res.json(adminUserDetails(userId));
-})
+  if ('error' in session) return res.status(401).json(session);
+  
+  return res.json(adminUserDetails(session.userId));
+});
 
 // adminUserPasswordUpdate PUT request route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
+
   const session = getSession(token);
   if ('error' in session) return res.status(401).json(session);
 
@@ -75,12 +78,12 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   if ('error' in response) return res.status(400).json(response);
 
   save();
-  res.json(response);
-})
+  return res.json(response);
+});
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
-  const data = req.query.echo as string;
+  const data = req.query.echo as string; 
   return res.json(echo(data));
 });
 
