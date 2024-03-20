@@ -10,7 +10,8 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister } from './auth';
+import { adminUserDetails, adminAuthRegister, adminAuthLogin } from './auth';
+
 import { adminQuizCreate, adminQuizList } from './quiz';
 
 // Set up web app
@@ -40,6 +41,17 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const pass = req.body.password as string;
   const response = adminAuthRegister(email, pass, nameFirst, nameLast);
   if ('error' in response) { res.status(400) } else { res.status(200) };
+  return res.json(response);
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const email = req.body.email as string;
+  const pass = req.body.password as string;
+  const response = adminAuthLogin(email, pass);
+  if ('error' in response) {
+    res.status(400);
+  } else { res.status(200) };
+  save();
   return res.json(response);
 });
 
@@ -90,9 +102,9 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
   const token = query.token as string;
   const session = getSession(token);
-  const response = adminQuizList (token); //Issue here
+  const response = adminQuizList(token); //Issue here
 
-  if (!token || token !== session) {
+  if (!token || ('error' in session)) {
     return res.status(401).json({ error: "Token is invalid or empty" });
   }
   else { res.status(200) };
