@@ -12,6 +12,8 @@ import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin } from './auth';
 
+import { adminQuizCreate, adminQuizList } from './quiz';
+
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -76,7 +78,38 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetails(userId);
   if ('error' in response) { res.status(400) };
   return res.json(response);
-})
+});
+
+// Quiz Create
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const body = req.body;
+  const token = body.token;
+  const session = getSession(token);
+  const name = body.name;
+  const description = body.description;
+  const response = adminQuizCreate (token, name, description);
+
+  if (!token || token !== session) {
+    return res.status(401).json({ error: "Token is empty or invalid" });
+  }
+  if ('error' in response) { res.status(400) } else { res.status(200) };
+  save();
+  return res.json(response);
+});
+
+// Quiz List
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
+  const query = req.query;
+  const token = query.token as string;
+  const session = getSession(token);
+  const response = adminQuizList(token); //Issue here
+
+  if (!token || ('error' in session)) {
+    return res.status(401).json({ error: "Token is invalid or empty" });
+  }
+  else { res.status(200) };
+  return res.json(response);
+});
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
