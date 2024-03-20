@@ -1,6 +1,15 @@
 import { adminQuizCreate } from '../../quiz';
-import { adminAuthRegister } from '../../auth';
+///import { adminAuthRegister } from '../../auth';
 import { clear } from '../../other';
+import { url, port } from '../../config.json';
+import request from 'sync-request-curl';
+
+const SERVER_URL = `${url}:${port}`;
+
+const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+    const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
+    return JSON.parse(result.body.toString());
+}
 
 describe('Testing QuizCreate function:', () => {
     
@@ -23,40 +32,41 @@ describe('Testing QuizCreate function:', () => {
 
         if ('quizId' in quiz1 && 'quizId' in quiz2) expect(quiz1.quizId).not.toEqual(quiz2.quizId);
     });
-    // Auth
+
     // AuthUserId is not valid
     test('AuthUserId is not a valid user', () => {
-        quiz1 = adminQuizCreate(user1_id + 1, 'name', 'description');
-        expect(quiz1).toEqual({ error: 'AuthUserId is not a valid user' });
+        const user1 = adminAuthRegister('email123@gmail.com', 'rtgfre356', 'Smith', 'Lee');
+        quiz1 = adminQuizCreate(30, 'name', 'description');
+        expect(quiz1).toStrictEqual({ error: 'AuthUserId is not a valid user' });
     });
 
     //Invalid character in name
     test('Name contains an invalid character', () => {
-        const user = adminAuthRegister('test@egmail.com', 'password123', 'Walt', 'Smith');
+        const user = adminAuthRegister('testing@egmail.com', 'waltsmith123', 'Walt', 'Smith');
         let user_id : number;
         if ('authUserId' in user) user_id = user.authUserId;
         else user_id = undefined;
         quiz1 = adminQuizCreate(user_id, '@@@@', 'simple description');
-        expect(quiz1).toEqual({ error: 'Name contains an invalid character' });
+        expect(quiz1).toStrictEqual({ error: 'Name contains an invalid character' });
     });
 
     test('Name contains an invalid character', () => {
-        const user = adminAuthRegister('test@egmail.com', 'password123', 'Walt', 'Smith');
+        const user = adminAuthRegister('testing@egmail.com', 'waltsmith', 'Walt', 'Smith');
         let user_id : number;
         if ('authUserId' in user) user_id = user.authUserId;
         else user_id = undefined;
         quiz1 = adminQuizCreate(user_id, 'Johnny@1', 'simple description');
-        expect(quiz1).toEqual({ error: 'Name contains an invalid character' });
+        expect(quiz1).toStrictEqual({ error: 'Name contains an invalid character' });
     });
 
     // Quiz name < 3 or > 30
     test('Name < 3 characters', () => {
-        const user = adminAuthRegister('test@egmail.com', 'password123', 'Walt', 'Smith');
+        const user = adminAuthRegister('testing@egmail.com', 'waltsmith', 'Walt', 'Smith');
         let user_id : number;
         if ('authUserId' in user) user_id = user.authUserId;
         else user_id = undefined;
         quiz1 = adminQuizCreate(user_id, 'qu', 'simple description');
-        expect(quiz1).toEqual({ error: 'Quiz name is < 3 characters' });
+        expect(quiz1).toStrictEqual({ error: 'Quiz name is < 3 characters' });
     });
 
     test('Name > 30 characters', () => {
@@ -65,7 +75,7 @@ describe('Testing QuizCreate function:', () => {
         if ('authUserId' in user) user_id = user.authUserId;
         else user_id = undefined;
         quiz1 = adminQuizCreate(user_id, 'quizname that would be more than 30 characters long', 'simple description');
-        expect(quiz1).toEqual({ error: 'Quiz name is > 30 characters' });
+        expect(quiz1).toStrictEqual({ error: 'Quiz name is > 30 characters' });
     });
 
     // Quiz description > 100
@@ -75,7 +85,7 @@ describe('Testing QuizCreate function:', () => {
         if ('authUserId' in user) user_id = user.authUserId;
         else user_id = undefined;
         quiz1 = adminQuizCreate(user_id, 'quizname', 'The inexorable march of technological advancement continues unabated, revolutionizing industries, reshaping economies, and fundamentally altering the way we live, work, and interact with the world around us.');
-        expect(quiz1).toEqual({ error: 'Quiz description is > 100 characters' });
+        expect(quiz1).toStrictEqual({ error: 'Quiz description is > 100 characters' });
     });
 
     // Quiz name already in use
