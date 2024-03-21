@@ -11,10 +11,9 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject } from './interface';
-import { adminQuizInfo, adminQuizNameUpdate } from './quiz';
 import { getTrash, setTrash } from './trash';
 
 // Set up web app
