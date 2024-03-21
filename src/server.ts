@@ -12,7 +12,8 @@ import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
 import { adminQuizCreate, adminQuizList } from './quiz';
-import { adminUserDetails, adminAuthRegister } from './auth';
+import { AdminQuizListReturn } from './quiz';
+import { ErrorObject } from './interface';
 import { adminQuizInfo, adminQuizNameUpdate } from './quiz';
 
 // Set up web app
@@ -114,13 +115,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const body = req.body;
   const token = body.token;
   const session = getSession(token);
-  const name = body.name;
-  const description = body.description;
-  const response = adminQuizCreate (token, name, description);
-
-  if (!token || token !== session) {
+  if ('error' in session) {
     return res.status(401).json({ error: "Token is empty or invalid" });
   }
+  const name = body.name;
+  const description = body.description;
+  const response = adminQuizCreate (session.userId, name, description);
   if ('error' in response) { res.status(400) } else { res.status(200) };
   save();
   return res.json(response);
@@ -131,12 +131,14 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
   const token = query.token as string;
   const session = getSession(token);
-  const response = adminQuizList(token); //Issue here
-
-  if (!token || ('error' in session)) {
+  let response: AdminQuizListReturn | ErrorObject;
+  
+  if (('error' in session)) {
     return res.status(401).json({ error: "Token is invalid or empty" });
+  } else {
+    response = adminQuizList(session.userId);
   }
-  else { res.status(200) };
+  res.status(200);
   return res.json(response);
 });
 
