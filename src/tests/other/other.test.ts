@@ -43,8 +43,6 @@ test('Should clear quiz data', () => {
     clearRequest();
     const user1 = userCreateRequest('anotheruser@genericemail.com', 'password123', 'Another', 'User');
     const quizId = quizCreateRequest(user1.token, 'Biology', 'This is a short quiz about biology concepts.');
-    console.log(quizId);
-    console.log(user1);
 
     const quizzesBeforeClear = quizListRequest(user1.token);
     expect(quizzesBeforeClear.error).toBeUndefined();
