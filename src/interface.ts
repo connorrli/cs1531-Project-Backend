@@ -37,6 +37,13 @@ interface DataStore {
   sessions: UserSession[];
 }
 
+// Interface describing the trashStore object
+interface TrashStore {
+  users: User[];
+  quizzes: Quiz[];
+  sessions: UserSession[];
+}
+
 // Interface describing an error object
 interface ErrorObject {
   error: string;
@@ -51,5 +58,6 @@ export {
   User,
   Quiz,
   DataStore,
+  TrashStore,
   UserSession,
 }
