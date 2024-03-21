@@ -12,6 +12,7 @@ import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
 import { adminQuizInfo, adminQuizNameUpdate, adminQuizCreate, adminQuizList } from './quiz';
+import { setTrash } from './trash';
 
 // Set up web app
 const app = express();
@@ -42,9 +43,23 @@ const load = () => {
 }
 load();
 
+// Loads the trashbase.json file and sets the trash into trashStore if it exists
+const loadTrash = () => {
+  if (fs.existsSync('./trashbase.json')) {
+    const file = fs.readFileSync('./trashbase.json', { encoding: 'utf8' });
+    setTrash(JSON.parse(file));
+  }
+}
+loadTrash();
+
 // Save current `data` dataStore object state into database.json
 const save = () => {
   fs.writeFileSync('./database.json', JSON.stringify(getData()));
+} 
+
+// Save current `trash` trashStore object state into trashbase.json
+const saveTrash = () => {
+  fs.writeFileSync('./trashbase.json', JSON.stringify(getData()));
 } 
 
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
