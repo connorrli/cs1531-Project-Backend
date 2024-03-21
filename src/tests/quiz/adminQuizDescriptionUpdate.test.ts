@@ -1,61 +1,81 @@
-import { adminQuizCreate, adminQuizDescriptionUpdate, adminQuizInfo } from '../../quiz';
-import { adminAuthRegister } from '../../auth';
-import { clear } from '../../other';
-const ERROR = { error: expect.any(String) };
 
-describe('adminQuizDescriptionUpdate function tests', () => {
-    beforeEach(() => {
-        clear();
-    });
+import request from 'sync-request-curl';
+import { url, port } from '../../config.json';
+const ERROR = { error: expect.any(String) };
+const SERVER_URL = `${url}:${port}`
+
+const quizDescUpdReq = (token: string, quizId: number, description: string) => {
+    const res = request('PUT', SERVER_URL + '/v1/admin/quiz/' + quizId.toString() + '/description', { json: {token, description}});
+    return JSON.parse(res.body.toString());
+}
+const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
+    const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {email, password, nameFirst, nameLast}});
+    return JSON.parse(res.body.toString());
+}
+const quizCreateReq = (token: string, name: string, description: string) => {
+    const res = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token, name: name, description: description }});
+    return JSON.parse(res.body.toString());
+}
+const quizInfoReq = (token: string, quizId: number) => {
+    const res = request('GET', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: {token: token}});
+    return JSON.parse(res.body.toString());
+}
+
+beforeEach(() => {
+    request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
+});
+
+
+describe('quizDescUpdReq function tests', () => {
+    
 
     test('Should return an error when quizId does not refer to a valid quiz', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+        const authUserTok = authRegisterReq('test@example.com', 'password123', 'John', 'Doe');
+        const quizId = quizCreateReq(authUserTok.token, 'Test Quiz', 'This is a test quiz');
+        quizDescUpdReq(authUserTok.token, quizId.quizId, 'Updated Test Quiz Description');
     
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
-        adminQuizDescriptionUpdate(authUserId, quizId, 'Updated Test Quiz Description');
-    
-        const result = adminQuizDescriptionUpdate(authUserId + 1, quizId, "");
+        const result = quizDescUpdReq(authUserTok.token, quizId.quizId + 1, "");
         expect(result.error).toEqual(expect.any(String));
     });
     
     test('Should return an error when quizId does not refer to a quiz that the user owns', () => {
-        const { authUserId: userId1 } = adminAuthRegister('test1@example.com', 'password643', 'John', 'Doe');
-        const { authUserId: userId2 } = adminAuthRegister('test2@example.com', 'password292', 'Jane', 'Smith');
-        const { quizId } = adminQuizCreate(userId1, 'Test Quiz', 'This is a test quiz');
+        const userId1  = authRegisterReq('test1@example.com', 'password643', 'John', 'Doe');
+        const userId2 = authRegisterReq('test2@example.com', 'password292', 'Jane', 'Smith');
+        const quizId = quizCreateReq(userId1.token, 'Test Quiz', 'This is a test quiz');
     
-        adminQuizDescriptionUpdate(userId1, quizId, 'Updated Test Quiz Description');
+        quizDescUpdReq(userId1.token, quizId.quizId, 'Updated Test Quiz Description');
     
-        const result = adminQuizDescriptionUpdate(userId2, quizId, "");
+        const result = quizDescUpdReq(userId2.token, quizId.quizId, "");
         expect(result.error).toEqual(expect.any(String));
     });
 
     test('Should return an error when the description is more than 100 characters in length', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password433', 'John', 'Doe');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
+        const authUserTok = authRegisterReq('test@example.com', 'password433', 'John', 'Doe');
+        const quizId = quizCreateReq(authUserTok.token, 'Test Quiz', 'This is a test quiz');
 
         const newDescription = 'This is a description longer than 100 characters. ' + '...'.repeat(50);
-        const result = adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
+        const result = quizDescUpdReq(authUserTok.token, quizId.quizId, newDescription);
        
         expect(result.error).toEqual(expect.any(String));
     });
 
     test('Should update the quiz description successfully', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
+        const authUserTok = authRegisterReq('test@example.com', 'password123', 'John', 'Doe');
+        const quizId = quizCreateReq(authUserTok.token, 'Test Quiz', 'This is a test quiz');
 
         const newDescription = 'This is an updated test quiz description';
-        adminQuizDescriptionUpdate(authUserId, quizId, newDescription);
+        quizDescUpdReq(authUserTok.token, quizId.quizId, newDescription);
 
-        const quizInfo = adminQuizInfo(authUserId, quizId);
+        const quizInfo = quizInfoReq(authUserTok.token, quizId.quizId);
 
         expect(quizInfo.error).toBeUndefined();
         expect(quizInfo.description).toBe(newDescription);
     });
 
     test('Should return an error when authUserId is invalid', () => {
-        const { authUserId } = adminAuthRegister('test@example.com', 'password976', 'Peter', 'Kim');
-        const { quizId } = adminQuizCreate(authUserId, 'Test Quiz', 'This is a test quiz');
-        const result = adminQuizDescriptionUpdate(authUserId + 1, quizId, "");
+        const authUserTok = authRegisterReq('test@example.com', 'password976', 'Peter', 'Kim');
+        const quizId = quizCreateReq(authUserTok.token, 'Test Quiz', 'This is a test quiz');
+        const result = quizDescUpdReq(authUserTok.token + "1", quizId.quizId, "");
         expect(result).toEqual(ERROR);
     });
 });
