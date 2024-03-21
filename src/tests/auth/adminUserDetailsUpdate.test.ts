@@ -2,28 +2,39 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { adminUserDetailsUpdate, adminAuthRegister } from '../../auth';
-import { clear } from '../../other';
+import request from 'sync-request-curl';
+import { url, port } from '../../config.json';
+import { ErrorObject } from '../../interface';
 
+interface Token { token: string };
+
+const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
 
+const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
+    const res = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email, password, nameFirst, nameLast } });
+    return JSON.parse(res.body.toString());
+}
+const userDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string) => {
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email, nameFirst, nameLast} });
+    return JSON.parse(res.body.toString());
+}
 ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// TESTS //////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
 describe('Testing adminUserDetailsUpdate function:', () => {
-    let user1;
-    let user2;
-    let user1_id : number;
-    let user3_id : number;
-
+    let user1: Token | ErrorObject;
+    let user2: Token | ErrorObject;
+    let user1_tok: string;
+    const user3_tok = "";
     beforeEach(() => {
-        clear();
-        user1 = adminAuthRegister('z000000@ad.unsw.edu.au','Password123','John','Doe');
-        user2 = adminAuthRegister('z000001@ad.unsw.edu.au','Password123','Sally','Seashells');
-        if ('authUserId' in user1) user1_id = user1.authUserId;
-        else user1_id = -2; // Just in case
-        user3_id = -1;
+        request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
+        user1 = authRegisterReq('z000000@ad.unsw.edu.au','Password123','John','Doe');
+        user2 = authRegisterReq('z000001@ad.unsw.edu.au','Password123','Sally','Seashells');
+        
+        if ('token' in user1) user1_tok = user1.token;
+
     });
 
     test.each([
@@ -40,9 +51,9 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         ['Last Name Invalid (too short, < 2)', 'z000000@ad.unsw.edu.au', 'John', 'a', ERROR],
         ['Last Name Invalid (too long, > 20)', 'z000000@ad.unsw.edu.au', 'John', 'aaaaaaaaaaaaaaaaaaaaa', ERROR],
     ])('Testing %s', (testTitle, email, nameFirst, nameLast, expectedReturn) => {
-        expect(adminUserDetailsUpdate(user1_id, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
+        expect(userDetailsUpdate(user1_tok, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
     });
-    test('Testing Invalid UserId', () => {
-        expect(adminUserDetailsUpdate(user3_id, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
+    test('Testing Invalid Token', () => {
+        expect(userDetailsUpdate(user3_tok, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
     })
 });
