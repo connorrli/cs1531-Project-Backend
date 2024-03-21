@@ -13,7 +13,9 @@ import { getSession, generateSession } from './helpers/sessionHandler';
 import { 
   ErrorObject,
   User,
+  UserSession,
 } from './interface';
+import { getSession } from './helpers/sessionHandler';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -28,7 +30,7 @@ const NO_ERROR = 0;
 interface AdminUserPasswordUpdateReturn { }
 interface AdminUserDetailsUpdateReturn { }
 interface AdminAuthRegisterReturn { token: String; }
-interface AdminAuthLoginReturn { authUserId: number; }
+interface AdminAuthLoginReturn { token: String; }
 interface UserDetails {
   userId: number;
   name: string;
@@ -52,11 +54,12 @@ interface AdminUserDetailsReturn { user: UserDetails; }
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
-  const data = getData();
-  const userData = data['users'].find(user => user.userId === authUserId);
+function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
 
-  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  const data = getData();
+  const userData = data['users'].find(user => user.userId === session.userId);
+
+  const error = checkUserPasswordUpdate(userData!, oldPassword, newPassword);
   if (error !== NO_ERROR) return error;
 
   userData!.password = newPassword;
@@ -123,14 +126,17 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   email = email.toLowerCase();
   const data = getData();
   const logger = (data.users).find(user => user.email === email);
-  if (logger === undefined) return error.throwError('noEmail');
+  if (logger === undefined) {
+    return error.throwError('noEmail');
+  }
   if (password !== logger.password) {
     logger.numFailedPasswordsSinceLastLogin++;
     return error.throwError('wrongPassword');
   }
   logger.numSuccessfulLogins++;
-
-  return { authUserId: logger.userId };
+  logger.numFailedPasswordsSinceLastLogin = 0;
+  const token = generateSession(logger.userId);
+  return token;
 }
 
 /**

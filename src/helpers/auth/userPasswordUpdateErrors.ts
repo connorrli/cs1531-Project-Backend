@@ -25,12 +25,10 @@ const NO_ERROR = 0;
   * 
   * @returns {object | number} - Returns either an error object or NO_ERROR (0)
 */
-function checkUserPasswordUpdate(userData: User | undefined, oldPassword: string, newPassword: string) {
+function checkUserPasswordUpdate(userData: User, oldPassword: string, newPassword: string): ErrorObject | number {
   let error : ErrorObject | number = NO_ERROR;
 
-  if (typeof userData === 'undefined') {
-    return errors.throwError('invalidUser');
-  } else if (oldPassword !== userData['password']) { 
+  if (oldPassword !== userData['password']) { 
     return { error: 'Old password is incorrect' };
   } else if (oldPassword === newPassword) {
     return { error: 'New password is the same as old password' };
