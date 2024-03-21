@@ -22,7 +22,7 @@ interface OwnedQuizObject {
   name: string;
 }
 
-interface AdminQuizListReturn {
+export interface AdminQuizListReturn {
   quizzes: OwnedQuizObject[];
 }
 
