@@ -14,6 +14,7 @@ import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordU
 import { adminQuizCreate, adminQuizList } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject } from './interface';
+import { adminQuizInfo, adminQuizNameUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -147,7 +148,45 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+// adminQuizInfo Route
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const token = req.query.token as string;
+  if (!token) {
+    return res.status(401).json({ error: "Token is missing" });
+  }
+  const session = getSession(token);
+  if (!session || !('userId' in session)) {
+    return res.status(401).json({ error: "Invalid session" });
+  }
+  const userId = session.userId;
+  const response = adminQuizInfo(userId, quizId);
+  if ('error' in response) {
+    return res.status(403).json(response);
+  }
+  return res.status(200).json(response);
+});
 
+// adminQuizNameUpdate Route
+app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const name = req.body.name;
+  const token = req.query.token as string; // Does every function come with a token in the query???
+  if (!token) {
+    return res.status(401).json({ error: "Token is missing" });
+  }
+  const session = getSession(token);
+  if (!session || !('userId' in session)) {
+    return res.status(401).json({ error: "Invalid session" });
+  }
+  const userId = session.userId;
+  const response = adminQuizNameUpdate(userId, quizId, name);
+  if ('error' in response) {
+    return res.status(403).json(response);
+  }
+  save();
+  return res.status(200).json(response);
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
