@@ -1,0 +1,65 @@
+import request from 'sync-request-curl';
+import { url, port } from '../../config.json';
+
+const SERVER_URL = `${url}:${port}`;
+
+const clearRequest = () => {
+    const response = request('DELETE', SERVER_URL + `/v1/clear`, { qs: {} });
+    return JSON.parse(response.body.toString());
+}
+
+const userDetailsRequest = (token: string) => {
+    const response = request('GET', SERVER_URL + `/v1/admin/user/details`, { qs: { token } });
+    return JSON.parse(response.body.toString());
+}
+
+const quizListRequest = (token: string) => {
+    const response = request('GET', SERVER_URL + `/v1/admin/quiz/list`, { qs: { token } });
+    return JSON.parse(response.body.toString());
+}
+
+const userCreateRequest = (email: string, password: string, nameFirst: string, nameLast: string) => {
+    const response = request('POST', SERVER_URL + `/v1/admin/auth/register`, { json: { email, password, nameFirst, nameLast } });
+    return JSON.parse(response.body.toString());
+}
+
+const quizCreateRequest = (token: string, name: string, description: string) => {
+    const response = request('POST', SERVER_URL + `/v1/admin/quiz`, { json: { token, name, description } });
+    return JSON.parse(response.body.toString());
+}
+
+test('Should clear user data', () => {
+    const user1 = userCreateRequest('anotheruser@genericemail.com', 'password123', 'Another', 'User');
+    clearRequest();
+    const userData = userDetailsRequest(user1.token);
+    expect(userData.error).toBeDefined();
+});
+
+test('Should clear quiz data', () => {
+    const user1 = userCreateRequest('anotheruser@genericemail.com', 'password123', 'Another', 'User');
+    const quizId = quizCreateRequest(user1.token, 'Biology', 'This is a short quiz about biology concepts.');
+
+    const quizzesBeforeClear = quizListRequest(user1.token);
+    expect(quizzesBeforeClear.error).toBeUndefined();
+    expect(quizzesBeforeClear).toContainEqual(expect.objectContaining({ name: 'Biology' }));
+
+    clearRequest();
+
+    const quizzesAfterClear = quizListRequest(user1.token);
+    expect(quizzesAfterClear.error).toBeDefined();
+});
+
+test('Should actually delete the quiz data in the datastore', () => {
+    const ownerUser = userCreateRequest('owner@example.com', 'password123', 'Owner', 'User');
+    const quizId = quizCreateRequest(ownerUser.token, 'Math Quiz', 'This is a math quiz.');
+
+    const quizzesBeforeClear = quizListRequest(ownerUser.token);
+    expect(quizzesBeforeClear.error).toBeUndefined();
+    expect(quizzesBeforeClear).toContainEqual(expect.objectContaining({ name: 'Math Quiz' }));
+
+    clearRequest();
+
+    const quizzesAfterClear = quizListRequest(ownerUser.token);
+    expect(quizzesAfterClear.error).toBeDefined();
+    expect(quizzesAfterClear).toStrictEqual([]);
+});
