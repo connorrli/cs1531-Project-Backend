@@ -11,9 +11,7 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList } from './quiz';
-import { adminUserDetails, adminAuthRegister } from './auth';
-import { adminQuizInfo, adminQuizNameUpdate } from './quiz';
+import { adminQuizInfo, adminQuizNameUpdate, adminQuizCreate, adminQuizList } from './quiz';
 
 // Set up web app
 const app = express();

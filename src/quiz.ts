@@ -7,6 +7,7 @@ import { isValidUser, isValidQuiz, isOwner, authUserIdCheck } from './helpers/ch
 import { invalidRegConditions } from './helpers/auth/registErrors';
 import { error } from './helpers/errors';
 import { ErrorObject, Quiz } from './interface';
+import { getTrash, setTrash } from './trash';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -90,7 +91,12 @@ function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveRet
     return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
   }
 
-  const quizIndex = getData().quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizToRemove = data.quizzes[quizIndex];
+  let trash = getTrash();
+  trash.quizzes.push(quizToRemove);
+
   getData().quizzes.splice(quizIndex, 1);
 
   return {};
