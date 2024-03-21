@@ -11,9 +11,9 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate } from './quiz';
 import { AdminQuizListReturn } from './quiz';
-import { ErrorObject } from './interface';
+import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
 import { clear } from './other';
 
@@ -207,6 +207,19 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   }
   save();
   return res.status(200).json(response);
+});
+
+//adminQuizDescriptionUpdate route
+app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
+  const quizid: number = parseInt(req.params.quizId);
+  const token: string = req.body.token;
+  const desc: string = req.body.description;
+  const session: UserSession | ErrorObject = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({error: "token is empty or not valid"});
+  }
+  const userId: number = session.userId;
+  return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
 });
 
 // ====================================================================
