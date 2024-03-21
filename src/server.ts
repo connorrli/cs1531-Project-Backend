@@ -12,6 +12,8 @@ import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
 import { adminQuizCreate, adminQuizList } from './quiz';
+import { AdminQuizListReturn } from './quiz';
+import { ErrorObject } from './interface';
 
 // Set up web app
 const app = express();
@@ -129,12 +131,14 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
   const token = query.token as string;
   const session = getSession(token);
-  const response = adminQuizList(token); //Issue here
-
-  if (!token || ('error' in session)) {
+  let response: AdminQuizListReturn | ErrorObject;
+  
+  if (('error' in session)) {
     return res.status(401).json({ error: "Token is invalid or empty" });
+  } else {
+    response = adminQuizList(session.userId);
   }
-  else { res.status(200) };
+  res.status(200);
   return res.json(response);
 });
 
