@@ -2,6 +2,7 @@ import { adminQuizRemove, adminQuizCreate, adminQuizInfo } from '../../quiz';
 import { clear } from '../../other';
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
+import { getTrash } from '../../trash';
 
 const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
@@ -26,6 +27,9 @@ describe('adminQuizRemove function tests', () => {
                 const result = adminQuizRemove(test1U.authUserId, test1Q.quizId);
                 expect(result).toStrictEqual({});
                 expect(adminQuizInfo(test1U.authUserId, test1Q.quizId)).toHaveProperty("error");
+                const trash = getTrash();
+                const removedQuiz = trash.quizzes.find(quiz => quiz.quizId === test1Q.quizId);
+                expect(removedQuiz).toBeDefined();
             }
         }    
     });
