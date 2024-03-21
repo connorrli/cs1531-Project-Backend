@@ -15,6 +15,7 @@ import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate } fr
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject } from './interface';
 import { getTrash, setTrash } from './trash';
+import { clear } from './other';
 
 // Set up web app
 const app = express();
@@ -94,7 +95,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const pass = req.body.password as string;
 
   const response = adminAuthLogin(email, pass);
-  if ('error' in response) return res.status(400).json(response);
+  if ('error' in response) res.status(400).json(response);
   
   save();
   return res.json(response);
@@ -130,7 +131,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token = body.token;
   const session = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Token is empty or invalid" });
+    return res.status(401).json({ error: "Token is invalid." });
   }
   const name = body.name;
   const description = body.description;
@@ -160,6 +161,12 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string; 
   return res.json(echo(data));
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const response = clear();
+  save();
+  res.json(response);
 });
 
 // adminQuizInfo Route
