@@ -1,3 +1,4 @@
+// Import statements of various packages/libraries that we will leverage for the project
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
 import morgan, { token } from 'morgan';
@@ -65,6 +66,7 @@ const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 } 
 
+// GET request route for adminUserDetails 
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
 
@@ -125,7 +127,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// Quiz Create
+// POST request for quiz create
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const body = req.body;
   const token = body.token;
@@ -141,7 +143,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// Quiz List
+// GET request for quiz list
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
   const token = query.token as string;
@@ -163,13 +165,14 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
+// DELETE request for the clear route
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   save();
   res.json(response);
 });
 
-// adminQuizInfo Route
+// GET request for adminQuizInfo route
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.query.token as string;
@@ -188,7 +191,7 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.status(200).json(response);
 });
 
-// adminQuizNameUpdate Route
+// PUT request for adminQuizNameUpdate route
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const name = req.body.name;
@@ -213,6 +216,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
 
+// Default USE request for handling error cases
 app.use((req: Request, res: Response) => {
   const error = `
     Route not found - This could be because:
@@ -228,7 +232,7 @@ app.use((req: Request, res: Response) => {
   res.json({ error });
 });
 
-// start server
+// Start server
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
