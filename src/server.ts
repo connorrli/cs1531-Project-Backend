@@ -15,6 +15,7 @@ import { adminQuizCreate, adminQuizList } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject } from './interface';
 import { adminQuizInfo, adminQuizNameUpdate } from './quiz';
+import { clear } from './other';
 
 // Set up web app
 const app = express();
@@ -116,7 +117,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token = body.token;
   const session = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Token is empty or invalid" });
+    return res.status(401).json({ error: "xxxyyyfk" });
   }
   const name = body.name;
   const description = body.description;
@@ -187,6 +188,13 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   save();
   return res.status(200).json(response);
 });
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const response = clear();
+  save();
+  res.json(response);
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
