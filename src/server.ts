@@ -114,13 +114,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const body = req.body;
   const token = body.token;
   const session = getSession(token);
-  const name = body.name;
-  const description = body.description;
-  const response = adminQuizCreate (token, name, description);
-
-  if (!token || token !== session) {
+  if ('error' in session) {
     return res.status(401).json({ error: "Token is empty or invalid" });
   }
+  const name = body.name;
+  const description = body.description;
+  const response = adminQuizCreate (session.userId, name, description);
   if ('error' in response) { res.status(400) } else { res.status(200) };
   save();
   return res.json(response);
