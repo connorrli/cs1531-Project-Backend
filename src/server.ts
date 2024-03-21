@@ -205,6 +205,8 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(403).json(response);
   }
+  save();
+  return res.status(200).json(response);
 });
 
 // ====================================================================
