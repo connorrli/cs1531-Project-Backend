@@ -1,5 +1,5 @@
 // Import statements of various packages/libraries that we will leverage for the project
-import express, { json, Request, Response } from 'express';
+import express, { json, Request, response, Response } from 'express';
 import { echo } from './newecho';
 import morgan, { token } from 'morgan';
 import config from './config.json';
@@ -11,12 +11,13 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate } from './quiz';
+import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate } from './auth';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove } from './quiz';
 import { AdminQuizListReturn } from './quiz';
-import { ErrorObject, UserSession } from './interface';
+import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
 import { clear } from './other';
+import { Session } from 'inspector';
 
 // Set up web app
 const app = express();
@@ -66,16 +67,6 @@ const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 } 
 
-// GET request route for adminUserDetails 
-app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-
-  const session = getSession(token);
-  if ('error' in session) return res.status(401).json(session);
-  
-  const response = adminUserDetails(session.userId);
-  return res.json(response);
-});
 
 // adminAuthRegister POST request route
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
@@ -113,6 +104,24 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   return res.json(adminUserDetails(session.userId));
 });
 
+//adminUserDetailsUpdate request route
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token: string = req.body.token;
+  const session: ErrorObject | UserSession = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: "token is invalid or empty" });
+  }
+  const email: string = req.body.email;
+  const nameFirst: string = req.body.nameFirst;
+  const nameLast: string = req.body.nameLast;
+  const response = adminUserDetailsUpdate(session.userId, email, nameFirst, nameLast);
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+
+  return res.json(response);
+});
+
 // adminUserPasswordUpdate PUT request route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
@@ -129,15 +138,14 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // POST request for quiz create
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const body = req.body;
-  const token = body.token;
-  const session = getSession(token);
+  const token: string = req.body.token;
+  const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
     return res.status(401).json({ error: "Token is invalid." });
   }
-  const name = body.name;
-  const description = body.description;
-  const response = adminQuizCreate (session.userId, name, description);
+  const name: string = req.body.name;
+  const description: string = req.body.description;
+  const response: { quizId: Number } | ErrorObject = adminQuizCreate (session.userId, name, description);
   if ('error' in response) { res.status(400) } else { res.status(200) };
   save();
   return res.json(response);
@@ -169,7 +177,26 @@ app.get('/echo', (req: Request, res: Response) => {
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   save();
+  setTrash({"users": [], "quizzes": [], "sessions": []});
+  saveTrash();
   res.json(response);
+});
+
+//DELETE request for quizdelete
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizId: number = parseInt(req.params.quizid);
+  const token: string = req.query.token.toString();
+  const session: UserSession | ErrorObject = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: "Token is invalid"});
+  }
+  const response = adminQuizRemove(session.userId, quizId);
+  if ('error' in response) {
+    return res.status(403).json(response);
+  }
+  saveTrash();
+  save();
+  return res.json(response);
 });
 
 // GET request for adminQuizInfo route
@@ -193,18 +220,15 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 
 // PUT request for adminQuizNameUpdate route
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizid);
-  const name = req.body.name;
-  const token = req.query.token as string; // Does every function come with a token in the query???
-  if (!token) {
-    return res.status(401).json({ error: "Token is missing" });
-  }
-  const session = getSession(token);
-  if (!session || !('userId' in session)) {
+  const quizId: number = parseInt(req.params.quizid);
+  const name: string = req.body.name;
+  const token: string = req.body.token;
+  const session: UserSession | ErrorObject = getSession(token);
+  if ('error' in session) {
     return res.status(401).json({ error: "Invalid session" });
   }
-  const userId = session.userId;
-  const response = adminQuizNameUpdate(userId, quizId, name);
+  const userId: number = session.userId;
+  const response: ErrorObject | {} = adminQuizNameUpdate(userId, quizId, name);
   if ('error' in response) {
     return res.status(403).json(response);
   }
