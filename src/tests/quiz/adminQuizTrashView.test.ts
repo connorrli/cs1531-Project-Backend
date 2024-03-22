@@ -39,8 +39,7 @@ beforeEach(() => {
 describe('Correct output with proper requests', () => {
     test('Views one test from one user', () => {
         expect(quizrm).toStrictEqual({});
-        const test = adminQuizTrashView(user1.token);
-        expect(test).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Quiz" }] });
+        expect(adminQuizTrashView(user1.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Quiz" }] });
     });
     test('Views the correct users quiz', () => {
         const user2: AuthRegister = adminAuthRegister("janedoe@gmail.com", "password456", "Jane", "Doe");
@@ -48,16 +47,13 @@ describe('Correct output with proper requests', () => {
         const quiz2rm: QuizRemove = adminQuizRemove(user2.token, quiz2.quizId);
 
         expect(quiz2rm).toStrictEqual({});
-        const test1 = adminQuizTrashView(user1.token);
-        const test2 = adminQuizTrashView(user2.token);
         
-        expect(test1).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Quiz" }] });
-        expect(test2).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Janes Quiz" }] });
+        expect(adminQuizTrashView(user1.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Quiz" }] });
+        expect(adminQuizTrashView(user2.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: "Janes Quiz" }] });
     });
     test('Shows zero quizzes for a user who has never deleted a quiz', () => {
         const user2: AuthRegister = adminAuthRegister("janedoe@gmail.com", "password456", "Jane", "Doe");
-        const test1 = adminQuizTrashView(user2.token);
-        expect(test1).toStrictEqual({ quizzes: [] });
+        expect(adminQuizTrashView(user2.token)).toStrictEqual({ quizzes: [] });
     })
 });
 

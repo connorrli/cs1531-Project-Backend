@@ -40,7 +40,7 @@ describe('adminQuizRemove function tests', () => {
                 const result = adminQuizRemove(test1U.token, test1Q.quizId);
                 expect(result).toStrictEqual({});
                 expect(adminQuizInfo(test1U.token, test1Q.quizId)).toHaveProperty("error");
-                /*const trashres = (request('GET', SERVER_URL + '/v1/admin/quiz/trash', {qs: { test1U.token }}));
+                const trashres = (request('GET', SERVER_URL + '/v1/admin/quiz/trash', {qs: { token: test1U.token }}));
                 const trash = JSON.parse(trashres.body.toString());
                 let removedQuiz;
                 for(const quiz of trash.quizzes) {
@@ -48,7 +48,7 @@ describe('adminQuizRemove function tests', () => {
                         removedQuiz = quiz;
                     }
                 }
-                expect(removedQuiz).toBeDefined();*/ // UNCOMMENT THIS when trash get is implemented
+                expect(removedQuiz).toStrictEqual({ quizId: test1Q.quizId, name: "Test Quiz"});
             }
         }    
     });
