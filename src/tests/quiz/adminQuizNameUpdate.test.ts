@@ -48,7 +48,7 @@ describe('adminQuizNameUpdate function tests', () => {
         if ('token' in authUser) {
             const quiz = adminQuizCreate(authUser.token, 'Test Quiz', 'This is a test quiz');
             if ('quizId' in quiz) {
-                const result = adminQuizNameUpdate(authUser.token + 1, quiz.quizId, 'name');
+                const result = adminQuizNameUpdate(authUser.token + "1", quiz.quizId, 'name');
                 expect(result).toStrictEqual(ERROR);
             }
         }
