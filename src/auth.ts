@@ -168,7 +168,7 @@ function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorOb
 /**
   * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
   * 
-  * @param {integer} authUserId - Stores user authentication details after updating properties
+  * @param {object} session - Stores user authentication details after updating properties
   * @param {integer} email - Stores the user email after updating their properties
   * @param {string} nameFirst - Stores the first name of the logged in user after updating properties
   * @param {string} nameLast - Stores the last name of the logged in user after updating properties

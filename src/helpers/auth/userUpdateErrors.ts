@@ -3,14 +3,13 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 import { 
-    authUserIdCheck, 
     emailValidCheck, 
     nameFirstValidCheck, 
     nameLastValidCheck 
 } from '../checkForErrors';
 
 import { getData } from '../../dataStore';
-import { DataStore, ErrorObject, User, UserSession } from '../../interface';
+import { User, UserSession } from '../../interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -26,7 +25,7 @@ const NOT_FOUND = 'undefined';
 /**
   * Check updated details of a user for any errors
   * 
-  * @param {integer} authUserId - The user's unique id
+  * @param {object} session - A user's session
   * @param {integer} email - The user's current or updated email
   * @param {string} nameFirst - The user's current or updated first name
   * @param {string} nameLast - The user's current or updated last name
