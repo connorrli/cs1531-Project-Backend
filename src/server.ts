@@ -67,16 +67,6 @@ const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 } 
 
-// GET request route for adminUserDetails 
-app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-
-  const session = getSession(token);
-  if ('error' in session) return res.status(401).json(session);
-  
-  const response = adminUserDetails(session.userId);
-  return res.json(response);
-});
 
 // adminAuthRegister POST request route
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
