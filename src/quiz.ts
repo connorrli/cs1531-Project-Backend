@@ -276,6 +276,7 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
+// Implementation for the 'adminQuizTrashView' function
 function adminQuizTrashView (userId: number) {
   const trash = getTrash();
   const trashQuizzes = [];
