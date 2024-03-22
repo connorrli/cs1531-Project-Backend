@@ -61,8 +61,8 @@ describe('adminQuizNameUpdate function tests', () => {
             if ('quizId' in quiz) {
                 const result = adminQuizNameUpdate(authUser.token, quiz.quizId + 1, 'name');
                 expect(result).toStrictEqual(ERROR);
-            } else (expect(2).toEqual(1));
-        } else (expect(2).toEqual(1));
+            }
+        }
     });
     
     test('Should return an error when quizId does not refer to a quiz that the user owns', () => {
