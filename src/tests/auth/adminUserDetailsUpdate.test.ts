@@ -2,8 +2,7 @@
 ///////////////////////////////////// IMPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-import { adminUserDetailsUpdate, adminAuthRegister } from '../../auth';
-import { clear } from '../../other';
+import { clearRequest, userCreateRequest, userDetailsUpdateRequest } from '../requests';
 
 const ERROR = { error: expect.any(String) };
 
@@ -12,18 +11,15 @@ const ERROR = { error: expect.any(String) };
 ///////////////////////////////////////////////////////////////////////////////////
 
 describe('Testing adminUserDetailsUpdate function:', () => {
-    let user1;
-    let user2;
-    let user1_id : number;
-    let user3_id : number;
+    let user1Token : string;
+    let user2Token : string;
+    let user3Token : string;
 
     beforeEach(() => {
-        clear();
-        user1 = adminAuthRegister('z000000@ad.unsw.edu.au','Password123','John','Doe');
-        user2 = adminAuthRegister('z000001@ad.unsw.edu.au','Password123','Sally','Seashells');
-        if ('authUserId' in user1) user1_id = user1.authUserId;
-        else user1_id = -2; // Just in case
-        user3_id = -1;
+        clearRequest();
+        user1Token = userCreateRequest('z000000@ad.unsw.edu.au','Password123','John','Doe').token;
+        user2Token = userCreateRequest('z000001@ad.unsw.edu.au','Password123','Sally','Seashells').token;
+        user3Token = 'INVALIDTOKEN'
     });
 
     test.each([
@@ -40,9 +36,9 @@ describe('Testing adminUserDetailsUpdate function:', () => {
         ['Last Name Invalid (too short, < 2)', 'z000000@ad.unsw.edu.au', 'John', 'a', ERROR],
         ['Last Name Invalid (too long, > 20)', 'z000000@ad.unsw.edu.au', 'John', 'aaaaaaaaaaaaaaaaaaaaa', ERROR],
     ])('Testing %s', (testTitle, email, nameFirst, nameLast, expectedReturn) => {
-        expect(adminUserDetailsUpdate(user1_id, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
+        expect(userDetailsUpdateRequest(user1Token, email, nameFirst, nameLast)).toStrictEqual(expectedReturn);
     });
     test('Testing Invalid UserId', () => {
-        expect(adminUserDetailsUpdate(user3_id, 'z000002@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
+        expect(userDetailsUpdateRequest(user3Token, 'z000000@ad.unsw.edu.au', 'John', 'Doe')).toStrictEqual(ERROR);
     })
 });
