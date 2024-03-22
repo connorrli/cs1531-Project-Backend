@@ -1,5 +1,3 @@
-import { adminQuizCreate, adminQuizInfo, adminQuizNameUpdate } from '../../quiz';
-import { clear } from '../../other';
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
 
@@ -11,13 +9,24 @@ const adminAuthRegister = (email: string, password: string, nameFirst: string, n
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
+const adminQuizCreate = (token: string, name: string, description: string) => {
+    const result = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name, description} });
+    return JSON.parse(result.body.toString());
+}
+const adminQuizInfo = (token: string, quizId: number) => {
+    const result = request('GET', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: { token }});
+    return JSON.parse(result.body.toString());
+}
+const adminQuizNameUpdate = (token: string, quizId: number, name: string) => {
+    const result = request('PUT', SERVER_URL + '/v1/admin/quiz/' + quizId.toString() + '/name', { json: { token, name }});
+    return JSON.parse(result.body.toString());
+}
+
+beforeEach(() => {
+    request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
+});
 
 describe('adminQuizNameUpdate function tests', () => {
-
-    beforeEach(() => {
-        clear();
-    })
-
     test('Should correctly update the quiz name', () => {
         const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
         if ('authUserId' in authUser) {
