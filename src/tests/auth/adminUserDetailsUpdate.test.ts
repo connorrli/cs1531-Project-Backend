@@ -11,10 +11,13 @@ interface Token { token: string };
 const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
 
+// 'authRegisterReq' function
 const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const res = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email, password, nameFirst, nameLast } });
     return JSON.parse(res.body.toString());
 }
+
+// 'userDetailsUpdate' function
 const userDetailsUpdate = (token: string, email: string, nameFirst: string, nameLast: string) => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email, nameFirst, nameLast} });
     return JSON.parse(res.body.toString());

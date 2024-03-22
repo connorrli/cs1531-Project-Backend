@@ -8,18 +8,25 @@ interface AuthRegister { token: string };
 interface QuizCreate { quizId: number };
 interface QuizRemove {};
 
+// 'adminAuthRegister' function
 const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizCreate' function
 const adminQuizCreate = (token: string, name: string, description: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name, description} });
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizRemove' function
 const adminQuizRemove = (token: string, quizId: number) => {
     const result = request('DELETE', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: { token }});
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizTrashView' function
 const adminQuizTrashView = (token: string) => {
     const result = request('GET', SERVER_URL + '/v1/admin/quiz/trash', { qs: { token }});
     return JSON.parse(result.body.toString());
@@ -36,6 +43,7 @@ beforeEach(() => {
     quizrm = adminQuizRemove(user1.token, quiz1.quizId);
 });
 
+// Success cases
 describe('Correct output with proper requests', () => {
     test('Views one test from one user', () => {
         expect(quizrm).toStrictEqual({});
@@ -57,6 +65,7 @@ describe('Correct output with proper requests', () => {
     })
 });
 
+// Error case
 describe('Gives an error when neccesary', () => {
     test('Invalid token', () => {
         expect(adminQuizTrashView(user1.token + "1")).toEqual({ error: expect.any(String) });

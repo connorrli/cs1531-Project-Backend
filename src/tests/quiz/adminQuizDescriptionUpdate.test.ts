@@ -4,18 +4,25 @@ import { url, port } from '../../config.json';
 const ERROR = { error: expect.any(String) };
 const SERVER_URL = `${url}:${port}`
 
+// 'quizDescUpdReq' function
 const quizDescUpdReq = (token: string, quizId: number, description: string) => {
     const res = request('PUT', SERVER_URL + '/v1/admin/quiz/' + quizId.toString() + '/description', { json: {token, description}});
     return JSON.parse(res.body.toString());
 }
+
+// 'authRegisterReq' function
 const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {email, password, nameFirst, nameLast}});
     return JSON.parse(res.body.toString());
 }
+
+// 'quizCreateReq' function
 const quizCreateReq = (token: string, name: string, description: string) => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token, name: name, description: description }});
     return JSON.parse(res.body.toString());
 }
+
+// 'quizInfoReq' function
 const quizInfoReq = (token: string, quizId: number) => {
     const res = request('GET', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: {token: token}});
     return JSON.parse(res.body.toString());
@@ -59,6 +66,7 @@ describe('quizDescUpdReq function tests', () => {
         expect(result.error).toEqual(expect.any(String));
     });
 
+    // This is the only success case here. All the others are error cases.
     test('Should update the quiz description successfully', () => {
         const authUserTok = authRegisterReq('test@example.com', 'password123', 'John', 'Doe');
         const quizId = quizCreateReq(authUserTok.token, 'Test Quiz', 'This is a test quiz');

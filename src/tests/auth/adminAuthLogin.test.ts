@@ -6,10 +6,13 @@ const TOKEN = { token: expect.any(String) };
 
 const SERVER_URL = `${url}:${port}`;
 
+// 'authRegisterReq' function
 const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 };
+
+// 'authLoginReq' function
 const authLoginReq = (email: string, password: string) => {
     const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {json: {email, password}});
     return JSON.parse(res.body.toString());
@@ -23,7 +26,7 @@ beforeEach( () => {
     request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
 });
 
-
+// Success cases
 describe ('Should successfuly log in under normal conditions.', () => { 
     test('Should log in John Doe, the only user on the entire platform', () => {
         const johnId = authRegisterReq('johndoe@gmail.com', 'password123', 'John', 'Doe');
@@ -37,7 +40,7 @@ describe ('Should successfuly log in under normal conditions.', () => {
     })   
 });
 
-
+// Error cases
 describe ('Should throw an error message under error conditions', () => {
     test('Should throw error, if email isnt registered', () => {
         expect(authLoginReq('johndoedoesntexist@gmail.com', 'password123')).toEqual(ERROR);

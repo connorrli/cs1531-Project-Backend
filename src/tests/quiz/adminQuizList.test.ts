@@ -12,14 +12,19 @@ let user1: { token: string } | ErrorObject;
 let user1_token : string;
 let list1: { quizId: number } | ErrorObject;
 
+// 'adminAuthRegister' function
 const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizCreate' function
 const adminQuizCreate = (token: string, name: string, description: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name, description} });
     return JSON.parse(result.body.toString());
 }
+
+// 'quizListReq' function
 const quizListReq = (token: string) => {
     const result = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token }});
     return JSON.parse(result.body.toString());

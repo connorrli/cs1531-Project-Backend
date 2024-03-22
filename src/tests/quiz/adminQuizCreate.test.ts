@@ -6,10 +6,13 @@ import request from 'sync-request-curl';
 
 const SERVER_URL = `${url}:${port}`;
 
+// 'adminAuthRegister' function
 const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
+
+// 'quizCreateRequest' function
 const quizCreateRequest = (token: string, name: string, description: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name, description} });
     return JSON.parse(result.body.toString());
@@ -29,7 +32,7 @@ beforeEach(() => {
 
 describe('Testing QuizCreate function:', () => {
     
-    
+    // Success case
     test('successful output upon successful input', () => {
         quiz1 = quizCreateRequest(user1_token, "Scrimbo", "bloink");
         expect(quiz1).toStrictEqual({ quizId: expect.any(Number) });
@@ -39,6 +42,7 @@ describe('Testing QuizCreate function:', () => {
         if ('quizId' in quiz1 && 'quizId' in quiz2) expect(quiz1.quizId).not.toEqual(quiz2.quizId);
     });
 
+    // Error cases
     // token is not valid
     test('token is not a valid user', () => {
         const user1 = adminAuthRegister('email123@gmail.com', 'rtgfre356', 'Smith', 'Lee');

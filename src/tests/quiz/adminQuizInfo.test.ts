@@ -4,14 +4,19 @@ import request from 'sync-request-curl';
 const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
 
+// 'adminAuthRegister' function
 const adminAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizCreate' function
 const adminQuizCreate = (token: string, name: string, description: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name, description} });
     return JSON.parse(result.body.toString());
 }
+
+// 'adminQuizInfo' function
 const adminQuizInfo = (token: string, quizId: number) => {
     const result = request('GET', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: { token }});
     return JSON.parse(result.body.toString());
@@ -22,6 +27,7 @@ beforeEach(() => {
 });
 
 describe('adminQuizInfo function tests', () => {
+    // A success case and multiple error cases
     test('Returns quiz information for a valid quiz owned by the user', () => {
         const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
         if ('token' in authUser) {

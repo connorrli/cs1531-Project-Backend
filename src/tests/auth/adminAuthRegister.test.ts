@@ -9,12 +9,13 @@ beforeEach(() => {
     request('DELETE', SERVER_URL + '/v1/clear', {qs: {} });
 })
 
+// 'authRegisterReq' function
 const authRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
     const result = request('POST', SERVER_URL + '/v1/admin/auth/register', {json: {nameFirst, nameLast, email, password}});
     return JSON.parse(result.body.toString());
 }
 
-
+// Various success cases
 describe('Testing that registration is sucessful for valid registration attempts', () => {
     test('Should return an ID for a single valid registration', () => {
         
@@ -41,6 +42,7 @@ describe('Testing that registration is sucessful for valid registration attempts
     });
 });
 
+// Various error cases
 describe('Testing that registration returns error if and only if attempts are invalid', () => {
     test('Should return an error, if email is invalid', () => {
         const test1 = authRegisterReq('johndoe2genericemail.com', 'password123', 'John', 'Doe');
