@@ -96,8 +96,9 @@ function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveRet
   const quizToRemove = data.quizzes[quizIndex];
   let trash = getTrash();
   trash.quizzes.push(quizToRemove);
-
-  getData().quizzes.splice(quizIndex, 1);
+  setTrash(trash);
+  data.quizzes.splice(quizIndex, 1);
+  setData(data);
 
   return {};
 }
