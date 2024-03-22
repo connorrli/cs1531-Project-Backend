@@ -12,7 +12,7 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
@@ -177,7 +177,26 @@ app.get('/echo', (req: Request, res: Response) => {
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   save();
+  setTrash({"users": [], "quizzes": [], "sessions": []});
+  saveTrash();
   res.json(response);
+});
+
+//DELETE request for quizdelete
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizId: number = parseInt(req.params.quizid);
+  const token: string = req.query.token.toString();
+  const session: UserSession | ErrorObject = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: "Token is invalid"});
+  }
+  const response = adminQuizRemove(session.userId, quizId);
+  if ('error' in response) {
+    return res.status(403).json(response);
+  }
+  saveTrash();
+  save();
+  return res.json(response);
 });
 
 // GET request for adminQuizInfo route
