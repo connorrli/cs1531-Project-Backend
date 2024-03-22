@@ -276,6 +276,11 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
+function adminQuizTrashView (userId: number) {
+  const stub: AdminQuizListReturn = {quizzes: [] };
+  return {stub};
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -286,5 +291,6 @@ export {
   adminQuizRemove,
   adminQuizInfo,
   adminQuizNameUpdate,
-  adminQuizDescriptionUpdate
+  adminQuizDescriptionUpdate,
+  adminQuizTrashView
 };
