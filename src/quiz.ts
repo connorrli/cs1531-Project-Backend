@@ -277,8 +277,14 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
 }
 
 function adminQuizTrashView (userId: number) {
-  const stub: AdminQuizListReturn = {quizzes: [] };
-  return {stub};
+  const trash = getTrash();
+  const trashQuizzes = [];
+  for (const trashedQuiz of trash.quizzes) {
+    if (trashedQuiz.quizOwner === userId) {
+      trashQuizzes.push({ quizId: trashedQuiz.quizId, name: trashedQuiz.name });
+    }
+  }
+  return { quizzes: trashQuizzes };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
