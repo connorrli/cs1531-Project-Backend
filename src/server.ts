@@ -12,7 +12,7 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
@@ -67,6 +67,14 @@ const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 } 
 
+//trash view get request
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token: string = req.query.token as string;
+  const session: UserSession | ErrorObject = getSession(token);
+  if ('error' in session) return res.status(401).json({ error: "Token is invalid or empty"});
+  const quizzes = adminQuizTrashView(session.userId);
+  return res.json(quizzes);
+});
 
 // adminAuthRegister POST request route
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
@@ -88,7 +96,7 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const pass = req.body.password as string;
 
   const response = adminAuthLogin(email, pass);
-  if ('error' in response) res.status(400).json(response);
+  if ('error' in response) { return res.status(400).json(response) };
   
   save();
   return res.json(response);
@@ -248,6 +256,7 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const userId: number = session.userId;
   return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
 });
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

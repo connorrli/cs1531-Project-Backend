@@ -276,6 +276,17 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
+function adminQuizTrashView (userId: number) {
+  const trash = getTrash();
+  const trashQuizzes = [];
+  for (const trashedQuiz of trash.quizzes) {
+    if (trashedQuiz.quizOwner === userId) {
+      trashQuizzes.push({ quizId: trashedQuiz.quizId, name: trashedQuiz.name });
+    }
+  }
+  return { quizzes: trashQuizzes };
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -286,5 +297,6 @@ export {
   adminQuizRemove,
   adminQuizInfo,
   adminQuizNameUpdate,
-  adminQuizDescriptionUpdate
+  adminQuizDescriptionUpdate,
+  adminQuizTrashView
 };
