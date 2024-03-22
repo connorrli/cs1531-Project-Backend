@@ -148,15 +148,14 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // POST request for quiz create
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const body = req.body;
-  const token = body.token;
-  const session = getSession(token);
+  const token: string = req.body.token;
+  const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
     return res.status(401).json({ error: "Token is invalid." });
   }
-  const name = body.name;
-  const description = body.description;
-  const response = adminQuizCreate (session.userId, name, description);
+  const name: string = req.body.name;
+  const description: string = req.body.description;
+  const response: { quizId: Number } | ErrorObject = adminQuizCreate (session.userId, name, description);
   if ('error' in response) { res.status(400) } else { res.status(200) };
   save();
   return res.json(response);
