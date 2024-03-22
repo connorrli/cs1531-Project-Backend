@@ -10,7 +10,7 @@ import {
 } from '../checkForErrors';
 
 import { getData } from '../../dataStore';
-import { DataStore, ErrorObject, User } from '../../interface';
+import { DataStore, ErrorObject, User, UserSession } from '../../interface';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -33,17 +33,14 @@ const NOT_FOUND = 'undefined';
   * 
   * @returns {object || number} - Returns either an error object or NO_ERROR (0)
 */
-function checkDetailsUpdate(authUserId: number, email: string, nameFirst: string, nameLast: string) {
-    const data : DataStore = getData();
+function checkDetailsUpdate(session: UserSession, email: string, nameFirst: string, nameLast: string) {
+    const data = getData();
 
-    let error : ErrorObject | number = authUserIdCheck(authUserId);
-    if (error !== NO_ERROR) return error;
+    let error;
 
     const userWithEmail : User | undefined = data['users'].find(user => user.email === email);
     if (typeof userWithEmail !== NOT_FOUND) {
-        if (userWithEmail!.userId !== authUserId) {
-            return { error: 'email already in use' };
-        }
+        if (userWithEmail!.userId !== session.userId) return { error: 'email already in use' };
     }
 
     error = emailValidCheck(email);
