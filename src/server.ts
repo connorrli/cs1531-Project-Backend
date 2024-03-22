@@ -11,7 +11,7 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate } from './auth';
+import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
@@ -67,7 +67,7 @@ const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 } 
 
-//trash view get request
+// quizTrashView GET request route
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const token: string = req.query.token as string;
   const session: UserSession | ErrorObject = getSession(token);
@@ -102,6 +102,17 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// adminAuthLogOut POST request route
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const token = req.body.token as string;
+
+  const response = adminAuthLogout(token);
+  if ('error' in response) res.status(401).json(response);
+  
+  save();
+  return res.json(response);
+});
+
 // adminUserDetails GET request route
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
@@ -112,7 +123,7 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   return res.json(adminUserDetails(session.userId));
 });
 
-//adminUserDetailsUpdate request route
+// adminUserDetailsUpdate PUT request route
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const token: string = req.body.token;
   const session: ErrorObject | UserSession = getSession(token);
@@ -144,7 +155,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// POST request for quiz create
+// quizCreate POST request route
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token: string = req.body.token;
   const session: UserSession | ErrorObject = getSession(token);
@@ -159,7 +170,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// GET request for quiz list
+// quizList GET request route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
   const token = query.token as string;
@@ -175,13 +186,13 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// Example get request
+// Example GET request route
 app.get('/echo', (req: Request, res: Response) => {
   const data = req.query.echo as string; 
   return res.json(echo(data));
 });
 
-// DELETE request for the clear route
+// clear DELETE request route
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   save();
@@ -190,7 +201,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(response);
 });
 
-//DELETE request for quizdelete
+// quizDelete DELETE request route
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
   const token: string = req.query.token.toString();
@@ -207,7 +218,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// GET request for adminQuizInfo route
+// adminQuizInfo GET request route
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.query.token as string;
@@ -226,7 +237,7 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.status(200).json(response);
 });
 
-// PUT request for adminQuizNameUpdate route
+// adminQuizNameUpdate PUT request route
 app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
   const name: string = req.body.name;
@@ -244,7 +255,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   return res.status(200).json(response);
 });
 
-//adminQuizDescriptionUpdate route
+// adminQuizDescriptionUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const quizid: number = parseInt(req.params.quizId);
   const token: string = req.body.token;
