@@ -30,6 +30,7 @@ interface AdminUserPasswordUpdateReturn { }
 interface AdminUserDetailsUpdateReturn { }
 interface AdminAuthRegisterReturn { token: String; }
 interface AdminAuthLoginReturn { token: String; }
+interface AdminAuthLogoutReturn { };
 interface UserDetails {
   userId: number;
   name: string;
@@ -138,6 +139,21 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   return token;
 }
 
+function adminAuthLogout(token: string): AdminAuthLogoutReturn | ErrorObject {
+  const data = getData();
+  const session = data.sessions;
+
+  if (token.length === 0) {
+    return {error: 'Token is empty'};
+  }
+  const finder = (data.sessions).find(user => user.token === token);
+  if (finder === undefined) {
+    return {error: 'There is no such user to log out'};
+  }
+  return { };
+}
+
+
 /**
   * Given an admin user's authUserId, return details about the user.
     "name" is the first and last name concatenated with a single space between them.
@@ -203,4 +219,5 @@ export {
   adminAuthLogin,
   adminUserPasswordUpdate,
   adminUserDetails,
+  adminAuthLogout,
 };
