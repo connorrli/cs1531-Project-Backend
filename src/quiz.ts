@@ -28,6 +28,8 @@ export interface AdminQuizListReturn {
 
 interface AdminQuizRemoveReturn { }
 
+interface AdminQuizRestoreReturn { }
+
 interface AdminQuizCreateReturn {
   quizId: number;
 }
@@ -103,6 +105,24 @@ function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveRet
 
   return {};
 }
+
+function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | ErrorObject {
+  const data = getData();
+  if (token.length === 0) {
+    return {error: 'Token is empty'};
+  }
+
+  const findToken = data.sessions.find(user => user.token === token);
+  const findQuizId = data.quizzes.find(quiz => quiz.quizId === quizId);
+
+  if (findToken === undefined) {
+    return {error: 'Token does not refer to a valid logged in user session'};
+  }
+  
+
+  return {};
+}
+
 /**
   * Given basic details about a new quiz, create one for the logged in user.
   * 
@@ -299,5 +319,6 @@ export {
   adminQuizInfo,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
-  adminQuizTrashView
+  adminQuizTrashView,
+  adminQuizRestore
 };

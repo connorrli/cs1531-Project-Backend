@@ -12,7 +12,7 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView, adminQuizRestore } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
@@ -201,7 +201,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(response);
 });
 
-// quizDelete DELETE request route
+// quizSendToTrash DELETE request route
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
   const token: string = req.query.token.toString();
@@ -214,6 +214,17 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(403).json(response);
   }
   saveTrash();
+  save();
+  return res.json(response);
+});
+
+// quizRestore POST request route
+app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const token: string = req.body.token;
+  const quizId: number = parseInt(req.body.quizid);
+
+  const response = adminQuizRestore(token, quizId);
+  
   save();
   return res.json(response);
 });
