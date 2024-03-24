@@ -8,6 +8,8 @@ import { invalidRegConditions } from './helpers/auth/registErrors';
 import { error } from './helpers/errors';
 import { ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
+import { QuestionBody } from './interface';
+import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
 
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -154,6 +156,8 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
     timeCreated: Math.floor(Date.now() / 1000),
     timeLastEdited: Math.floor(Date.now() / 1000),
     description,
+    numQuestions: 0,
+    questions: []
   }
 
   if (data.quizzes.length === 0) {
@@ -288,6 +292,25 @@ function adminQuizTrashView (userId: number) {
   return { quizzes: trashQuizzes };
 }
 
+function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: QuestionBody) {
+  const data = getData();
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+
+  const error = quizQuestionCreateChecker(userId, quiz, questionBody);
+  if ('error' in error) return error;
+
+  const questionId = quiz.questions.length + 1;
+  quiz.questions.push({
+    questionId: questionId,
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
+    answers: questionBody.answers
+  });
+
+  return { questionId };
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -299,5 +322,6 @@ export {
   adminQuizInfo,
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
-  adminQuizTrashView
+  adminQuizTrashView,
+  adminQuizQuestionCreate,
 };
