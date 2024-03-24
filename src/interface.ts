@@ -23,6 +23,19 @@ interface Quiz {
   description: string;
 }
 
+interface Answer {
+  answer: string,
+  correct: boolean
+}
+
+interface Question {
+  questionId: number,
+  question: string,
+  duration: number,
+  points: number,
+  answers: Answer[]
+}
+
 // Interface describing a session object
 interface UserSession {
   token: string;
@@ -57,6 +70,8 @@ export {
   ErrorObject,
   User,
   Quiz,
+  Question,
+  Answer,
   DataStore,
   TrashStore,
   UserSession,
