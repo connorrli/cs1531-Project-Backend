@@ -1,10 +1,10 @@
-import { 
-    QuestionBody, 
+import {  
     clearRequest, 
     questionCreateRequest, 
     quizCreateRequest, 
     userCreateRequest 
 } from '../requests';
+import { QuestionBody } from '../../interface';
 
 // Expected Constants
 const SUCCESS_RESPONSE = { questionId: expect.any(Number) };

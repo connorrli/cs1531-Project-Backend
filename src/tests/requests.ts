@@ -1,15 +1,9 @@
 import request from 'sync-request-curl';
 import { url, port } from '../config.json';
 import { Answer } from '../interface';
+import { QuestionBody } from '../interface';
 
 const SERVER_URL = `${url}:${port}`;
-
-export interface QuestionBody {
-  question: string,
-  duration: number,
-  points: number,
-  answers: Answer[]
-}
 
 // 'clearRequest' function
 export const clearRequest = () => {
