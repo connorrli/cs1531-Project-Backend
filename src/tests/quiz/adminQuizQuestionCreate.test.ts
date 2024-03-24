@@ -1,5 +1,10 @@
-import { ErrorObject } from '../../interface';
-import { QuestionBody, clearRequest, questionCreateRequest, quizCreateRequest, userCreateRequest } from '../requests';
+import { 
+    QuestionBody, 
+    clearRequest, 
+    questionCreateRequest, 
+    quizCreateRequest, 
+    userCreateRequest 
+} from '../requests';
 
 // Expected Constants
 const SUCCESS_RESPONSE = { questionId: expect.any(Number) };
@@ -52,6 +57,56 @@ describe('Testing adminQuizQuestionCreate function:', () => {
             duration: VALID_DURATION,
             points: VALID_POINTS_AWARDED,
             answers: VALID_ANSWERS_ARRAY,
+            expected: ERROR,
+        },
+        {
+            testTitle: 'Number Of Answers < 2',
+            question: VALID_QUESTION,
+            duration: VALID_DURATION,
+            points: VALID_POINTS_AWARDED,
+            answers: [
+                {
+                    answer: 'anchovies',
+                    correct: true
+                },
+            ],
+            expected: ERROR,
+        },
+        {
+            testTitle: 'Number Of Answers > 6',
+            question: VALID_QUESTION,
+            duration: VALID_DURATION,
+            points: VALID_POINTS_AWARDED,
+            answers: [
+                {
+                    answer: 'steak',
+                    correct: false
+                },
+                {
+                    answer: 'anchovies',
+                    correct: true
+                },
+                {
+                    answer: 'burgers',
+                    correct: false
+                },
+                {
+                    answer: 'jerky',
+                    correct: false
+                },
+                {
+                    answer: 'fries',
+                    correct: false
+                },
+                {
+                    answer: 'cereal',
+                    correct: false
+                },
+                {
+                    answer: 'donkey meat',
+                    correct: false
+                },
+            ],
             expected: ERROR,
         },
         {
@@ -180,5 +235,5 @@ describe('Testing adminQuizQuestionCreate function:', () => {
 
         const response = questionCreateRequest(userToken, quizId, questionBody);
         expect(response).toStrictEqual(expected);
-    })
-})
+    });
+});
