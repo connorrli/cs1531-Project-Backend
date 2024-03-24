@@ -94,10 +94,12 @@ function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveRet
   const data = getData();
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
   const quizToRemove = data.quizzes[quizIndex];
+  quizToRemove.timeLastEdited = Math.floor(Date.now() / 1000);
   let trash = getTrash();
   trash.quizzes.push(quizToRemove);
-
-  getData().quizzes.splice(quizIndex, 1);
+  setTrash(trash);
+  data.quizzes.splice(quizIndex, 1);
+  setData(data);
 
   return {};
 }
@@ -274,6 +276,18 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
+// Implementation for the 'adminQuizTrashView' function
+function adminQuizTrashView (userId: number) {
+  const trash = getTrash();
+  const trashQuizzes = [];
+  for (const trashedQuiz of trash.quizzes) {
+    if (trashedQuiz.quizOwner === userId) {
+      trashQuizzes.push({ quizId: trashedQuiz.quizId, name: trashedQuiz.name });
+    }
+  }
+  return { quizzes: trashQuizzes };
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// EXPORTS /////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -284,5 +298,6 @@ export {
   adminQuizRemove,
   adminQuizInfo,
   adminQuizNameUpdate,
-  adminQuizDescriptionUpdate
+  adminQuizDescriptionUpdate,
+  adminQuizTrashView
 };

@@ -16,6 +16,7 @@ const NO_ERROR = 0;
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
+// Implementation of 'authUserIdCheck'
 function authUserIdCheck(authUserId: number) {
     const data = getData();
     const theUser = data['users'].find(user => user.userId === authUserId);
@@ -23,6 +24,7 @@ function authUserIdCheck(authUserId: number) {
     return NO_ERROR;
 }
 
+// Implementation of 'nameFirstValidCheck'
 function nameFirstValidCheck(nameFirst: string) {
     if (nameFirst.length < 2 || nameFirst.length > 20) {
         return error.throwError('nameFirstOutOfRange');
@@ -38,6 +40,7 @@ function nameFirstValidCheck(nameFirst: string) {
     return NO_ERROR;    
 }
 
+// Implementation of 'nameLastValidCheck'
 function nameLastValidCheck(nameLast: string) {
     if (nameLast.length < 2 || nameLast.length > 20) {
         return error.throwError('nameLastOutOfRange');
@@ -53,6 +56,7 @@ function nameLastValidCheck(nameLast: string) {
     return NO_ERROR;    
 }
 
+// Implementation of 'passwordValidCheck'
 function passwordValidCheck(password: string) {
     if (password.length < 8) {
         return error.throwError('shortPassword');
@@ -75,6 +79,7 @@ function passwordValidCheck(password: string) {
     return NO_ERROR;
 }
 
+// Implementation of 'emailValidCheck'
 function emailValidCheck(email: string) {
     if (!validator.isEmail(email)) {
         return error.throwError('invalidEmail');
@@ -82,7 +87,7 @@ function emailValidCheck(email: string) {
     return NO_ERROR;
 }
 
-// Returns true if quizId exists and false if quizId does not exist
+// Returns true if quizId exists and false if quizId does not exist; 'isValidQuiz'
 function isValidQuiz(quizId: number) {
     const data = getData();
     if (data.quizzes.length === 0) {
@@ -92,7 +97,7 @@ function isValidQuiz(quizId: number) {
     return !!quiz;
 }
 
-// Returns true if authUserId exists and false if authUserId does not exist
+// Returns true if authUserId exists and false if authUserId does not exist; 'isValidUser'
 function isValidUser(authUserId: number) {
     const data = getData();
     if (data.users.length === 0) {
@@ -103,7 +108,7 @@ function isValidUser(authUserId: number) {
 }
 
 // Returns true if authUserId owns quizId; returns false if authUserId is not 
-// the owner of quizId
+// the owner of quizId; 'isOwner'
 function isOwner(authUserId: number, quizId: number) {
     const data = getData();
     if (data.users.length === 0) {

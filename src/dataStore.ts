@@ -1,6 +1,7 @@
 import { DataStore } from "./interface";
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
+// Our datastore definition
 let data : DataStore = {
   users: [],
   quizzes: [],
