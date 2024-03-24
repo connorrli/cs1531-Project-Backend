@@ -27,6 +27,12 @@ export const userDetailsRequest = (token: string) => {
   return JSON.parse(response.body.toString());
 }
 
+// 'userDetailsUpdate' function
+export const userDetailsUpdateRequest = (token: string, email: string, nameFirst: string, nameLast: string) => {
+  const response = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email, nameFirst, nameLast } });
+  return JSON.parse(response.body.toString());
+}
+
 // 'userCreateRequest' function
 export const userCreateRequest = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const response = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email, password, nameFirst, nameLast } });

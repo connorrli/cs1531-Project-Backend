@@ -17,7 +17,6 @@ import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
 import { clear } from './other';
-import { Session } from 'inspector';
 
 // Set up web app
 const app = express();
@@ -125,19 +124,14 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 
 // adminUserDetailsUpdate PUT request route
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token: string = req.body.token;
-  const session: ErrorObject | UserSession = getSession(token);
-  if ('error' in session) {
-    return res.status(401).json({ error: "token is invalid or empty" });
-  }
-  const email: string = req.body.email;
-  const nameFirst: string = req.body.nameFirst;
-  const nameLast: string = req.body.nameLast;
-  const response = adminUserDetailsUpdate(session.userId, email, nameFirst, nameLast);
-  if ('error' in response) {
-    return res.status(400).json(response);
-  }
+  const { token, email, nameFirst, nameLast } = req.body;
 
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminUserDetailsUpdate(session, email, nameFirst, nameLast);
+  if ('error' in response) return res.status(400).json(response);
+  
   return res.json(response);
 });
 

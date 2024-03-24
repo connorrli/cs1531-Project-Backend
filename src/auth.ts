@@ -184,29 +184,29 @@ function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorOb
 /**
   * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
   * 
-  * @param {integer} authUserId - Stores user authentication details after updating properties
+  * @param {object} session - Stores user authentication details after updating properties
   * @param {integer} email - Stores the user email after updating their properties
   * @param {string} nameFirst - Stores the first name of the logged in user after updating properties
   * @param {string} nameLast - Stores the last name of the logged in user after updating properties
   * 
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserDetailsUpdate (authUserId: number, email: string, nameFirst: string, nameLast: string): AdminUserDetailsUpdateReturn | ErrorObject {
+function adminUserDetailsUpdate (session: UserSession, email: string, nameFirst: string, nameLast: string): AdminUserDetailsUpdateReturn | ErrorObject {
 
-    // Error check
-    const error = checkDetailsUpdate(authUserId, email, nameFirst, nameLast);
-    if (error !== NO_ERROR) return error;
+  // Error check
+  const error = checkDetailsUpdate(session, email, nameFirst, nameLast);
+  if (error !== NO_ERROR) return error;
 
-    // Get and set new details
-    const data = getData();
-    const userData = data.users.find(user => user.userId === authUserId);
-    userData!.email = email;
-    userData!.nameFirst = nameFirst;
-    userData!.nameLast = nameLast;
+  // Get and set new details
+  const data = getData();
+  const userData = data.users.find(user => user.userId === session.userId);
 
-    setData(data);
+  userData.email = email;
+  userData.nameFirst = nameFirst;
+  userData.nameLast = nameLast;
+  setData(data);
 
-    return { };
+  return { };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
