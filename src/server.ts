@@ -276,6 +276,7 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
     else return res.status(400).json(response);
   }
 
+  save();
   res.json(response);
 });
 
