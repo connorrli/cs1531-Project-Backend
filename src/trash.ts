@@ -1,4 +1,4 @@
-import { TrashStore } from "./interface";
+import { TrashStore } from './interface';
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 let trash : TrashStore = {
@@ -6,7 +6,6 @@ let trash : TrashStore = {
   quizzes: [],
   sessions: [],
 };
-
 
 // Use get() to access the trash
 function getTrash() {
