@@ -51,3 +51,16 @@ export const questionCreateRequest = (token: string, quizId: number, questionBod
   const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, { json: { token, questionBody } });
   return JSON.parse(response.body.toString());
 };
+
+// 'quizInfoRequest' function
+export const quizInfoRequest = (quizId: number, token: string) => {
+  const response = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'questionUpdateRequest' function
+export const questionUpdateRequest = (token: string, quizId: number, questionId: number, questionBody: QuestionBody) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, { json: { token, questionBody } });
+  return JSON.parse(response.body.toString());
+};
+
