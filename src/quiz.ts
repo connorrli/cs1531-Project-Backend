@@ -4,7 +4,7 @@
 
 import { getData, setData } from './dataStore';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { ErrorObject, Quiz } from './interface';
+import { ErrorObject, Question, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
@@ -30,12 +30,14 @@ interface AdminQuizCreateReturn {
   quizId: number;
 }
 
-interface AdminQuizInfoReturn {
+export interface AdminQuizInfoReturn {
   quizId: number;
   name: string;
   timeCreated: number;
   timeLastEdited: number;
   description: string;
+  numQuestions: number;
+  questions: Question[];
 }
 
 type EmptyObject = Record<string, never>
@@ -163,12 +165,6 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
-    const trash = getTrash();
-    for (const element of trash.quizzes) {
-      if (element.quizId > ExtantQuizId) {
-        ExtantQuizId = element.quizId;
-      }
-    }
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
@@ -202,7 +198,9 @@ function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn 
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description
+    description: quiz.description,
+    numQuestions: quiz.numQuestions,
+    questions: quiz.questions,
   };
 }
 
@@ -315,6 +313,29 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
   return { questionId };
 }
 
+function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: number, questionBody: QuestionBody): ErrorObject | EmptyObject {
+  const data = getData();
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  const question = quiz.questions.find(question => question.questionId === questionId); 
+
+  if (typeof question === 'undefined') return { error: 'Invalid question' };
+
+  // Error checks are the exact same as create function, so this can be re-used
+  const error = quizQuestionCreateChecker(userId, quiz, questionBody);
+  if ('error' in error) return error;
+
+  // Updates the edit time
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+
+  // Sets all the new data for the question
+  question.question = questionBody.question;
+  question.duration = questionBody.duration;
+  question.points = questionBody.points;
+  question.answers = questionBody.answers;
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -328,4 +349,5 @@ export {
   adminQuizDescriptionUpdate,
   adminQuizTrashView,
   adminQuizQuestionCreate,
+  adminQuizQuestionUpdate,
 };
