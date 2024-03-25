@@ -10,7 +10,7 @@ import {
 import { AdminQuizInfoReturn } from '../../quiz';
   
   // Expected Constants
-  const SUCCESS_RESPONSE = { questionId: expect.any(Number) };
+  const SUCCESS_RESPONSE = { };
   const ERROR = { error: expect.any(String) };
   
   describe('Testing adminQuizQuestionUpdate function:', () => {
@@ -312,14 +312,17 @@ import { AdminQuizInfoReturn } from '../../quiz';
     });
     test('User doesn\'t own the quiz:', () => {
         const otherUserToken = userCreateRequest('test1@gmail.com', 'Password123', 'Jane', 'Doe').token;
-
         const questionBody : QuestionBody = VALID_QUESTION_OBJECT;
+
+        const preUpdateQuiz : AdminQuizInfoReturn = quizInfoRequest(quizId, userToken);
+        const preUpdateQuestion = preUpdateQuiz.questions.find(question => question.questionId === questionId);
+
         const response = questionUpdateRequest(otherUserToken, quizId, questionId, questionBody);
 
         const updatedQuiz : AdminQuizInfoReturn = quizInfoRequest(quizId, userToken);
-        const updatedQuestion = updatedQuiz.questions.find(question => question.questionId = questionId);
+        const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
 
-        expect(updatedQuestion).toStrictEqual(ORIGINAL_OBJECT);
+        expect(updatedQuestion).toStrictEqual(preUpdateQuestion);
         expect(response).toStrictEqual(ERROR)
     })
   });
