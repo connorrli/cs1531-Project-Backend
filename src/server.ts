@@ -272,7 +272,7 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
 
   const response = adminQuizQuestionCreate(session.userId, quizId, questionBody);
   if ('error' in response) {
-    if ('statusValue' in response) return res.status(response.statusValue).json(response);
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
     else return res.status(400).json(response);
   }
 
