@@ -12,7 +12,7 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView, adminQuizQuestionCreate } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
@@ -260,6 +260,24 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   }
   const userId: number = session.userId;
   return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
+});
+
+// adminQuizQuestionCreate POST request route
+app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const { token, questionBody } = req.body;
+
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizQuestionCreate(session.userId, quizId, questionBody);
+  if ('error' in response) {
+    if ('statusValue' in response) return res.status(response.statusValue).json(response);
+    else return res.status(400).json(response);
+  }
+
+  save();
+  res.json(response);
 });
 
 // ====================================================================

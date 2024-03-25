@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import { url, port } from '../config.json';
+import { QuestionBody } from '../interface';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -36,5 +37,17 @@ export const userDetailsUpdateRequest = (token: string, email: string, nameFirst
 // 'userCreateRequest' function
 export const userCreateRequest = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const response = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email, password, nameFirst, nameLast } });
+  return JSON.parse(response.body.toString());
+};
+
+// 'quizCreateRequest' function
+export const quizCreateRequest = (token: string, name: string, description: string) => {
+  const response = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token, name, description } });
+  return JSON.parse(response.body.toString());
+};
+
+// 'questionCreateRequest' function
+export const questionCreateRequest = (token: string, quizId: number, questionBody: QuestionBody) => {
+  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, { json: { token, questionBody } });
   return JSON.parse(response.body.toString());
 };
