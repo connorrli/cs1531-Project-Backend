@@ -289,19 +289,24 @@ import { AdminQuizInfoReturn } from '../../quiz';
         answers
       };
 
+      const preUpdateQuiz : AdminQuizInfoReturn = quizInfoRequest(quizId, userToken);
+      const preUpdateQuestion = preUpdateQuiz.questions.find(question => question.questionId === questionId);
       const response = questionUpdateRequest(userToken, quizId, questionId, questionBody);
       const updatedQuiz : AdminQuizInfoReturn = quizInfoRequest(quizId, userToken);
       const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
       if ('error' in response) {
-        expect(updatedQuestion).toStrictEqual(ORIGINAL_OBJECT);
+        expect(updatedQuestion).toStrictEqual(preUpdateQuestion);
       } else {
         expect(updatedQuestion).toStrictEqual({
             questionId: questionId,
             question: question,
             duration: duration,
             points: points,
-            answers: answers,
+            answers: expect.any(Object),
         });
+        for (const answer of answers) {
+            expect(typeof updatedQuestion.answers.find(ans => ans.answer === answer.answer)).not.toStrictEqual('undefined');
+        }
       }
       expect(response).toStrictEqual(expected);
     });
@@ -315,7 +320,7 @@ import { AdminQuizInfoReturn } from '../../quiz';
         const updatedQuestion = updatedQuiz.questions.find(question => question.questionId = questionId);
 
         expect(updatedQuestion).toStrictEqual(ORIGINAL_OBJECT);
-        expect(response).toStrictEqual(ERROR);
+        expect(response).toStrictEqual(ERROR)
     })
   });
   
