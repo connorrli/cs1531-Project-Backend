@@ -163,6 +163,12 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
+    const trash = getTrash();
+    for (const element of trash.quizzes) {
+      if (element.quizId > ExtantQuizId) {
+        ExtantQuizId = element.quizId;
+      }
+    }
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
