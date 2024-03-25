@@ -25,5 +25,6 @@ linting:
   only:
     - master
     - merge_requests
-  scripts:
+  script:
     - npm run lint
+
