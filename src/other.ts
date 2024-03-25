@@ -23,7 +23,7 @@ function clear(): ClearReturn {
   setTrash(trash);
 } */
 
-function clearTrash(userId: number, token: string, quizIds: string): void {
+function clearTrash(userId: number, token: string, quizIds: number): void {
 
   const trash = getTrash();
 

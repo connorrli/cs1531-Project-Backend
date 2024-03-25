@@ -16,7 +16,7 @@ import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adm
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
-import { clear } from './other';
+import { clear, clearTrash } from './other';
 
 // Set up web app
 const app = express();
@@ -262,6 +262,35 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
 });
 
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
+  console.log(quizIds);
+  const token: string = req.body.token;
+  const session: UserSession | ErrorObject = getSession(token); 
+
+  if ('error' in session) {
+    if (session.error === 'emptyToken') {
+      return res.status(401).json({error: "Token is empty or invalid"});
+    }
+
+    return res.status(403).json({error: "Valid token is provided, but one or more of the quizIds refers to a quiz that this current user does not own"});
+  }
+  
+  const userId: number = session.userId;
+
+   const isQuizInTrash = (quizId: number): boolean => {
+  
+    return trashData.quizIds.includes(quizId);
+  };
+  
+  for (const quizId of quizIds) {
+    if (!isQuizInTrash(quizId)) {
+      return res.status(400).json({error: "One or more of the quizIds is not currently in the trash"});
+    }
+  }
+ 
+  return res.json(clearTrash(userId, token, quizId));
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
