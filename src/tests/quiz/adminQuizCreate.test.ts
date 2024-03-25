@@ -17,22 +17,22 @@ const quizCreateRequest = (token: string, name: string, description: string) => 
 
 let quiz1;
 let quiz2;
-let user1_token : string;
+let user1Token : string;
 let user1;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
   user1 = adminAuthRegister('test@gmail.com', 'Password123', 'John', 'Doe');
-  if ('token' in user1) user1_token = user1.token;
-  else user1_token = undefined;
+  if ('token' in user1) user1Token = user1.token;
+  else user1Token = undefined;
 });
 
 describe('Testing QuizCreate function:', () => {
   // Success case
   test('successful output upon successful input', () => {
-    quiz1 = quizCreateRequest(user1_token, 'Scrimbo', 'bloink');
+    quiz1 = quizCreateRequest(user1Token, 'Scrimbo', 'bloink');
     expect(quiz1).toStrictEqual({ quizId: expect.any(Number) });
-    quiz2 = quizCreateRequest(user1_token, 'scrimbo TWO', 'buebr');
+    quiz2 = quizCreateRequest(user1Token, 'scrimbo TWO', 'buebr');
     expect(quiz2).toStrictEqual({ quizId: expect.any(Number) });
 
     if ('quizId' in quiz1 && 'quizId' in quiz2) expect(quiz1.quizId).not.toEqual(quiz2.quizId);
@@ -49,48 +49,48 @@ describe('Testing QuizCreate function:', () => {
   // Invalid character in name
   test('Name contains an invalid character', () => {
     const user = adminAuthRegister('testing@egmail.com', 'waltsmith123', 'Walt', 'Smith');
-    let user_token : string;
-    if ('token' in user) user_token = user.token;
-    else user_token = undefined;
-    quiz1 = quizCreateRequest(user_token, '@@@@', 'simple description');
+    let userToken : string;
+    if ('token' in user) userToken = user.token;
+    else userToken = undefined;
+    quiz1 = quizCreateRequest(userToken, '@@@@', 'simple description');
     expect(quiz1).toStrictEqual({ error: 'Name contains an invalid character' });
   });
 
   test('Name contains an invalid character', () => {
     const user = adminAuthRegister('testing@egmail.com', 'waltsmith1', 'Walt', 'Smith');
-    let user_token : string;
-    if ('token' in user) user_token = user.token;
-    else user_token = undefined;
-    quiz1 = quizCreateRequest(user_token, 'Johnny@1', 'simple description');
+    let userToken : string;
+    if ('token' in user) userToken = user.token;
+    else userToken = undefined;
+    quiz1 = quizCreateRequest(userToken, 'Johnny@1', 'simple description');
     expect(quiz1).toStrictEqual({ error: 'Name contains an invalid character' });
   });
 
   // Quiz name < 3 or > 30
   test('Name < 3 characters', () => {
     const user = adminAuthRegister('testing@egmail.com', 'waltsmith1', 'Walt', 'Smith');
-    let user_token : string;
-    if ('token' in user) user_token = user.token;
-    else user_token = undefined;
-    quiz1 = quizCreateRequest(user_token, 'qu', 'simple description');
+    let userToken : string;
+    if ('token' in user) userToken = user.token;
+    else userToken = undefined;
+    quiz1 = quizCreateRequest(userToken, 'qu', 'simple description');
     expect(quiz1).toStrictEqual({ error: 'Quiz name is < 3 characters' });
   });
 
   test('Name > 30 characters', () => {
     const user = adminAuthRegister('test@egmail.com', 'password123', 'Walt', 'Smith');
-    let user_token : string;
-    if ('token' in user) user_token = user.token;
-    else user_token = undefined;
-    quiz1 = quizCreateRequest(user_token, 'quizname that would be more than 30 characters long', 'simple description');
+    let userToken : string;
+    if ('token' in user) userToken = user.token;
+    else userToken = undefined;
+    quiz1 = quizCreateRequest(userToken, 'quizname that would be more than 30 characters long', 'simple description');
     expect(quiz1).toStrictEqual({ error: 'Quiz name is > 30 characters' });
   });
 
   // Quiz description > 100
   test('Description > 100 characters', () => {
     const user = adminAuthRegister('test@egmail.com', 'password123', 'Walt', 'Smith');
-    let user_token : string;
-    if ('token' in user) user_token = user.token;
-    else user_token = undefined;
-    quiz1 = quizCreateRequest(user_token, 'quizname', 'The inexorable march of technological advancement continues unabated, revolutionizing industries, reshaping economies, and fundamentally altering the way we live, work, and interact with the world around us.');
+    let userToken : string;
+    if ('token' in user) userToken = user.token;
+    else userToken = undefined;
+    quiz1 = quizCreateRequest(userToken, 'quizname', 'The inexorable march of technological advancement continues unabated, revolutionizing industries, reshaping economies, and fundamentally altering the way we live, work, and interact with the world around us.');
     expect(quiz1).toStrictEqual({ error: 'Quiz description is > 100 characters' });
   });
 

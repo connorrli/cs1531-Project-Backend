@@ -29,14 +29,14 @@ describe('Testing that registration is sucessful for valid registration attempts
     expect(test1).toStrictEqual(TOKEN);
     expect(test2).toStrictEqual(TOKEN);
     expect(test3).toStrictEqual(TOKEN);
-    let test1_token, test2_token, test3_token;
-    if ('token' in test1) test1_token = test1.token;
-    if ('token' in test2) test2_token = test2.token;
-    if ('token' in test3) test3_token = test3.token;
+    let test1Token, test2Token, test3Token;
+    if ('token' in test1) test1Token = test1.token;
+    if ('token' in test2) test2Token = test2.token;
+    if ('token' in test3) test3Token = test3.token;
 
-    expect(test1_token).not.toEqual(test2_token);
-    expect(test2_token).not.toEqual(test3_token);
-    expect(test3_token).not.toEqual(test1_token);
+    expect(test1Token).not.toEqual(test2Token);
+    expect(test2Token).not.toEqual(test3Token);
+    expect(test3Token).not.toEqual(test1Token);
   });
 });
 
