@@ -5,9 +5,9 @@ interface generateSessionReturn { token: string }
 
 /**
   * Given a user ID, create a session by generating a unique token
-  * 
+  *
   * @param {integer} userId - Unique ID for a user
-  * 
+  *
   * @returns {generateSessionReturn} - Returns an object containing token
 */
 export function generateSession(userId: number): generateSessionReturn {
@@ -27,7 +27,7 @@ export function generateSession(userId: number): generateSessionReturn {
 
 /**
   * Generate one half of the token using pre-defined formula
-  * 
+  *
   * @returns {string} halfOfToken - one half of the unique token
 */
 function halfToken(): string {
@@ -38,14 +38,14 @@ function halfToken(): string {
 
 /**
   * Gets the session object associated with the given token
-  * 
+  *
   * @returns {UserSession | ErrorObject}
 */
 export function getSession(token: string): UserSession | ErrorObject {
   const data = getData();
   const decodedToken = decodeURIComponent(token);
 
-  let session = data.sessions.find(session => session.token === decodedToken);
+  const session = data.sessions.find(session => session.token === decodedToken);
   if (typeof session === 'undefined') return { error: 'session with token { ' + token + ' } is undefined' };
 
   return session;

@@ -1,36 +1,34 @@
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// IMPORTS /////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////// IMPORTS /////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 import { checkDetailsUpdate } from './helpers/auth/userUpdateErrors';
 import { checkUserPasswordUpdate } from './helpers/auth/userPasswordUpdateErrors';
 import { getData, setData } from './dataStore';
 import { invalidRegConditions } from './helpers/auth/registErrors';
 import { error } from './helpers/errors';
-import { authUserIdCheck }  from './helpers/checkForErrors';
-import { getSession, generateSession } from './helpers/sessionHandler';
+import { authUserIdCheck } from './helpers/checkForErrors';
+import { generateSession } from './helpers/sessionHandler';
 
-import { 
+import {
   ErrorObject,
   User,
   UserSession,
 } from './interface';
 
-///////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// CONSTANTS ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// CONSTANTS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 const NO_ERROR = 0;
 
-///////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// LOCAL INTERFACES /////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
-interface AdminUserPasswordUpdateReturn { }
-interface AdminUserDetailsUpdateReturn { }
-interface AdminAuthRegisterReturn { token: String; }
-interface AdminAuthLoginReturn { token: String; }
-interface AdminAuthLogoutReturn { };
+type EmptyObject = Record<string, never>;
+interface AdminAuthRegisterReturn { token: string; }
+interface AdminAuthLoginReturn { token: string; }
 interface UserDetails {
   userId: number;
   name: string;
@@ -40,30 +38,28 @@ interface UserDetails {
 }
 interface AdminUserDetailsReturn { user: UserDetails; }
 
-
-///////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// FUNCTIONS ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 /**
   * Given details relating to a password change, updates the password of a logged in user.
-  * 
+  *
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {string} oldPassword - Stores the previous user password before the user changed it
   * @param {string} newPassword - Stores the new user password after the user changed it
-  * 
+  *
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newPassword: string): AdminUserPasswordUpdateReturn | ErrorObject {
-
+function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newPassword: string): EmptyObject | ErrorObject {
   const data = getData();
-  const userData = data['users'].find(user => user.userId === session.userId);
+  const userData = data.users.find(user => user.userId === session.userId);
 
-  const error = checkUserPasswordUpdate(userData!, oldPassword, newPassword);
-  if (error !== NO_ERROR) return error;
+  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  if (typeof error !== 'number') return error;
 
-  userData!.password = newPassword;
-  userData!.previousPasswords.push(oldPassword);
+  userData.password = newPassword;
+  userData.previousPasswords.push(oldPassword);
   setData(data);
 
   return { };
@@ -71,16 +67,15 @@ function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newP
 
 /**
   * Registers a user with an email, password, and names, then returns their authUserId value.
-  * 
+  *
   * @param {string} email - Stores the user email as part of the registration
   * @param {string} password - Stores the user password as part of the registration
   * @param {string} nameFirst - Stores the user's first name as part of the registration
   * @param {string} nameLast - Stores the user's second name as part of the registration
-  * 
+  *
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): AdminAuthRegisterReturn | ErrorObject {
-
   email = email.toLowerCase();
 
   const error = invalidRegConditions(email, password, nameFirst, nameLast);
@@ -96,7 +91,7 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
     numSuccessfulLogins: 1,
     previousPasswords: [],
     numFailedPasswordsSinceLastLogin: 0,
-  }
+  };
   if (data.users.length === 0) {
     newUser.userId = 1;
     data.users.push(newUser);
@@ -116,10 +111,10 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
 
 /**
   * Given a registered user's email and password, returns their authUserId value.
-  * 
-  * @param {integer} email - Stores the user email upon login 
+  *
+  * @param {integer} email - Stores the user email upon login
   * @param {integer} password - Stores the user password upon login
-  * 
+  *
   * @returns {object} - Returns the authentication user id
 */
 function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn | ErrorObject {
@@ -139,45 +134,44 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   return token;
 }
 
-function adminAuthLogout(token: string): AdminAuthLogoutReturn | ErrorObject {
+function adminAuthLogout(token: string): EmptyObject | ErrorObject {
   const data = getData();
-  const session = data.sessions;
+  // const session = data.sessions; - This isn't being used yet ?
 
   if (token.length === 0) {
-    return {error: 'Token is empty'};
+    return { error: 'Token is empty' };
   }
   const finder = (data.sessions).find(user => user.token === token);
   if (finder === undefined) {
-    return {error: 'There is no such user to log out'};
+    return { error: 'There is no such user to log out' };
   }
   const tokenLocate = data.sessions.findIndex(index => index.token === token);
   data.sessions.splice(tokenLocate, 1);
   return { };
 }
 
-
 /**
   * Given an admin user's authUserId, return details about the user.
     "name" is the first and last name concatenated with a single space between them.
-  * 
+  *
   * @param {integer} authUserId - Stores user authentication and details about logins
-  * 
+  *
   * @returns {empty object} - Returns the user id number, name, email, count of successful logins and the times where the password has been entered incorrectly
 */
 function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorObject {
   if (authUserIdCheck(authUserId) !== NO_ERROR) {
     return error.throwError('invalidUser');
-  }  
+  }
 
   const data = getData();
   const userData = data.users.find(u => u.userId === authUserId);
-  
+
   const user : UserDetails = {
-    userId: userData!.userId,
-    name: userData!.nameFirst + ' ' + userData!.nameLast,
-    email: userData!.email,
-    numSuccessfulLogins: userData!.numSuccessfulLogins,
-    numFailedPasswordsSinceLastLogin: userData!.numFailedPasswordsSinceLastLogin,
+    userId: userData.userId,
+    name: userData.nameFirst + ' ' + userData.nameLast,
+    email: userData.email,
+    numSuccessfulLogins: userData.numSuccessfulLogins,
+    numFailedPasswordsSinceLastLogin: userData.numFailedPasswordsSinceLastLogin,
   };
 
   return { user };
@@ -185,19 +179,18 @@ function adminUserDetails (authUserId: number): AdminUserDetailsReturn | ErrorOb
 
 /**
   * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
-  * 
+  *
   * @param {object} session - Stores user authentication details after updating properties
   * @param {integer} email - Stores the user email after updating their properties
   * @param {string} nameFirst - Stores the first name of the logged in user after updating properties
   * @param {string} nameLast - Stores the last name of the logged in user after updating properties
-  * 
+  *
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminUserDetailsUpdate (session: UserSession, email: string, nameFirst: string, nameLast: string): AdminUserDetailsUpdateReturn | ErrorObject {
-
+function adminUserDetailsUpdate (session: UserSession, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorObject {
   // Error check
   const error = checkDetailsUpdate(session, email, nameFirst, nameLast);
-  if (error !== NO_ERROR) return error;
+  if (typeof error !== 'number') return error;
 
   // Get and set new details
   const data = getData();
@@ -211,9 +204,9 @@ function adminUserDetailsUpdate (session: UserSession, email: string, nameFirst:
   return { };
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// EXPORTS /////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////// EXPORTS /////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 export {
   adminAuthRegister,
