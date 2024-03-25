@@ -4,7 +4,7 @@
 
 import { getData, setData } from './dataStore';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { ErrorObject, Quiz } from './interface';
+import { Answer, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
@@ -12,6 +12,9 @@ import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErro
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+const EMPTY = 0;
+const FIRST_QUESTION_ID = 1;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
@@ -296,14 +299,37 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
   quiz.numQuestions++;
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
 
-  // Add the new question to the quiz
-  const questionId = quiz.questions.length + 1;
+  // Generates new answers array, with added colour and answerId
+  const answers : Answer[] = [];
+  const colours = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
+  let answerId = EMPTY;
+  for (const answer of questionBody.answers) {
+    const randIndex = Math.floor(Math.random() * colours.length);
+    answerId += 1;
+    answers.push({
+      answerId,
+      answer: answer.answer,
+      colour: colours[randIndex],
+      correct: answer.correct,
+    });
+    colours.splice(randIndex, 1);
+  }
+
+  // Determine New Question Id
+  let questionId: number;
+  if (quiz.questions.length === EMPTY) questionId = FIRST_QUESTION_ID;
+  else {
+    questionId = quiz.questions
+      .reduce((max, question) => max.questionId > question.questionId ? max : question).questionId + 1;
+  }
+
+  // Push new question containing above data into the questions array
   quiz.questions.push({
     questionId: questionId,
     question: questionBody.question,
     duration: questionBody.duration,
     points: questionBody.points,
-    answers: questionBody.answers
+    answers: answers
   });
 
   return { questionId };
