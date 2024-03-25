@@ -243,7 +243,10 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const userId: number = session.userId;
   const response: ErrorObject | Record<string, never> = adminQuizNameUpdate(userId, quizId, name);
   if ('error' in response) {
-    return res.status(403).json(response);
+    if (response.error.includes('quiz') || response.error.includes('INVALID QUIZ')) {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
   }
   save();
   return res.status(200).json(response);
@@ -259,7 +262,15 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'token is empty or not valid' });
   }
   const userId: number = session.userId;
-  return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
+  const response: ErrorObject | Record<string, never> = adminQuizDescriptionUpdate(userId, quizid, desc);
+  if ('error' in response) {
+    if (response.error.includes('too long')) {
+      return res.status(400).json(response);
+    } else {
+      return res.status(403).json(response);
+    }
+  }
+  return res.json(response);
 });
 
 // adminQuizQuestionCreate POST request route

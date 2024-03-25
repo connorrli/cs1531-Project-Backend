@@ -214,10 +214,10 @@ function adminQuizNameUpdate(authUserId: number, quizId: number, name: string): 
     return { error: 'Not a valid authUserId.' };
   }
   if (!isValidQuiz(quizId)) {
-    return { error: 'Not a valid quizId.' };
+    return { error: 'INVALID QUIZ: Not a valid quizId.' };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'INVALID QUIZ: Quiz ID does not refer to a quiz that this user owns.' };
   }
   if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
     return { error: 'Name contains invalid characters. Valid characters are alphanumeric and spaces.' };
