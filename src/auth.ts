@@ -150,6 +150,8 @@ function adminAuthLogout(token: string): AdminAuthLogoutReturn | ErrorObject {
   if (finder === undefined) {
     return {error: 'There is no such user to log out'};
   }
+  const tokenLocate = data.sessions.findIndex(index => index.token === token);
+  data.sessions.splice(tokenLocate, 1);
   return { };
 }
 
