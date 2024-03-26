@@ -54,6 +54,6 @@ export const questionCreateRequest = (token: string, quizId: number, questionBod
 
 // 'questionDeleteRequest' function
 export const questionDeleteRequest = (token: string, quizId: number, questionId: number) => {
-  const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, { json: { token, questionId } });
+  const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, { qs: { token } });
   return JSON.parse(response.body.toString());
 };
