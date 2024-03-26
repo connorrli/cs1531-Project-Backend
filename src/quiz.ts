@@ -341,6 +341,40 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
   return { questionId };
 }
 
+/**
+ * Delete a question from the specified quiz.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz from which the question will be deleted.
+ * @param {number} questionId - The ID of the question to be deleted.
+ * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
+ */
+function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId: number): EmptyObject | ErrorObject {
+  if (!isValidUser(authUserId)) {
+    return { error: 'Not a valid authUserId.' };
+  }
+  if (!isValidQuiz(quizId)) {
+    return { error: 'Not a valid quizId.' };
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quiz: Quiz = data.quizzes[quizIndex];
+  const questionIndex = quiz.questions.findIndex((question) => question.questionId === questionId);
+  if (questionIndex === -1) {
+    return { error: 'Question Id does not refer to a valid question within this quiz.' };
+  }
+
+  quiz.questions.splice(questionIndex, 1);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -354,4 +388,5 @@ export {
   adminQuizDescriptionUpdate,
   adminQuizTrashView,
   adminQuizQuestionCreate,
+  adminQuizQuestionDelete,
 };

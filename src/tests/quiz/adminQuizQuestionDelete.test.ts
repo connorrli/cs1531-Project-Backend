@@ -34,7 +34,7 @@ describe('Testing adminQuizQuestionDelete function', () => {
     };
     const question = questionCreateRequest(userToken, quizId, questionBody);
     if ('questionId' in question) {
-      // expect(questionDeleteRequest(userToken, quizId, question.questionId)).toStrictEqual({});
+      expect(questionDeleteRequest(userToken, quizId, question.questionId)).toStrictEqual({});
     }
   });
 
