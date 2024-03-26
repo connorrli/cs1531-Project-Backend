@@ -304,7 +304,7 @@ app.delete('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Re
   if ('error' in response) {
     if (response.error.includes('valid question')) {
       return res.status(400).json(response);
-    } 
+    }
     if (response.error.includes('valid quizId') || response.error.includes('owns')) {
       return res.status(403).json(response);
     }
