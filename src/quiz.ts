@@ -31,6 +31,19 @@ interface AdminQuizCreateReturn {
   quizId: number;
 }
 
+interface TrashedQuiz {
+  quizId: number;
+  name: string;
+}
+
+interface adminQuizTrashViewReturn {
+  quizzes: TrashedQuiz[];
+}
+
+interface adminQuizQuestionCreateReturn {
+  questionId: number;
+}
+
 export interface AdminQuizInfoReturn {
   quizId: number;
   name: string;
@@ -110,7 +123,11 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
   *
   * @returns {object} - Returns the quiz id number of the quiz
 */
-function adminQuizCreate(authUserId: number, name: string, description: string): AdminQuizCreateReturn | ErrorObject {
+function adminQuizCreate(
+  authUserId: number,
+  name: string,
+  description: string
+): AdminQuizCreateReturn | ErrorObject {
   const data = getData();
 
   // Invalid user Id
@@ -186,7 +203,8 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
   *
-  * @returns {object} - Returns object containing details such as quizId, name, time made and edited, and description
+  * @returns {object} - Returns object containing details such as quizId,
+  *                     name, time made and edited, and description
 */
 function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn | ErrorObject {
   if (!isValidUser(authUserId)) {
@@ -221,7 +239,11 @@ function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn 
   *
   * @returns {object} - Returns object containing nothing
 */
-function adminQuizNameUpdate(authUserId: number, quizId: number, name: string): EmptyObject | ErrorObject {
+function adminQuizNameUpdate(
+  authUserId: number,
+  quizId: number,
+  name: string
+): EmptyObject | ErrorObject {
   if (!isValidUser(authUserId)) {
     return { error: 'Not a valid authUserId.' };
   }
@@ -259,7 +281,11 @@ function adminQuizNameUpdate(authUserId: number, quizId: number, name: string): 
   *
   * @returns {empty object} - Returns an empty object to the user
 */
-function adminQuizDescriptionUpdate(authUserId: number, quizId: number, description: string): EmptyObject | ErrorObject {
+function adminQuizDescriptionUpdate(
+  authUserId: number,
+  quizId: number,
+  description: string
+): EmptyObject | ErrorObject {
   const data = getData();
   const user = data.users.find(u => u.userId === authUserId);
   const quiz = data.quizzes.find(q => q.quizId === quizId);
@@ -285,7 +311,20 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
-function adminQuizTransfer(quizId: number, userId: number, userEmail: string): EmptyObject | ErrorObject {
+/**
+ * Transfers ownership of a quiz from one user to another based on email
+ *
+ * @param {number} quizId - ID of the quiz that is having ownership transferred
+ * @param {number} userId - ID of the user who currently owns the quiz
+ * @param {string} userEmail - Email of the user who is to gain ownership over quiz
+ *
+ * @returns {object} - Returns an error object or empty object
+ */
+function adminQuizTransfer(
+  quizId: number,
+  userId: number,
+  userEmail: string
+): EmptyObject | ErrorObject {
   const data = getData();
   const quizTransfer = data.quizzes.find((q) => q.quizId === quizId);
   const newOwner = data.users.find(user => user.email === userEmail);
@@ -318,8 +357,14 @@ function adminQuizTransfer(quizId: number, userId: number, userEmail: string): E
   return {};
 }
 
-// Implementation for the 'adminQuizTrashView' function
-function adminQuizTrashView (userId: number) {
+/**
+ * View quizzes owned by user currently in trash
+ *
+ * @param {number} userId - The ID of the user
+ *
+ * @returns {object} - Returns an object with an array containining trashed quizzes
+ */
+function adminQuizTrashView (userId: number): adminQuizTrashViewReturn {
   const trash = getTrash();
   const trashQuizzes = [];
   for (const trashedQuiz of trash.quizzes) {
@@ -331,21 +376,25 @@ function adminQuizTrashView (userId: number) {
 }
 
 /**
-  * Update a question within a quiz
+  * Create a question within a quiz
   *
   * @param {integer} userId - ID of a user
   * @param {integer} quizId - ID of a quiz
   * @param {object} questionBody - Key details of question passed in body of request
   *
-  * @returns {object} - Returns an empty object
+  * @returns {object} - Returns an error or object containing questionId
 */
-function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: QuestionBody) {
+function adminQuizQuestionCreate(
+  userId: number,
+  quizId: number,
+  questionBody: QuestionBody
+): adminQuizQuestionCreateReturn | ErrorObject {
   const data = getData();
   const quiz = findQuiz(data.quizzes, quizId);
   if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
 
   const error = quizQuestionCreateChecker(userId, quiz, questionBody);
-  if ('error' in error) return error;
+  if ('error' in error) return error as ErrorObject;
 
   // Increment number of questions and update the edit time
   quiz.numQuestions++;
@@ -377,7 +426,12 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
   *
   * @returns {object} - Returns an empty object
 */
-function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: number, questionBody: QuestionBody): ErrorObject | EmptyObject {
+function adminQuizQuestionUpdate(
+  userId: number,
+  quizId: number,
+  questionId: number,
+  questionBody: QuestionBody
+): ErrorObject | EmptyObject {
   const data = getData();
 
   const quiz = findQuiz(data.quizzes, quizId);
@@ -410,7 +464,10 @@ function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: num
  * @param {number} questionId - The ID of the question to be deleted.
  * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
  */
-function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId: number): EmptyObject | ErrorObject {
+function adminQuizQuestionDelete(authUserId: number,
+  quizId: number,
+  questionId: number
+): EmptyObject | ErrorObject {
   if (!isValidUser(authUserId)) {
     return { error: 'Not a valid authUserId.' };
   }
