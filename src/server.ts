@@ -1,5 +1,5 @@
 // Import statements of various packages/libraries that we will leverage for the project
-import express, { json, Request, response, Response } from 'express';
+import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
 import morgan from 'morgan';
 import config from './config.json';
@@ -11,12 +11,14 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, 
+import {
+  adminUserDetails,
   adminAuthRegister,
   adminAuthLogin,
   adminUserPasswordUpdate,
   adminUserDetailsUpdate,
-  adminAuthLogout } from './auth';
+  adminAuthLogout
+} from './auth';
 import {
   adminQuizCreate,
   adminQuizList,
