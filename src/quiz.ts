@@ -283,6 +283,39 @@ function adminQuizDescriptionUpdate(authUserId: number, quizId: number, descript
   return {};
 }
 
+function adminQuizTransfer(quizId: number, userId: number, userEmail: string): EmptyObject | ErrorObject {
+  const data = getData();
+  const quizTransfer = data.quizzes.find((q) => q.quizId === quizId);
+  const newOwner = data.users.find(user => user.email === userEmail);
+
+  if (quizTransfer === undefined) {
+    return { error: 'Quiz not found' };
+  }
+
+  if (quizTransfer.quizOwner !== userId) {
+    return { error: 'User is not the owner of quiz', statusValue: 403 };
+  }
+
+  if (newOwner === undefined) {
+    return { error: 'UserEmail is not a real user' };
+  }
+
+  if (newOwner.userId === userId) {
+    return { error: 'New owner is the current owner' };
+  }
+
+  for (const quiz of data.quizzes) {
+    if (quiz.quizOwner === newOwner.userId) {
+      if (quiz.name === quizTransfer.name) {
+        return { error: 'Duplicate quiz name for new owner' };
+      }
+    }
+  }
+  quizTransfer.quizOwner = newOwner.userId;
+
+  return {};
+}
+
 // Implementation for the 'adminQuizTrashView' function
 function adminQuizTrashView (userId: number) {
   const trash = getTrash();
@@ -390,4 +423,5 @@ export {
   adminQuizTrashView,
   adminQuizQuestionCreate,
   adminQuizQuestionDelete,
+  adminQuizTransfer
 };
