@@ -2,6 +2,7 @@ import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
 import { response } from 'express';
 const SERVER_URL = `${url}:${port}`;
+const ERROR = { error: expect.any(String) };
 
 beforeEach(() => {
     request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
@@ -49,7 +50,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user2Token, quizId.quizId, "user2@example.com");
-        expect(result).toStrictEqual({ error: expect.any(String), statusValue: 403 });
+        expect(result).toStrictEqual({ ERROR, statusValue: 403 });
     });
 
     test('should return an error if the quiz is not found', () => {
@@ -58,7 +59,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId + 1, "user2@example.com");
-        expect(result).toStrictEqual({ error: expect.any(String) });
+        expect(result).toStrictEqual({ ERROR });
     });
 
     test('should return an error if the specified userEmail is not associated with any user', () => {
@@ -67,7 +68,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId, "nonexistent@example.com");
-        expect(result).toStrictEqual({ error: expect.any(String) });
+        expect(result).toStrictEqual({ ERROR });
     });
 
     test('should return an error if the new owner is the current owner', () => {
@@ -76,7 +77,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId, "user1@example.com");
-        expect(result).toStrictEqual({ error: expect.any(String) });
+        expect(result).toStrictEqual({ ERROR });
     });
 
     test('should return an error if the new owner already owns a quiz with the same name', () => {
@@ -87,6 +88,6 @@ describe('adminQuizTransfer', () => {
         console.log("quizId1:", quizId1);
         const result = quizTransferReq(user1Token, quizId1.quizId, 'user2@example.com');
     
-        expect(result).toStrictEqual({ error: expect.any(String) });
+        expect(result).toStrictEqual({ ERROR });
     }); 
 }); 
