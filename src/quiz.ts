@@ -172,7 +172,6 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
-    console.log(ExtantQuizId);
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
