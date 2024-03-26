@@ -146,6 +146,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const response = adminUserDetailsUpdate(session, email, nameFirst, nameLast);
   if ('error' in response) return res.status(400).json(response);
 
+  save();
   return res.json(response);
 });
 
@@ -284,6 +285,7 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
       return res.status(403).json(response);
     }
   }
+  save();
   return res.json(response);
 });
 
@@ -366,7 +368,8 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   }
 
   clearTrash(session.userId, quizIds);
-
+  saveTrash();
+  save();
   return res.json(response);
 });
 
@@ -382,6 +385,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
     if ('statusValue' in response) return res.status(response.statusValue).json(response);
     else return res.status(400).json(response);
   }
+  save();
   return res.json(response);
 });
 
