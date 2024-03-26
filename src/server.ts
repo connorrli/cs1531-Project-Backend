@@ -12,11 +12,22 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView, adminQuizQuestionCreate, adminQuizQuestionUpdate } from './quiz';
+import { 
+  adminQuizCreate, 
+  adminQuizList, 
+  adminQuizInfo, 
+  adminQuizNameUpdate, 
+  adminQuizDescriptionUpdate, 
+  adminQuizRemove, 
+  adminQuizTrashView, 
+  adminQuizQuestionCreate, 
+  adminQuizQuestionUpdate, 
+  adminQuizQuestionDelete 
+} from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
-import { clear } from './other';
+import { clear, clearTrash, trashOwner, quizInTrash } from './other';
 
 // Set up web app
 const app = express();
@@ -106,7 +117,9 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
 
   const response = adminAuthLogout(token);
-  if ('error' in response) res.status(401).json(response);
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
 
   save();
   return res.json(response);
@@ -283,7 +296,7 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
 
   const response = adminQuizQuestionCreate(session.userId, quizId, questionBody);
   if ('error' in response) {
-    if ('statusValue' in response) return res.status(response.statusValue).json(response);
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
     else return res.status(400).json(response);
   }
 
@@ -309,6 +322,51 @@ app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
 
   save();
   res.json(response);
+});
+
+// adminQuizQuestionDelete DELETE request route
+app.delete('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
+  const token: string = req.query.token as string;
+  const quizId: number = parseInt(req.params.quizId);
+  const questionId: number = parseInt(req.params.questionId);
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizQuestionDelete(session.userId, quizId, questionId);
+
+  if ('error' in response) {
+    if (response.error.includes('valid question')) {
+      return res.status(400).json(response);
+    }
+    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
+      return res.status(403).json(response);
+    }
+  }
+
+  save();
+  return res.status(200).json(response);
+});
+
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
+  const token: string = req.query.token.toString();
+  const session = getSession(token);
+
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Token is invalid' });
+  }
+
+  if (!quizInTrash(quizIds)) {
+    return res.status(400).json({ error: 'At least one of the quizzes is not in trash' });
+  }
+
+  if (!trashOwner(session.userId, quizIds)) {
+    return res.status(403).json({ error: 'One or more of the quiz Ids refer to a quiz that the user does not own' });
+  }
+
+  clearTrash(session.userId, quizIds);
+
+  return res.json({});
 });
 
 // ====================================================================

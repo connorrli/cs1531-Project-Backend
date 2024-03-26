@@ -4,14 +4,18 @@
 
 import { getData, setData } from './dataStore';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { ErrorObject, Question, Quiz } from './interface';
+import { Answer, Question, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
+import { getCurrentTime, findQuestion, findQuiz, generateAnswers, generateQuestionId } from './helpers/quiz/quizMiscHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+const EMPTY = 0;
+const FIRST_QUESTION_ID = 1;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
@@ -154,8 +158,9 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
     numQuestions: 0,
     questions: []
   };
+  const trash = getTrash();
 
-  if (data.quizzes.length === 0) {
+  if ((data.quizzes.length === 0) && (trash.quizzes.length === 0)) {
     quiz.quizId = 1;
     data.quizzes.push(quiz);
   } else {
@@ -165,6 +170,12 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
+    for (const element of trash.quizzes) {
+      if (element.quizId > ExtantQuizId) {
+        ExtantQuizId = element.quizId;
+      }
+    }
+    console.log(ExtantQuizId);
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
@@ -289,49 +300,108 @@ function adminQuizTrashView (userId: number) {
   return { quizzes: trashQuizzes };
 }
 
+/**
+  * Update a question within a quiz
+  *
+  * @param {integer} userId - ID of a user
+  * @param {integer} quizId - ID of a quiz
+  * @param {object} questionBody - Key details of question passed in body of request
+  *
+  * @returns {object} - Returns an empty object
+*/
 function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: QuestionBody) {
   const data = getData();
-  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  const quiz = findQuiz(data.quizzes, quizId);
+  if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
 
   const error = quizQuestionCreateChecker(userId, quiz, questionBody);
   if ('error' in error) return error;
 
   // Increment number of questions and update the edit time
   quiz.numQuestions++;
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
 
-  // Add the new question to the quiz
-  const questionId = quiz.questions.length + 1;
+  // Generates new answers array, with added colour and answerId
+  const answers = generateAnswers(questionBody.answers);
+  const questionId = generateQuestionId(quiz);
+
+  // Push new question containing above data into the questions array
   quiz.questions.push({
     questionId: questionId,
     question: questionBody.question,
     duration: questionBody.duration,
     points: questionBody.points,
-    answers: questionBody.answers
+    answers: answers
   });
 
   return { questionId };
 }
 
+/**
+  * Update a question within a quiz
+  *
+  * @param {integer} userId - ID of a user
+  * @param {integer} quizId - ID of a quiz
+  * @param {string} questionId - ID of question within the given quiz
+  * @param {object} questionBody - Key details of question passed in body of request
+  *
+  * @returns {object} - Returns an empty object
+*/
 function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: number, questionBody: QuestionBody): ErrorObject | EmptyObject {
   const data = getData();
-  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
-  const question = quiz.questions.find(question => question.questionId === questionId); 
+  
+  const quiz = findQuiz(data.quizzes, quizId);
+  if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
 
+  const question = findQuestion(quiz.questions, questionId);
   if (typeof question === 'undefined') return { error: 'Invalid question' };
 
-  // Error checks are the exact same as create function, so this can be re-used
+  // Error checks are mostly the exact same as create function, so this can be re-used
   const error = quizQuestionCreateChecker(userId, quiz, questionBody);
   if ('error' in error) return error;
 
-  // Updates the edit time
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
+  const answers = generateAnswers(questionBody.answers);
 
   // Sets all the new data for the question
   question.question = questionBody.question;
   question.duration = questionBody.duration;
   question.points = questionBody.points;
-  question.answers = questionBody.answers;
+  question.answers = answers;
+
+  return {};
+}
+
+/**
+ * Delete a question from the specified quiz.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz from which the question will be deleted.
+ * @param {number} questionId - The ID of the question to be deleted.
+ * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
+ */
+function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId: number): EmptyObject | ErrorObject {
+  if (!isValidUser(authUserId)) {
+    return { error: 'Not a valid authUserId.' };
+  }
+  if (!isValidQuiz(quizId)) {
+    return { error: 'Not a valid quizId.' };
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quiz: Quiz = data.quizzes[quizIndex];
+  const questionIndex = quiz.questions.findIndex((question) => question.questionId === questionId);
+  if (questionIndex === -1) {
+    return { error: 'Question Id does not refer to a valid question within this quiz.' };
+  }
+
+  quiz.questions.splice(questionIndex, 1);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
 
   return {};
 }
@@ -350,4 +420,5 @@ export {
   adminQuizTrashView,
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
+  adminQuizQuestionDelete,
 };

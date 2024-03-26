@@ -64,3 +64,8 @@ export const questionUpdateRequest = (token: string, quizId: number, questionId:
   return JSON.parse(response.body.toString());
 };
 
+// 'questionDeleteRequest' function
+export const questionDeleteRequest = (token: string, quizId: number, questionId: number) => {
+  const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, { qs: { token } });
+  return JSON.parse(response.body.toString());
+};
