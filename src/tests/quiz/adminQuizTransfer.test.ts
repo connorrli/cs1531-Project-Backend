@@ -25,8 +25,8 @@ const quizListReq = (token: string) => {
     return JSON.parse(response.body.toString());
 };
 
-const quizTransferReq = (token: string, name: string, description: string) => {
-    const response = request('POST', SERVER_URL + '/v1/admin/quiz/:quizid/transfer', { json: { token, name, description}});
+const quizTransferReq = (token: string, quizId: number, userEmail: string) => {
+    const response = request('POST', SERVER_URL + `/v1/admin/quiz/` + quizId.toString() + `/transfer`, { json: { token, userEmail }});
     return JSON.parse(response.body.toString());
 }
 
@@ -36,20 +36,19 @@ describe('adminQuizTransfer', () => {
         const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(quizId.quizId, user1Token, "user2@example.com");
+        const result = quizTransferReq(user1Token, quizId.quizId, "user2@example.com");
 
         const updatedData = quizListReq(user2Token).quizzes;
-        console.log(updatedData);
         expect(updatedData[0].quizId).toEqual(quizId.quizId);
-        expect(result).toStrictEqual(response);
+        expect(result).toStrictEqual({});
     });
 
-    /* test('should return an error if the user is not the owner of the quiz', () => {
+    test('should return an error if the user is not the owner of the quiz', () => {
         const user1Token = authRegisterReq("user1@example.com", "password123", "User", "One");
         const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(user1Token, "", "user2@example.com");
+        const result = quizTransferReq(user2Token, quizId.quizId, "user2@example.com");
         expect(result).toStrictEqual({ error: "User is not the owner of quiz", statusValue: 403 });
     });
 
@@ -58,7 +57,7 @@ describe('adminQuizTransfer', () => {
         const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(999, 1, "user2@example.com");
+        const result = quizTransferReq(user1Token, quizId.quizId + 1, "user2@example.com");
         expect(result).toStrictEqual({ error: "Quiz not found" });
     });
 
@@ -67,31 +66,27 @@ describe('adminQuizTransfer', () => {
         const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(1, 1, "nonexistent@example.com");
+        const result = quizTransferReq(user1Token, quizId.quizId, "nonexistent@example.com");
         expect(result).toStrictEqual({ error: "UserEmail is not a real user" });
     });
 
     test('should return an error if the new owner is the current owner', () => {
         const user1Token = authRegisterReq("user1@example.com", "password123", "User", "One");
-        const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
+        authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(1, 1, "user1@example.com");
+        const result = quizTransferReq(user1Token, quizId.quizId, "user1@example.com");
         expect(result).toStrictEqual({ error: "New owner is the current owner" });
     });
 
     test('should return an error if the new owner already owns a quiz with the same name', () => {
-        const user1Token = authRegisterReq("user1@example.com", "password", "User", "One");
-        const user2Token = authRegisterReq("user2@example.com", "password", "User", "Two");
-    
+        const user1Token = authRegisterReq("user1@example.com", "password123", "User", "One");
+        const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         const quizId1 = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const quizId2 = quizCreateRequest(user1Token, "Quiz 2", "Description");
-    
-        const duplicatedQuizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        quizTransferReq(duplicatedQuizId, user2Token.id, user2Token.email);
-        
-        const result = quizTransferReq(quizId1, user2Token.id, user2Token.email);
+        const quizId2 = quizCreateRequest(user2Token, "Quiz 1", "Description");
+        console.log("quizId1:", quizId1);
+        const result = quizTransferReq(user1Token, quizId1.quizId, 'user2@example.com');
     
         expect(result).toStrictEqual({ error: "Duplicate quiz name for new owner" });
-    }); */
+    }); 
 }); 
