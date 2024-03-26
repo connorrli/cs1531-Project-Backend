@@ -11,7 +11,12 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
+import { adminUserDetails, 
+  adminAuthRegister,
+  adminAuthLogin,
+  adminUserPasswordUpdate,
+  adminUserDetailsUpdate,
+  adminAuthLogout } from './auth';
 import {
   adminQuizCreate,
   adminQuizList,
@@ -365,7 +370,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
     return res.status(403).json({ error: 'One or more of the quiz Ids refer to a quiz that the user does not own' });
   }
 
-  clearTrash(session.userId, quizIds);
+  const response = clearTrash(session.userId, quizIds);
 
   return res.json(response);
 });
@@ -379,8 +384,10 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 
   const response = adminQuizTransfer(quizId, session.userId, userEmail);
   if ('error' in response) {
-    if ('statusValue' in response) return res.status(response.statusValue).json(response);
-    else return res.status(400).json(response);
+    if ('statusValue' in response) {
+      return res.status(response.statusValue).json({ error: response.error });
+    }
+    return res.status(400).json({ error: response.error });
   }
   return res.json(response);
 });
