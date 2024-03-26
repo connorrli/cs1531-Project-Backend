@@ -20,6 +20,15 @@ const MIN_ANSWER_LENGTH = 1;
 const MAX_ANSWER_LENGTH = 30;
 const MINUTE = 60;
 
+/**
+  * Checks for all errors related to quiz question creation
+  * 
+  * @param {number} userId - ID for a user
+  * @param {object} quiz - Quiz object to add question to
+  * @param {object} questionBody - Object containing core question data                     
+  * 
+  * @returns {object} - Returns an error or empty object if no error
+*/
 function quizQuestionCreateChecker(
   userId: number,
   quiz: Quiz,
