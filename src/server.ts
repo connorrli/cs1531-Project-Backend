@@ -106,7 +106,7 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
 
   const response = adminAuthLogout(token);
-  if ('error' in response) { 
+  if ('error' in response) {
     return res.status(401).json(response);
   }
 

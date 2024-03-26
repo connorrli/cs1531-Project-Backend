@@ -156,7 +156,7 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
     questions: []
   };
   const trash = getTrash();
-  
+
   if ((data.quizzes.length === 0) && (trash.quizzes.length === 0)) {
     quiz.quizId = 1;
     data.quizzes.push(quiz);
