@@ -4,17 +4,15 @@
 
 import { getData, setData } from './dataStore';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { Answer, ErrorObject, Quiz } from './interface';
+import { Question, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
+import { getCurrentTime, findQuestion, findQuiz, generateAnswers, generateQuestionId } from './helpers/quiz/quizMiscHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
-
-const EMPTY = 0;
-const FIRST_QUESTION_ID = 1;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
@@ -33,12 +31,14 @@ interface AdminQuizCreateReturn {
   quizId: number;
 }
 
-interface AdminQuizInfoReturn {
+export interface AdminQuizInfoReturn {
   quizId: number;
   name: string;
   timeCreated: number;
   timeLastEdited: number;
   description: string;
+  numQuestions: number;
+  questions: Question[];
 }
 
 type EmptyObject = Record<string, never>
@@ -206,7 +206,9 @@ function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn 
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description
+    description: quiz.description,
+    numQuestions: quiz.numQuestions,
+    questions: quiz.questions,
   };
 }
 
@@ -328,40 +330,30 @@ function adminQuizTrashView (userId: number) {
   return { quizzes: trashQuizzes };
 }
 
+/**
+  * Update a question within a quiz
+  *
+  * @param {integer} userId - ID of a user
+  * @param {integer} quizId - ID of a quiz
+  * @param {object} questionBody - Key details of question passed in body of request
+  *
+  * @returns {object} - Returns an empty object
+*/
 function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: QuestionBody) {
   const data = getData();
-  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  const quiz = findQuiz(data.quizzes, quizId);
+  if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
 
   const error = quizQuestionCreateChecker(userId, quiz, questionBody);
   if ('error' in error) return error;
 
   // Increment number of questions and update the edit time
   quiz.numQuestions++;
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
 
   // Generates new answers array, with added colour and answerId
-  const answers : Answer[] = [];
-  const colours = ['red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'];
-  let answerId = EMPTY;
-  for (const answer of questionBody.answers) {
-    const randIndex = Math.floor(Math.random() * colours.length);
-    answerId += 1;
-    answers.push({
-      answerId,
-      answer: answer.answer,
-      colour: colours[randIndex],
-      correct: answer.correct,
-    });
-    colours.splice(randIndex, 1);
-  }
-
-  // Determine New Question Id
-  let questionId: number;
-  if (quiz.questions.length === EMPTY) questionId = FIRST_QUESTION_ID;
-  else {
-    questionId = quiz.questions
-      .reduce((max, question) => max.questionId > question.questionId ? max : question).questionId + 1;
-  }
+  const answers = generateAnswers(questionBody.answers);
+  const questionId = generateQuestionId(quiz);
 
   // Push new question containing above data into the questions array
   quiz.questions.push({
@@ -373,6 +365,41 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
   });
 
   return { questionId };
+}
+
+/**
+  * Update a question within a quiz
+  *
+  * @param {integer} userId - ID of a user
+  * @param {integer} quizId - ID of a quiz
+  * @param {string} questionId - ID of question within the given quiz
+  * @param {object} questionBody - Key details of question passed in body of request
+  *
+  * @returns {object} - Returns an empty object
+*/
+function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: number, questionBody: QuestionBody): ErrorObject | EmptyObject {
+  const data = getData();
+
+  const quiz = findQuiz(data.quizzes, quizId);
+  if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
+
+  const question = findQuestion(quiz.questions, questionId);
+  if (typeof question === 'undefined') return { error: 'Invalid question' };
+
+  // Error checks are mostly the exact same as create function, so this can be re-used
+  const error = quizQuestionCreateChecker(userId, quiz, questionBody);
+  if ('error' in error) return error;
+
+  quiz.timeLastEdited = getCurrentTime();
+  const answers = generateAnswers(questionBody.answers);
+
+  // Sets all the new data for the question
+  question.question = questionBody.question;
+  question.duration = questionBody.duration;
+  question.points = questionBody.points;
+  question.answers = answers;
+
+  return {};
 }
 
 /**
@@ -422,6 +449,7 @@ export {
   adminQuizDescriptionUpdate,
   adminQuizTrashView,
   adminQuizQuestionCreate,
+  adminQuizQuestionUpdate,
   adminQuizQuestionDelete,
   adminQuizTransfer
 };
