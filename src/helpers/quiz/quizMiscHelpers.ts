@@ -1,4 +1,4 @@
-import { Answer, AnswerReq, Question, Quiz } from "../../interface";
+import { Answer, AnswerReq, Question, Quiz } from '../../interface';
 const EMPTY = 0;
 const FIRST_QUESTION_ID = 1;
 
@@ -75,5 +75,5 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz {
   * @returns {Object | undefined} - Returns the question if found, otherwise undefined
 */
 export function findQuestion(questions: Question[], questionId: number): undefined | Question {
-  return questions.find(question => question.questionId === questionId); 
+  return questions.find(question => question.questionId === questionId);
 }

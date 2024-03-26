@@ -4,7 +4,7 @@
 
 import { getData, setData } from './dataStore';
 import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { Answer, Question, ErrorObject, Quiz } from './interface';
+import { Question, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
@@ -13,9 +13,6 @@ import { getCurrentTime, findQuestion, findQuiz, generateAnswers, generateQuesti
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
-
-const EMPTY = 0;
-const FIRST_QUESTION_ID = 1;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
@@ -349,7 +346,7 @@ function adminQuizQuestionCreate(userId: number, quizId: number, questionBody: Q
 */
 function adminQuizQuestionUpdate(userId: number, quizId: number, questionId: number, questionBody: QuestionBody): ErrorObject | EmptyObject {
   const data = getData();
-  
+
   const quiz = findQuiz(data.quizzes, quizId);
   if (typeof quiz === 'undefined') return { error: 'Invalid quiz', statusValue: 403 };
 

@@ -21,32 +21,25 @@ const MAX_ANSWER_LENGTH = 30;
 const MINUTE = 60;
 
 function quizQuestionCreateChecker(
-  userId: number, 
-  quiz: Quiz, 
+  userId: number,
+  quiz: Quiz,
   questionBody: QuestionBody
 ): ErrorObject | quizQuestionCreateCheckerReturn {
   if (quiz.quizOwner !== userId) {
     return { error: 'User is not owner of the quiz', statusValue: 403 };
-  }
-  else if (questionBody.question.length < MIN_QUESTION_LEN) {
+  } else if (questionBody.question.length < MIN_QUESTION_LEN) {
     return { error: 'Question length < 5' };
-  }
-  else if (questionBody.question.length > MAX_QUESTION_LEN) {
+  } else if (questionBody.question.length > MAX_QUESTION_LEN) {
     return { error: 'Question length > 50' };
-  }
-  else if (questionBody.answers.length < MIN_NO_ANSWERS) {
+  } else if (questionBody.answers.length < MIN_NO_ANSWERS) {
     return { error: 'Less than 2 answers' };
-  }
-  else if (questionBody.answers.length > MAX_NO_ANSWERS) {
+  } else if (questionBody.answers.length > MAX_NO_ANSWERS) {
     return { error: 'More than 6 answers' };
-  }
-  else if (questionBody.duration <= MIN_DURATION) {
+  } else if (questionBody.duration <= MIN_DURATION) {
     return { error: 'Invalid duration, must be positive' };
-  }
-  else if (questionBody.points < MIN_POINTS_AWARDED) {
+  } else if (questionBody.points < MIN_POINTS_AWARDED) {
     return { error: 'Less than 1 point awarded' };
-  }
-  else if (questionBody.points > MAX_POINTS_AWARDED) {
+  } else if (questionBody.points > MAX_POINTS_AWARDED) {
     return { error: 'More than 10 points awarded' };
   }
 
@@ -58,20 +51,18 @@ function quizQuestionCreateChecker(
 
   for (const answerObj of questionBody.answers) {
     const isAlreadyAnswer = questionBody.answers
-    .find(answer => answer.answer === answerObj.answer && answer !== answerObj);
+      .find(answer => answer.answer === answerObj.answer && answer !== answerObj);
     if (typeof isAlreadyAnswer !== 'undefined') {
       return { error: 'Duplicate answers for current question' };
     }
 
     const hasCorrectAnswer = questionBody.answers
-    .find(answer => answer.correct === true);
+      .find(answer => answer.correct === true);
     if (typeof hasCorrectAnswer === 'undefined') {
       return { error: 'No correct answer for current question' };
-    }
-    else if (answerObj.answer.length < MIN_ANSWER_LENGTH) {
+    } else if (answerObj.answer.length < MIN_ANSWER_LENGTH) {
       return { error: `'${answerObj.answer}' is shorter than 1 char` };
-    }
-    else if (answerObj.answer.length > MAX_ANSWER_LENGTH) {
+    } else if (answerObj.answer.length > MAX_ANSWER_LENGTH) {
       return { error: `'${answerObj.answer}' is longer than 30 chars` };
     }
   }

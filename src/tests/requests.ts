@@ -56,7 +56,7 @@ export const questionCreateRequest = (token: string, quizId: number, questionBod
 export const quizInfoRequest = (quizId: number, token: string) => {
   const response = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
   return JSON.parse(response.body.toString());
-}
+};
 
 // 'questionUpdateRequest' function
 export const questionUpdateRequest = (token: string, quizId: number, questionId: number, questionBody: QuestionBody) => {

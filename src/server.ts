@@ -12,17 +12,17 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
-import { 
-  adminQuizCreate, 
-  adminQuizList, 
-  adminQuizInfo, 
-  adminQuizNameUpdate, 
-  adminQuizDescriptionUpdate, 
-  adminQuizRemove, 
-  adminQuizTrashView, 
-  adminQuizQuestionCreate, 
-  adminQuizQuestionUpdate, 
-  adminQuizQuestionDelete 
+import {
+  adminQuizCreate,
+  adminQuizList,
+  adminQuizInfo,
+  adminQuizNameUpdate,
+  adminQuizDescriptionUpdate,
+  adminQuizRemove,
+  adminQuizTrashView,
+  adminQuizQuestionCreate,
+  adminQuizQuestionUpdate,
+  adminQuizQuestionDelete
 } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
@@ -310,7 +310,7 @@ app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
   const questionId = parseInt(req.params.questionId);
 
   const { token, questionBody } = req.body;
-  
+
   const session = getSession(token);
   if ('error' in session) return res.status(401).json(session);
 
