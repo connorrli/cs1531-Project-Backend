@@ -87,7 +87,11 @@ function emailValidCheck(email: string) {
   return NO_ERROR;
 }
 
-// Returns true if quizId exists and false if quizId does not exist; 'isValidQuiz'
+/**
+ *
+ * @param quizId
+ * @returns true if quizId exists and false if quizId does not exist
+ */
 function isValidQuiz(quizId: number) {
   const data = getData();
   if (data.quizzes.length === 0) {
@@ -97,7 +101,11 @@ function isValidQuiz(quizId: number) {
   return !!quiz;
 }
 
-// Returns true if authUserId exists and false if authUserId does not exist; 'isValidUser'
+/**
+ *
+ * @param authUserId
+ * @returns true if authUserId exists and false if authUserId does not exist
+ */
 function isValidUser(authUserId: number) {
   const data = getData();
   if (data.users.length === 0) {
@@ -107,8 +115,12 @@ function isValidUser(authUserId: number) {
   return !!user;
 }
 
-// Returns true if authUserId owns quizId; returns false if authUserId is not
-// the owner of quizId; 'isOwner'
+/**
+ * @param authUserId
+ * @param quizId
+ * @returns true if authUserId owns quizId; returns false if authUserId is not
+ * the owner of quizId
+ */
 function isOwner(authUserId: number, quizId: number) {
   const data = getData();
   if (data.users.length === 0) {

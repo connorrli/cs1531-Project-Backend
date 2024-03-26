@@ -26,23 +26,30 @@ interface Quiz {
 }
 
 interface Answer {
-  answer: string,
-  correct: boolean
+  answerId: number;
+  answer: string;
+  colour: string;
+  correct: boolean;
 }
 
 interface Question {
-  questionId: number,
-  question: string,
-  duration: number,
-  points: number,
-  answers: Answer[]
+  questionId: number;
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
 }
 
-export interface QuestionBody {
-  question: string,
-  duration: number,
-  points: number,
-  answers: Answer[]
+interface QuestionBody {
+  question: string;
+  duration: number;
+  points: number;
+  answers: AnswerReq[];
+}
+
+interface AnswerReq {
+  answer: string;
+  correct: boolean;
 }
 
 // Interface describing a session object
@@ -85,4 +92,5 @@ export {
   DataStore,
   TrashStore,
   UserSession,
+  QuestionBody,
 };
