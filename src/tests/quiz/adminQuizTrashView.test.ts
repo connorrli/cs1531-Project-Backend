@@ -57,7 +57,7 @@ describe('Correct output with proper requests', () => {
     expect(quiz2rm).toStrictEqual({});
 
     expect(adminQuizTrashView(user1.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: 'Quiz' }] });
-    expect(adminQuizTrashView(user2.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: 'Janes Quiz' }] });
+    expect(adminQuizTrashView(user2.token)).toStrictEqual({ quizzes: [{ quizId: quiz2.quizId, name: 'Janes Quiz' }] });
   });
   test('Shows zero quizzes for a user who has never deleted a quiz', () => {
     const user2: AuthRegister = adminAuthRegister('janedoe@gmail.com', 'password456', 'Jane', 'Doe');

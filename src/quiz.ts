@@ -155,8 +155,9 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
     numQuestions: 0,
     questions: []
   };
+  const trash = getTrash();
 
-  if (data.quizzes.length === 0) {
+  if ((data.quizzes.length === 0) && (trash.quizzes.length === 0)) {
     quiz.quizId = 1;
     data.quizzes.push(quiz);
   } else {
@@ -166,12 +167,12 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
-    const trash = getTrash();
     for (const element of trash.quizzes) {
       if (element.quizId > ExtantQuizId) {
         ExtantQuizId = element.quizId;
       }
     }
+    console.log(ExtantQuizId);
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
