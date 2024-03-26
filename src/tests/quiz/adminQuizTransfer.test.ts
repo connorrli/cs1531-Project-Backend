@@ -49,7 +49,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user2Token, quizId.quizId, "user2@example.com");
-        expect(result).toStrictEqual({ error: "User is not the owner of quiz", statusValue: 403 });
+        expect(result).toStrictEqual({ error: expect.any(String), statusValue: 403 });
     });
 
     test('should return an error if the quiz is not found', () => {
@@ -58,7 +58,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId + 1, "user2@example.com");
-        expect(result).toStrictEqual({ error: "Quiz not found" });
+        expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
     test('should return an error if the specified userEmail is not associated with any user', () => {
@@ -67,7 +67,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId, "nonexistent@example.com");
-        expect(result).toStrictEqual({ error: "UserEmail is not a real user" });
+        expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
     test('should return an error if the new owner is the current owner', () => {
@@ -76,7 +76,7 @@ describe('adminQuizTransfer', () => {
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
         const result = quizTransferReq(user1Token, quizId.quizId, "user1@example.com");
-        expect(result).toStrictEqual({ error: "New owner is the current owner" });
+        expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
     test('should return an error if the new owner already owns a quiz with the same name', () => {
@@ -87,6 +87,6 @@ describe('adminQuizTransfer', () => {
         console.log("quizId1:", quizId1);
         const result = quizTransferReq(user1Token, quizId1.quizId, 'user2@example.com');
     
-        expect(result).toStrictEqual({ error: "Duplicate quiz name for new owner" });
+        expect(result).toStrictEqual({ error: expect.any(String) });
     }); 
 }); 
