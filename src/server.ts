@@ -1,7 +1,7 @@
 // Import statements of various packages/libraries that we will leverage for the project
 import express, { json, Request, response, Response } from 'express';
 import { echo } from './newecho';
-import morgan, { token } from 'morgan';
+import morgan from 'morgan';
 import config from './config.json';
 import cors from 'cors';
 import YAML from 'yaml';
@@ -12,12 +12,11 @@ import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
 import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView, adminQuizRestore } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adminQuizDescriptionUpdate, adminQuizRemove, adminQuizTrashView, adminQuizQuestionCreate, adminQuizTransfer, adminQuizQuestionDelete, adminQuizRestore } from './quiz';
 import { AdminQuizListReturn } from './quiz';
-import { ErrorObject, User, UserSession } from './interface';
+import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
-import { clear } from './other';
-import { Session } from 'inspector';
+import { clear, clearTrash, trashOwner, quizInTrash } from './other';
 
 // Set up web app
 const app = express();
@@ -45,7 +44,7 @@ const load = () => {
     const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
     setData(JSON.parse(file));
   }
-}
+};
 load();
 
 // Loads the trashbase.json file and sets the trash into trashStore if it exists
@@ -54,24 +53,24 @@ const loadTrash = () => {
     const file = fs.readFileSync('./trashbase.json', { encoding: 'utf8' });
     setTrash(JSON.parse(file));
   }
-}
+};
 loadTrash();
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
   fs.writeFileSync('./database.json', JSON.stringify(getData()));
-} 
+};
 
 // Save current `trash` trashStore object state into trashbase.json
 const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
-} 
+};
 
 // quizTrashView GET request route
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const token: string = req.query.token as string;
   const session: UserSession | ErrorObject = getSession(token);
-  if ('error' in session) return res.status(401).json({ error: "Token is invalid or empty"});
+  if ('error' in session) return res.status(401).json({ error: 'Token is invalid or empty' });
   const quizzes = adminQuizTrashView(session.userId);
   return res.json(quizzes);
 });
@@ -82,7 +81,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const nameLast = req.body.nameLast as string;
   const email = req.body.email as string;
   const pass = req.body.password as string;
-  
+
   const response = adminAuthRegister(email, pass, nameFirst, nameLast);
   if ('error' in response) return res.status(400).json(response);
 
@@ -96,8 +95,8 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const pass = req.body.password as string;
 
   const response = adminAuthLogin(email, pass);
-  if ('error' in response) { return res.status(400).json(response) };
-  
+  if ('error' in response) { return res.status(400).json(response); }
+
   save();
   return res.json(response);
 });
@@ -105,10 +104,11 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 // adminAuthLogOut POST request route
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
-
   const response = adminAuthLogout(token);
-  if ('error' in response) { return res.status(401).json(response) };
-  
+
+  if ('error' in response) {
+    return res.status(401).json(response);
+  }
   save();
   res.status(200);
   return res.json(response);
@@ -120,24 +120,19 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 
   const session = getSession(token);
   if ('error' in session) return res.status(401).json(session);
-  
+
   return res.json(adminUserDetails(session.userId));
 });
 
 // adminUserDetailsUpdate PUT request route
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token: string = req.body.token;
-  const session: ErrorObject | UserSession = getSession(token);
-  if ('error' in session) {
-    return res.status(401).json({ error: "token is invalid or empty" });
-  }
-  const email: string = req.body.email;
-  const nameFirst: string = req.body.nameFirst;
-  const nameLast: string = req.body.nameLast;
-  const response = adminUserDetailsUpdate(session.userId, email, nameFirst, nameLast);
-  if ('error' in response) {
-    return res.status(400).json(response);
-  }
+  const { token, email, nameFirst, nameLast } = req.body;
+
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminUserDetailsUpdate(session, email, nameFirst, nameLast);
+  if ('error' in response) return res.status(400).json(response);
 
   return res.json(response);
 });
@@ -161,12 +156,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const token: string = req.body.token;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Token is invalid." });
+    return res.status(401).json({ error: 'Token is invalid.' });
   }
   const name: string = req.body.name;
   const description: string = req.body.description;
-  const response: { quizId: Number } | ErrorObject = adminQuizCreate (session.userId, name, description);
-  if ('error' in response) { res.status(400) } else { res.status(200) };
+  const response: { quizId: number } | ErrorObject = adminQuizCreate(session.userId, name, description);
+  if ('error' in response) { res.status(400); } else { res.status(200); }
   save();
   return res.json(response);
 });
@@ -177,9 +172,9 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const token = query.token as string;
   const session = getSession(token);
   let response: AdminQuizListReturn | ErrorObject;
-  
+
   if (('error' in session)) {
-    return res.status(401).json({ error: "Token is invalid or empty" });
+    return res.status(401).json({ error: 'Token is invalid or empty' });
   } else {
     response = adminQuizList(session.userId);
   }
@@ -189,7 +184,7 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 
 // Example GET request route
 app.get('/echo', (req: Request, res: Response) => {
-  const data = req.query.echo as string; 
+  const data = req.query.echo as string;
   return res.json(echo(data));
 });
 
@@ -197,7 +192,7 @@ app.get('/echo', (req: Request, res: Response) => {
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const response = clear();
   save();
-  setTrash({"users": [], "quizzes": [], "sessions": []});
+  setTrash({ users: [], quizzes: [], sessions: [] });
   saveTrash();
   res.json(response);
 });
@@ -225,7 +220,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token: string = req.query.token.toString();
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Token is invalid"});
+    return res.status(401).json({ error: 'Token is invalid' });
   }
   const response = adminQuizRemove(session.userId, quizId);
   if ('error' in response) {
@@ -243,11 +238,11 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.query.token as string;
   if (!token) {
-    return res.status(401).json({ error: "Token is missing" });
+    return res.status(401).json({ error: 'Token is missing' });
   }
   const session = getSession(token);
   if (!session || !('userId' in session)) {
-    return res.status(401).json({ error: "Invalid session" });
+    return res.status(401).json({ error: 'Invalid session' });
   }
   const userId = session.userId;
   const response = adminQuizInfo(userId, quizId);
@@ -264,12 +259,15 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const token: string = req.body.token;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Invalid session" });
+    return res.status(401).json({ error: 'Invalid session' });
   }
   const userId: number = session.userId;
-  const response: ErrorObject | {} = adminQuizNameUpdate(userId, quizId, name);
+  const response: ErrorObject | Record<string, never> = adminQuizNameUpdate(userId, quizId, name);
   if ('error' in response) {
-    return res.status(403).json(response);
+    if (response.error.includes('quiz') || response.error.includes('INVALID QUIZ')) {
+      return res.status(403).json(response);
+    }
+    return res.status(400).json(response);
   }
   save();
   return res.status(200).json(response);
@@ -282,12 +280,97 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const desc: string = req.body.description;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({error: "token is empty or not valid"});
+    return res.status(401).json({ error: 'token is empty or not valid' });
   }
   const userId: number = session.userId;
-  return res.json(adminQuizDescriptionUpdate(userId, quizid, desc));
+  const response: ErrorObject | Record<string, never> = adminQuizDescriptionUpdate(userId, quizid, desc);
+  if ('error' in response) {
+    if (response.error.includes('too long')) {
+      return res.status(400).json(response);
+    } else {
+      return res.status(403).json(response);
+    }
+  }
+  return res.json(response);
 });
 
+// adminQuizQuestionCreate POST request route
+app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const { token, questionBody } = req.body;
+
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizQuestionCreate(session.userId, quizId, questionBody);
+  if ('error' in response) {
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    else return res.status(400).json(response);
+  }
+
+  save();
+  res.json(response);
+});
+
+// adminQuizQuestionDelete DELETE request route
+app.delete('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
+  const token: string = req.query.token as string;
+  const quizId: number = parseInt(req.params.quizId);
+  const questionId: number = parseInt(req.params.questionId);
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizQuestionDelete(session.userId, quizId, questionId);
+
+  if ('error' in response) {
+    if (response.error.includes('valid question')) {
+      return res.status(400).json(response);
+    }
+    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
+      return res.status(403).json(response);
+    }
+  }
+
+  save();
+  return res.status(200).json(response);
+});
+
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
+  const token: string = req.query.token.toString();
+  const session = getSession(token);
+
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Token is invalid' });
+  }
+
+  if (!quizInTrash(quizIds)) {
+    return res.status(400).json({ error: 'At least one of the quizzes is not in trash' });
+  }
+
+  if (!trashOwner(session.userId, quizIds)) {
+    return res.status(403).json({ error: 'One or more of the quiz Ids refer to a quiz that the user does not own' });
+  }
+
+  clearTrash(session.userId, quizIds);
+
+  return res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, userEmail } = req.body;
+  const session = getSession(token);
+
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizTransfer(quizId, session.userId, userEmail);
+  if ('error' in response) {
+    if ('statusValue' in response) return res.status(response.statusValue).json(response);
+    else return res.status(400).json(response);
+  }
+  return res.json(response);
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

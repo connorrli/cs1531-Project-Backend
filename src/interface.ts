@@ -21,6 +21,35 @@ interface Quiz {
   timeCreated: number;
   timeLastEdited: number;
   description: string;
+  numQuestions: number;
+  questions: Question[];
+}
+
+interface Answer {
+  answerId: number;
+  answer: string;
+  colour: string;
+  correct: boolean;
+}
+
+interface Question {
+  questionId: number;
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
+}
+
+interface QuestionBody {
+  question: string;
+  duration: number;
+  points: number;
+  answers: AnswerReq[];
+}
+
+interface AnswerReq {
+  answer: string;
+  correct: boolean;
 }
 
 // Interface describing a session object
@@ -47,17 +76,21 @@ interface TrashStore {
 // Interface describing an error object
 interface ErrorObject {
   error: string;
+  statusValue?: number;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// EXPORTS /////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////// EXPORTS /////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 export {
   ErrorObject,
   User,
   Quiz,
+  Question,
+  Answer,
   DataStore,
   TrashStore,
   UserSession,
-}
+  QuestionBody,
+};

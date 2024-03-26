@@ -1,9 +1,9 @@
-import { 
-  clearRequest, 
-  loginRequest, 
-  passwordUpdateRequest, 
-  userDetailsRequest, 
-  userCreateRequest 
+import {
+  clearRequest,
+  // loginRequest,
+  passwordUpdateRequest,
+  // userDetailsRequest,
+  userCreateRequest
 } from '../requests';
 
 const ERROR = { error: expect.any(String) };

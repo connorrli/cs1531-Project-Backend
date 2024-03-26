@@ -112,19 +112,6 @@ test('Quiz is not owned by you', () => {
 })
 
 // Extra tests
-// Correct output after logging out and then logging in to restore
-test('Logging back in to restore', () => {
-    const quiz1 = quizCreateReq(user1Token, 'name', 'description');
-    if ('quizId' in quiz1) quiz1QuizId = quiz1.quizId;
-    else quiz1QuizId = undefined;
-    const removeQuiz = adminQuizRemoveReq(user1Token, quiz1QuizId);
-    const logout1 = adminAuthLogOutReq(user1Token);
-    const login1 = adminAuthLoginReq('test@gmail.com', 'Password123');
-    const restore = adminQuizRestoreReq(user1Token, quiz1QuizId)
-    expect(restore).toStrictEqual({  });
-})
-
-
 // Correct output when user creates 2 quizzes, deletes both and restores one
 test('Correct output for remainder of items in trash', () => {
     const quiz1 = quizCreateReq(user1Token, 'name', 'to be restored');

@@ -173,4 +173,5 @@ dist/**/*
 
 # database file
 database.json
+trashbase.json
 
