@@ -1,7 +1,9 @@
 // BELOW THIS WILL BE ALL THE UNIVERSALLY REQUIRED TYPESCRIPT INTERFACES
 // ANY LOCAL-SCOPE INTERFACES SHOULD BE PLACED IN THEIR DESIGNATED FILE
 
-// Interface describing a user object
+/**
+  * Describes the User object and all properties contained in it.
+*/
 interface User {
   userId: number;
   email: string;
@@ -13,7 +15,9 @@ interface User {
   numFailedPasswordsSinceLastLogin: number;
 }
 
-// Interface describing a quiz object
+/**
+  * Describes the Quiz object and all properties contained in it.
+*/
 interface Quiz {
   quizId: number;
   quizOwner: number;
@@ -25,6 +29,9 @@ interface Quiz {
   questions: Question[];
 }
 
+/**
+  * Describes the Answer object and all properties contained in it.
+*/
 interface Answer {
   answerId: number;
   answer: string;
@@ -32,6 +39,9 @@ interface Answer {
   correct: boolean;
 }
 
+/**
+  * Describes the Question object and all properties contained in it.
+*/
 interface Question {
   questionId: number;
   question: string;
@@ -40,6 +50,11 @@ interface Question {
   answers: Answer[];
 }
 
+/**
+  * Describes the QuestionBody object and all properties contained in it.
+  *
+  * This is typically an object seen within body of a question-related request.
+*/
 interface QuestionBody {
   question: string;
   duration: number;
@@ -47,33 +62,51 @@ interface QuestionBody {
   answers: AnswerReq[];
 }
 
+/**
+  * Describes the AnswerReq object and all properties contained in it
+  *
+  * This is typically an object seen within QuestionBody-type object.
+*/
 interface AnswerReq {
   answer: string;
   correct: boolean;
 }
 
-// Interface describing a session object
+/**
+  * Describes the UserSession object and all properties contained in it.
+  *
+  * This is an object that contains a unique session token and associated user's ID.
+*/
 interface UserSession {
   token: string;
   userId: number;
   timeCreated: number;
 }
 
-// Interface describing the dataStore object
+/**
+  * Describes the DataStore object, which is an object containing users, quizzes and sessions arrays.
+*/
 interface DataStore {
   users: User[];
   quizzes: Quiz[];
   sessions: UserSession[];
 }
 
-// Interface describing the trashStore object
+/**
+  * Describes the TrashStore object, which is an object containing users, quizzes and sessions arrays.
+  *
+  * It is associated with all trash functionality, and will contain trashed quizzes.
+*/
 interface TrashStore {
   users: User[];
   quizzes: Quiz[];
   sessions: UserSession[];
 }
 
-// Interface describing an error object
+/**
+  * Describes the ErrorObject object, which is an object containing an error string and
+  * optionally a status value.
+*/
 interface ErrorObject {
   error: string;
   statusValue?: number;

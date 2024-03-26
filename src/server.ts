@@ -11,7 +11,14 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-import { adminUserDetails, adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate, adminUserDetailsUpdate, adminAuthLogout } from './auth';
+import {
+  adminUserDetails,
+  adminAuthRegister,
+  adminAuthLogin,
+  adminUserPasswordUpdate,
+  adminUserDetailsUpdate,
+  adminAuthLogout
+} from './auth';
 import {
   adminQuizCreate,
   adminQuizList,
