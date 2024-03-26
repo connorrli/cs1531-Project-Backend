@@ -89,6 +89,7 @@ export {
   Quiz,
   Question,
   Answer,
+  AnswerReq,
   DataStore,
   TrashStore,
   UserSession,
