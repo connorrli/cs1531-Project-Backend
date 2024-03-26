@@ -46,6 +46,8 @@ interface AdminQuizNameUpdateReturn { }
 
 interface AdminQuizDescriptionUpdateReturn { }
 
+interface QRErrorObject { error: string, statusCode: number}
+
 ///////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// FUNCTIONS ////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -106,19 +108,34 @@ function adminQuizRemove(authUserId: number, quizId: number): AdminQuizRemoveRet
   return {};
 }
 
-function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | ErrorObject {
+function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | QRErrorObject {
   const data = getData();
-  if (token.length === 0) {
-    return {error: 'Token is empty'};
-  }
+  let trash = getTrash();
 
   const findToken = data.sessions.find(user => user.token === token);
-  const findQuizId = data.quizzes.find(quiz => quiz.quizId === quizId);
-
-  if (findToken === undefined) {
-    return {error: 'Token does not refer to a valid logged in user session'};
-  }
+  const findQuizIdTrash = trash.quizzes.find(quiz => quiz.quizId === quizId);
+  const findQuizName = data.quizzes.find(quiz => quiz.name === findQuizIdTrash.name);
   
+  if (findQuizIdTrash === undefined) {
+    return {statusCode: 400, error: 'QuizId entered does not exist in trash'};
+  }
+  if ((findQuizIdTrash.quizOwner !== findToken.userId)) {
+    return { statusCode: 403, error: "Quiz is not owned by user" };
+  }
+  if (findQuizName !== undefined) {
+    return {statusCode: 400, error: 'Quiz name is already in use'};
+  }
+  if (token.length === 0 || findToken === undefined) {
+    return {statusCode: 401, error: 'Token is empty or invalid'};
+  }
+
+  const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizToRestore = trash.quizzes[quizIndex];
+  quizToRestore.timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(quizToRestore);
+  setData(data);
+  trash.quizzes.splice(quizIndex, 1);
+  setTrash(trash);
 
   return {};
 }

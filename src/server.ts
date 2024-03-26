@@ -107,9 +107,10 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
 
   const response = adminAuthLogout(token);
-  if ('error' in response) res.status(401).json(response);
+  if ('error' in response) { return res.status(401).json(response) };
   
   save();
+  res.status(200);
   return res.json(response);
 });
 
@@ -201,6 +202,23 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(response);
 });
 
+// quizRestore POST request route
+app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const token: string = req.body.token.toString();
+  const quizId: number = parseInt(req.params.quizid.toString());
+  const session = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: "Token is empty or invalid"});
+  }
+  const response = adminQuizRestore(token, quizId);
+  if ('error' in response) {
+    return res.status(response.statusCode).json({ error: response.error});
+  }
+  save();
+  res.status(200);
+  return res.json(response);
+});
+
 // quizSendToTrash DELETE request route
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
@@ -218,16 +236,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// quizRestore POST request route
-app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
-  const token: string = req.body.token;
-  const quizId: number = parseInt(req.body.quizid);
 
-  const response = adminQuizRestore(token, quizId);
-  
-  save();
-  return res.json(response);
-});
 
 // adminQuizInfo GET request route
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
