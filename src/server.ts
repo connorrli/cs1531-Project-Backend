@@ -1,5 +1,5 @@
 // Import statements of various packages/libraries that we will leverage for the project
-import express, { json, Request, Response } from 'express';
+import express, { json, Request, response, Response } from 'express';
 import { echo } from './newecho';
 import morgan from 'morgan';
 import config from './config.json';
@@ -22,6 +22,7 @@ import {
   adminQuizTrashView,
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
+  adminQuizTransfer,
   adminQuizQuestionDelete
 } from './quiz';
 import { AdminQuizListReturn } from './quiz';
@@ -366,7 +367,22 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
 
   clearTrash(session.userId, quizIds);
 
-  return res.json({});
+  return res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { token, userEmail } = req.body;
+  const session = getSession(token);
+
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminQuizTransfer(quizId, session.userId, userEmail);
+  if ('error' in response) {
+    if ('statusValue' in response) return res.status(response.statusValue).json(response);
+    else return res.status(400).json(response);
+  }
+  return res.json(response);
 });
 
 // ====================================================================
