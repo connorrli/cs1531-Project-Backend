@@ -28,35 +28,35 @@ describe('Testing adminUserDetailsUpdate function:', () => {
     else User2Token = undefined;
   });
 
-    // Check if the token is empty
-    test('Token is empty', () => {
+  // Check if the token is empty
+  test('Token is empty', () => {
     const emptyToken = adminAuthLogOutReq('');
     expect(emptyToken.error).toStrictEqual(expect.any(String));
-    });
+  });
 
-    // Check if the token is empty
-    test('Token is empty', () => {
-        const emptyToken = adminAuthLogOutReq('');
-        expect(emptyToken.error).toStrictEqual(expect.any(String));
-    })
+  // Check if the token is empty
+  test('Token is empty', () => {
+    const emptyToken = adminAuthLogOutReq('');
+    expect(emptyToken.error).toStrictEqual(expect.any(String));
+  });
 
-    // Check if there is such a user to log out
-    test('No existing user to log out', () => {
-        const noOne = adminAuthLogOutReq('8888');
-        expect(noOne.error).toStrictEqual(expect.any(String));
-    })
+  // Check if there is such a user to log out
+  test('No existing user to log out', () => {
+    const noOne = adminAuthLogOutReq('8888');
+    expect(noOne.error).toStrictEqual(expect.any(String));
+  });
 
-    // Check for correct output
-    test('Correct Output', () => {
-        const logout = adminAuthLogOutReq(user1Token);
-        expect(logout).toStrictEqual({ });
-    });
+  // Check for correct output
+  test('Correct Output', () => {
+    const logout = adminAuthLogOutReq(user1Token);
+    expect(logout).toStrictEqual({ });
+  });
 
-    // 2 users log out one after another
-    test('2 users logging out one after another', () => {
-        const logout1 = adminAuthLogOutReq(user1Token);
-        expect(logout1).toStrictEqual({ });
-        const logout2 = adminAuthLogOutReq(User2Token);
-        expect(logout2).toStrictEqual({ });
-    });
+  // 2 users log out one after another
+  test('2 users logging out one after another', () => {
+    const logout1 = adminAuthLogOutReq(user1Token);
+    expect(logout1).toStrictEqual({ });
+    const logout2 = adminAuthLogOutReq(User2Token);
+    expect(logout2).toStrictEqual({ });
+  });
 });

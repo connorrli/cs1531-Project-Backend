@@ -29,10 +29,7 @@ export interface AdminQuizListReturn {
   quizzes: OwnedQuizObject[];
 }
 
-
-interface AdminQuizRemoveReturn { }
-
-interface AdminQuizRestoreReturn { }
+type AdminQuizRestoreReturn = Record<string, never>;
 
 interface AdminQuizCreateReturn {
   quizId: number;
@@ -46,18 +43,13 @@ interface AdminQuizInfoReturn {
   description: string;
 }
 
-interface AdminQuizNameUpdateReturn { }
-
-interface AdminQuizDescriptionUpdateReturn { }
-
 interface QRErrorObject { error: string, statusCode: number}
 
-///////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// FUNCTIONS ////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 type EmptyObject = Record<string, never>
-
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -120,23 +112,23 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
 
 function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | QRErrorObject {
   const data = getData();
-  let trash = getTrash();
+  const trash = getTrash();
 
   const findToken = data.sessions.find(user => user.token === token);
   const findQuizIdTrash = trash.quizzes.find(quiz => quiz.quizId === quizId);
   const findQuizName = data.quizzes.find(quiz => quiz.name === findQuizIdTrash.name);
-  
+
   if (findQuizIdTrash === undefined) {
-    return {statusCode: 400, error: 'QuizId entered does not exist in trash'};
+    return { statusCode: 400, error: 'QuizId entered does not exist in trash' };
   }
   if ((findQuizIdTrash.quizOwner !== findToken.userId)) {
-    return { statusCode: 403, error: "Quiz is not owned by user" };
+    return { statusCode: 403, error: 'Quiz is not owned by user' };
   }
   if (findQuizName !== undefined) {
-    return {statusCode: 400, error: 'Quiz name is already in use'};
+    return { statusCode: 400, error: 'Quiz name is already in use' };
   }
   if (token.length === 0 || findToken === undefined) {
-    return {statusCode: 401, error: 'Token is empty or invalid'};
+    return { statusCode: 401, error: 'Token is empty or invalid' };
   }
 
   const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);

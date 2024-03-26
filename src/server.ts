@@ -203,11 +203,11 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid.toString());
   const session = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: "Token is empty or invalid"});
+    return res.status(401).json({ error: 'Token is empty or invalid' });
   }
   const response = adminQuizRestore(token, quizId);
   if ('error' in response) {
-    return res.status(response.statusCode).json({ error: response.error});
+    return res.status(response.statusCode).json({ error: response.error });
   }
   save();
   res.status(200);
@@ -230,8 +230,6 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   save();
   return res.json(response);
 });
-
-
 
 // adminQuizInfo GET request route
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
