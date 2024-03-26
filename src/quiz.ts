@@ -41,6 +41,11 @@ export interface AdminQuizInfoReturn {
   questions: Question[];
 }
 
+interface NewErrorObj {
+  error: string,
+  statusCode: number
+}
+
 type EmptyObject = Record<string, never>
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -435,6 +440,10 @@ function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId:
   return {};
 }
 
+function adminQuizQuestionMove (userId: number, quizId: number, questionId: number, newPos: number): EmptyObject | NewErrorObj {
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -450,5 +459,6 @@ export {
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizQuestionDelete,
-  adminQuizTransfer
+  adminQuizTransfer,
+  adminQuizQuestionMove
 };

@@ -30,12 +30,14 @@ import {
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizTransfer,
-  adminQuizQuestionDelete
+  adminQuizQuestionDelete,
+  adminQuizQuestionMove
 } from './quiz';
 import { AdminQuizListReturn } from './quiz';
-import { ErrorObject, UserSession } from './interface';
+import { ErrorObject, User, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './other';
+import { RecordWithTtl } from 'dns';
 
 // Set up web app
 const app = express();
@@ -312,6 +314,26 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
 
   save();
   res.json(response);
+});
+//adminQuizQuestionMvoe PUT req
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const quizId: number = parseInt(req.params.quizid);
+  const questionId: number = parseInt(req.params.questionid);
+  const { token, newPosition } = req.body as { token: string, newPosition: number };
+  const session: UserSession | ErrorObject = getSession(token);
+
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Token is not valid.' });
+  }
+
+  const response = adminQuizQuestionMove(session.userId, quizId, questionId, newPosition);
+
+  if ('error' in response) {
+    return res.status(response.statusCode).json({ error: response.error });
+  }
+  
+  save();
+  return res.json(response);
 });
 
 // adminQuizQuestionUpdate PUT request route
