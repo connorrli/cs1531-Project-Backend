@@ -15,14 +15,14 @@ const clearRequest = () => {
 };
 
 const deleteQuizzesRequest = (token: string, quizIds: Array<number>) => {
-    const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/trash/empty`, { qs: { token, quizIds: JSON.stringify(quizIds) }});
-    return JSON.parse(response.body.toString());
-}
+  const response = request('DELETE', SERVER_URL + '/v1/admin/quiz/trash/empty', { qs: { token, quizIds: JSON.stringify(quizIds) } });
+  return JSON.parse(response.body.toString());
+};
 
 const quizDelete = (quizId: number, token: string) => {
-    const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/` + quizId.toString(), { qs: { token }});
-    return JSON.parse(response.body.toString());
-}
+  const response = request('DELETE', SERVER_URL + '/v1/admin/quiz/' + quizId.toString(), { qs: { token } });
+  return JSON.parse(response.body.toString());
+};
 
 // 'userDetailsRequest' function
 const userDetailsRequest = (token: string) => {
@@ -49,41 +49,39 @@ const quizCreateRequest = (token: string, name: string, description: string) => 
 };
 
 const trashView = (token: string) => {
-    const response = request('GET', SERVER_URL + '/v1/admin/quiz/trash', { qs: { token }});
-    return JSON.parse(response.body.toString());
-}
+  const response = request('GET', SERVER_URL + '/v1/admin/quiz/trash', { qs: { token } });
+  return JSON.parse(response.body.toString());
+};
 
-let userToken: string; 
-const quizIds: Array<number> = []; 
+let userToken: string;
+const quizIds: Array<number> = [];
 
 beforeEach(() => {
-    const user = userCreateRequest('user@example.com', 'password123', 'John', 'Doe');
-    userToken = user.token;
+  const user = userCreateRequest('user@example.com', 'password123', 'John', 'Doe');
+  userToken = user.token;
 
-    for (let i = 0; i < 5; i++) {
-        const quiz = quizCreateRequest(userToken, `Quiz ${i}`, `Description for Quiz ${i}`);
-        quizDelete(quiz.quizId, userToken);
-        quizIds.push(quiz.quizId);
-    }
+  for (let i = 0; i < 5; i++) {
+    const quiz = quizCreateRequest(userToken, `Quiz ${i}`, `Description for Quiz ${i}`);
+    quizDelete(quiz.quizId, userToken);
+    quizIds.push(quiz.quizId);
+  }
 });
 
 // 'clearTrash' function
 describe('Delete quizzes out of trash', () => {
+  test('Delete specific quizzes from trash', () => {
+    const result = deleteQuizzesRequest(userToken, quizIds);
+    expect(result).toStrictEqual({});
+    const trash = trashView(userToken);
+    expect(trash).toStrictEqual({ quizzes: [] });
+  });
 
-    test('Delete specific quizzes from trash', () => {
-        const result = deleteQuizzesRequest(userToken, quizIds);
-        expect(result).toStrictEqual({});
-        const trash = trashView(userToken);
-        expect(trash).toStrictEqual({quizzes: []});
-    });
-
-    test('Error handling for invalid quiz IDs', () => {
-        const invalidQuiz = Math.max.apply(null, quizIds) + 1;
-        const response = deleteQuizzesRequest(userToken, [invalidQuiz]); 
-        expect(response.error).toBeDefined(); 
-    });
-}); 
-
+  test('Error handling for invalid quiz IDs', () => {
+    const invalidQuiz = Math.max.apply(null, quizIds) + 1;
+    const response = deleteQuizzesRequest(userToken, [invalidQuiz]);
+    expect(response.error).toBeDefined();
+  });
+});
 
 // General clearing of user data, test
 test('Should clear user data', () => {

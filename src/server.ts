@@ -16,7 +16,7 @@ import { adminQuizCreate, adminQuizList, adminQuizInfo, adminQuizNameUpdate, adm
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
-import { clear, clearTrash } from './other';
+import { clear, clearTrash, trashOwner, quizInTrash } from './other';
 
 // Set up web app
 const app = express();
@@ -289,6 +289,28 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
 
   save();
   res.json(response);
+});
+
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
+  const token: string = req.query.token.toString();
+  const session = getSession(token);
+
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Token is invalid' });
+  }
+
+  if (!quizInTrash(quizIds)) {
+    return res.status(400).json({ error: 'At least one of the quizzes is not in trash' });
+  }
+
+  if (!trashOwner(session.userId, quizIds)) {
+    return res.status(403).json({ error: 'One or more of the quiz Ids refer to a quiz that the user does not own' });
+  }
+
+  clearTrash(session.userId, quizIds);
+
+  return res.json({});
 });
 
 // ====================================================================

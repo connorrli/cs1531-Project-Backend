@@ -14,19 +14,40 @@ function clear(): EmptyObject {
 }
 
 function trashOwner(userId: number, quizIds: Array<number>): boolean {
-  /* check every single quiz in quizIds and check if the userId is the owner of that quiz by iterating through trash.quizzes, 
+  /* check every single quiz in quizIds and check if the userId is the owner of that quiz by iterating through trash.quizzes,
   return false as soon as a quiz is not owned by the user */
+  const trash = getTrash();
+  if (!trash) {
+    return false;
+  }
+  for (let i = 0; i < quizIds.length; i++) {
+    const quizId : number = quizIds[i];
+    const quiz = trash.quizzes.find(quiz => quiz.quizId === quizId);
+    if ((quiz === undefined) || (quiz.quizOwner !== userId)) {
+      return false;
+    }
+  }
   return true;
 }
 
 function quizInTrash(quizIds: Array<number>): boolean {
-  /* iterate through every single quiz in quizids and check if trash.quizzes has that quizId, as soon as a quiz is not in trash 
+  /* iterate through every single quiz in quizids and check if trash.quizzes has that quizId, as soon as a quiz is not in trash
   return false */
+  const trash = getTrash();
+  if (!trash) {
+    return false;
+  }
+  for (let i = 0; i < quizIds.length; i++) {
+    const quizId = quizIds[i];
+    const isInTrash = trash.quizzes.some(quiz => quiz.quizId === quizId);
+    if (isInTrash === undefined) {
+      return false;
+    }
+  }
   return true;
 }
 
 function clearTrash(userId: number, quizIds: Array<number>): EmptyObject | ErrorObject {
-
   const trash = getTrash();
 
   for (let quizIndex = 0; quizIndex < trash.quizzes.length; quizIndex++) {
@@ -35,9 +56,9 @@ function clearTrash(userId: number, quizIds: Array<number>): EmptyObject | Error
       quizIndex--;
     }
   }
-  
+
   setTrash(trash);
   return {};
 }
 
-export { clear, clearTrash, trashOwner, quizInTrash};
+export { clear, clearTrash, trashOwner, quizInTrash };
