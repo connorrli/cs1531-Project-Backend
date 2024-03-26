@@ -337,7 +337,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizId);
+  const quizId = parseInt(req.params.quizid);
   const { token, userEmail } = req.body;
   const session = getSession(token);
 

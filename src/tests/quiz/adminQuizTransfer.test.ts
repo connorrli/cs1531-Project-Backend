@@ -25,8 +25,8 @@ const quizListReq = (token: string) => {
     return JSON.parse(response.body.toString());
 };
 
-const quizTransferReq = (token: string, name: string, description: string) => {
-    const response = request('POST', SERVER_URL + '/v1/admin/quiz/:quizid/transfer', { json: { token, name, description}});
+const quizTransferReq = (token: string, quizId: number, userEmail: string) => {
+    const response = request('POST', SERVER_URL + '/v1/admin/quiz/${quizid}/transfer', { json: { token, userEmail }});
     return JSON.parse(response.body.toString());
 }
 
@@ -36,7 +36,7 @@ describe('adminQuizTransfer', () => {
         const user2Token = authRegisterReq("user2@example.com", "password123", "User", "Two");
         
         const quizId = quizCreateRequest(user1Token, "Quiz 1", "Description");
-        const result = quizTransferReq(quizId.quizId, user1Token, "user2@example.com");
+        const result = quizTransferReq(user1Token, quizId.quizId, "user2@example.com");
 
         const updatedData = quizListReq(user2Token).quizzes;
         console.log(updatedData);
