@@ -41,6 +41,11 @@ export interface AdminQuizInfoReturn {
   questions: Question[];
 }
 
+interface NewErrorObj {
+  error: string,
+  statusCode: number
+}
+
 type EmptyObject = Record<string, never>
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +177,6 @@ function adminQuizCreate(authUserId: number, name: string, description: string):
         ExtantQuizId = element.quizId;
       }
     }
-    console.log(ExtantQuizId);
     quiz.quizId = ExtantQuizId + 1;
     data.quizzes.push(quiz);
   }
@@ -435,7 +439,54 @@ function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId:
 
   return {};
 }
+/**
+ * Duplicate a particular question to immediately after where the source question is.
+ *
+ * @param {number} userId - The ID of the user performing the move.
+ * @param {number} quizId - The ID of the quiz containing the question.
+ * @param {number} questionId - The ID of the question to be moved
+ * @param {number} newPos - The new position of the question (zero-indexed)
+ * @returns {EmptyObject | NewErrorObj} - Returns an empty object on success or an error object with error and statusCode on failure.
+ */
+function adminQuizQuestionMove (userId: number, quizId: number, questionId: number, newPos: number): EmptyObject | NewErrorObj {
+  const data = getData();
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  if (quiz === undefined) {
+    return {
+      error: 'Quiz cannot be found from ID',
+      statusCode: 403
+    };
+  }
 
+  if (!isOwner(userId, quizId)) {
+    return {
+      error: 'User is not owner of this quiz.',
+      statusCode: 403
+    };
+  }
+
+  const qIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+
+  if (qIndex === -1) {
+    return {
+      error: 'No such question in this quiz',
+      statusCode: 400
+    };
+  }
+
+  if (newPos >= quiz.questions.length || newPos < 0) {
+    return {
+      error: 'Improper new position',
+      statusCode: 400
+    };
+  }
+
+  const question = quiz.questions[qIndex];
+  quiz.questions.splice(qIndex, 1);
+  quiz.questions.splice(newPos, 0, question);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  return {};
+}
 /**
  * Duplicate a particular question to immediately after where the source question is.
  *
@@ -487,6 +538,7 @@ export {
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizQuestionDelete,
+  adminQuizQuestionMove,
   adminQuizQuestionDuplicate,
   adminQuizTransfer
 };
