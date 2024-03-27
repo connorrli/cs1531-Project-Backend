@@ -16,7 +16,7 @@ import {
   findQuestionIndex,
   findQuizIndex
 } from './helpers/quiz/quizMiscHelpers';
-import { findUser, getCurrentTime } from './helpers/globalHelpers';
+import { getCurrentTime } from './helpers/globalHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -296,9 +296,6 @@ function adminQuizCreate(
   *                     name, time made and edited, and description
 */
 function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
     return { error: 'Not a valid quizId.' };
   }
@@ -333,14 +330,11 @@ function adminQuizNameUpdate(
   quizId: number,
   name: string
 ): EmptyObject | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'INVALID QUIZ: Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'INVALID QUIZ: Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
   if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
     return { error: 'Name contains invalid characters. Valid characters are alphanumeric and spaces.' };
@@ -376,19 +370,14 @@ function adminQuizDescriptionUpdate(
   description: string
 ): EmptyObject | ErrorObject {
   const data = getData();
-  const user = findUser(data.users, authUserId);
   const quiz = findQuiz(data.quizzes, quizId);
 
-  if (user === undefined) {
-    return { error: 'not a valid user' };
-  }
-
   if (quiz === undefined) {
-    return { error: 'not a valid quiz' };
+    return { error: 'not a valid quiz', statusValue: 403 };
   }
 
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   if (description.length > 100) {
@@ -419,7 +408,7 @@ function adminQuizTransfer(
   const newOwner = data.users.find(user => user.email === userEmail);
 
   if (quizTransfer === undefined) {
-    return { error: 'Quiz not found' };
+    return { error: 'Quiz not found', statusValue: 403 };
   }
 
   if (quizTransfer.quizOwner !== userId) {
@@ -553,14 +542,11 @@ function adminQuizQuestionDelete(authUserId: number,
   quizId: number,
   questionId: number
 ): EmptyObject | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   const data = getData();
@@ -637,14 +623,11 @@ function adminQuizQuestionMove (userId: number, quizId: number, questionId: numb
  * @returns {newQuestionId | ErrorObject} - Returns a newQuestionId on success or an error object on failure.
  */
 function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   const data = getData();

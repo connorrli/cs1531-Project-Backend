@@ -248,8 +248,10 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   }
   const response = adminQuizRemove(session.userId, quizId);
   if ('error' in response) {
-    return res.status(403).json(response);
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
+
   saveTrash();
   save();
   return res.json(response);
@@ -259,19 +261,17 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.query.token as string;
-  if (!token) {
-    return res.status(401).json({ error: 'Token is missing' });
-  }
   const session = getSession(token);
-  if (!session || !('userId' in session)) {
-    return res.status(401).json({ error: 'Invalid session' });
+  if ('error' in session) {
+    return res.status(401).json(session);
   }
   const userId = session.userId;
   const response = adminQuizInfo(userId, quizId);
   if ('error' in response) {
     return res.status(403).json(response);
   }
-  return res.status(200).json(response);
+
+  return res.json(response);
 });
 
 // adminQuizNameUpdate PUT request route
@@ -281,18 +281,18 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const token: string = req.body.token;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: 'Invalid session' });
+    return res.status(401).json(session);
   }
+
   const userId: number = session.userId;
   const response: ErrorObject | Record<string, never> = adminQuizNameUpdate(userId, quizId, name);
   if ('error' in response) {
-    if (response.error.includes('quiz') || response.error.includes('INVALID QUIZ')) {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
     return res.status(400).json(response);
   }
+
   save();
-  return res.status(200).json(response);
+  return res.json(response);
 });
 
 // adminQuizDescriptionUpdate PUT request route
@@ -302,17 +302,15 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const desc: string = req.body.description;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: 'token is empty or not valid' });
+    return res.status(401).json(session);
   }
   const userId: number = session.userId;
   const response: ErrorObject | Record<string, never> = adminQuizDescriptionUpdate(userId, quizid, desc);
   if ('error' in response) {
-    if (response.error.includes('too long')) {
-      return res.status(400).json(response);
-    } else {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
+
   save();
   return res.json(response);
 });
@@ -342,7 +340,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const session: UserSession | ErrorObject = getSession(token);
 
   if ('error' in session) {
-    return res.status(401).json({ error: 'Token is not valid.' });
+    return res.status(401).json(session);
   }
 
   const response = adminQuizQuestionMove(session.userId, quizId, questionId, newPosition);
@@ -386,12 +384,8 @@ app.delete('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Re
   const response = adminQuizQuestionDelete(session.userId, quizId, questionId);
 
   if ('error' in response) {
-    if (response.error.includes('valid question')) {
-      return res.status(400).json(response);
-    }
-    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
 
   save();
@@ -411,13 +405,10 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 
   const response = adminQuizQuestionDuplicate(session.userId, quizId, questionId);
   if ('error' in response) {
-    if (response.error.includes('valid question')) {
-      return res.status(400).json(response);
-    }
-    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
+
   save();
   return res.json(response);
 });
@@ -429,7 +420,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const session = getSession(token);
 
   if ('error' in session) {
-    return res.status(401).json({ error: 'Token is invalid' });
+    return res.status(401).json(session);
   }
 
   if (!quizInTrash(quizIds)) {
