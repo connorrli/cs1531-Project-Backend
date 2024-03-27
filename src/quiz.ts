@@ -442,7 +442,7 @@ function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId:
  * @param {number} authUserId - The ID of the authenticated user.
  * @param {number} quizId - The ID of the quiz containing the source question.
  * @param {number} sourceQuestionId - The ID of the source question to be duplicated.
- * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
+ * @returns {newQuestionId | ErrorObject} - Returns a newQuestionId on success or an error object on failure.
  */
 function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} | ErrorObject {
   if (!isValidUser(authUserId)) {
