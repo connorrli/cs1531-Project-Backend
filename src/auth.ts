@@ -134,6 +134,13 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   return token;
 }
 
+/**
+  * Given a token for a session, log out the associated user.
+  *
+  * @param {string} token - Unique token stored inside a session
+  *
+  * @returns {object} - Returns empty object if successful, otherwise error
+*/
 function adminAuthLogout(token: string): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
