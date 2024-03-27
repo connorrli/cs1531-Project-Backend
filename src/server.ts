@@ -290,7 +290,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req: Request, res: Response) => {
     if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
     return res.status(400).json(response);
   }
-  
+
   save();
   return res.json(response);
 });
@@ -405,13 +405,10 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 
   const response = adminQuizQuestionDuplicate(session.userId, quizId, questionId);
   if ('error' in response) {
-    if (response.error.includes('valid question')) {
-      return res.status(400).json(response);
-    }
-    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
+
   save();
   return res.json(response);
 });
@@ -423,7 +420,7 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const session = getSession(token);
 
   if ('error' in session) {
-    return res.status(401).json({ error: 'Token is invalid' });
+    return res.status(401).json(session);
   }
 
   if (!quizInTrash(quizIds)) {
