@@ -119,6 +119,4 @@ export function updateQuizDuration(quiz: Quiz) {
     duration += question.duration;
   }
   quiz.duration = duration;
-
-  return;
 }
