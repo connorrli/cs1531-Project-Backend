@@ -422,6 +422,7 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   return res.json(response);
 });
 
+// admim
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
   const token: string = req.query.token.toString();

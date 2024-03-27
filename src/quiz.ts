@@ -8,44 +8,73 @@ import { Question, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
-import { getCurrentTime, findQuestion, findQuiz, generateAnswers, generateQuestionId } from './helpers/quiz/quizMiscHelpers';
+import { 
+  findQuiz,
+  findQuestion, 
+  generateAnswers, 
+  generateQuestionId,
+  findQuestionIndex,
+  findQuizIndex
+} from './helpers/quiz/quizMiscHelpers';
+import { findUser, getCurrentTime } from './helpers/globalHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+const INDEX_NOT_FOUND = -1;
+
 /// ////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////// LOCAL INTERFACES /////////////////////////////////
+/// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Describes an owned quiz object, which shows key quiz details (quizId, name).
+ */
 interface OwnedQuizObject {
   quizId: number;
   name: string;
 }
 
+/**
+ * Describes success return object for adminQuizList.
+ */
 export interface AdminQuizListReturn {
   quizzes: OwnedQuizObject[];
 }
 
-type AdminQuizRestoreReturn = Record<string, never>;
-
+/**
+ * Describes success return object for adminQuizCreate.
+ */
 interface AdminQuizCreateReturn {
   quizId: number;
 }
 
+/**
+ * Describes a returned trashed quiz object for viewing key details in front-end.
+ */
 interface TrashedQuiz {
   quizId: number;
   name: string;
 }
 
+/**
+ * Describes success return object for adminQuizTrashView.
+ */
 interface adminQuizTrashViewReturn {
   quizzes: TrashedQuiz[];
 }
 
+/**
+ * Describes success return object for adminQuizQuestionCreate.
+ */
 interface adminQuizQuestionCreateReturn {
   questionId: number;
 }
 
+/**
+ * Describes success return object for adminQuizInfo.
+ */
 export interface AdminQuizInfoReturn {
   quizId: number;
   name: string;
@@ -56,18 +85,25 @@ export interface AdminQuizInfoReturn {
   questions: Question[];
 }
 
+/**
+ * Describes error object for adminQuizRestore.
+ */
 interface QRErrorObject { error: string, statusCode: number}
-
-/// ////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
-/// ////////////////////////////////////////////////////////////////////////////////
 
 interface NewErrorObj {
   error: string,
   statusCode: number
 }
 
+/**
+ * Describes type for empty object.
+ */
 type EmptyObject = Record<string, never>
+
+/**
+ * Describes success return for adminQuizRestore. Is an empty object.
+ */
+type AdminQuizRestoreReturn = Record<string, never>;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -102,7 +138,7 @@ function adminQuizList(authUserId: number): AdminQuizListReturn | ErrorObject {
   * @param {integer} authUserId - Stores user authentication and quiz details
   * @param {integer} quizId - Displays the identification number of the current quiz
   *
-  * @returns {empty object} - Returns an empty object to the user
+  * @returns {object} - Returns an empty object to the user
 */
 function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | ErrorObject {
   if (!isValidUser(authUserId)) {
@@ -116,9 +152,9 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
   }
 
   const data = getData();
-  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizIndex = findQuizIndex(data.quizzes, quizId);
   const quizToRemove = data.quizzes[quizIndex];
-  quizToRemove.timeLastEdited = Math.floor(Date.now() / 1000);
+  quizToRemove.timeLastEdited = getCurrentTime();
   const trash = getTrash();
   trash.quizzes.push(quizToRemove);
   setTrash(trash);
@@ -128,6 +164,14 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
   return {};
 }
 
+/**
+  * Given an array of quiz ids, restore quizzes if possible.
+  *
+  * @param {integer} token - Unique session token
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  *
+  * @returns {object} - Returns an empty object to the user
+*/
 function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | QRErrorObject {
   const data = getData();
   const trash = getTrash();
@@ -151,7 +195,7 @@ function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn
 
   const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
   const quizToRestore = trash.quizzes[quizIndex];
-  quizToRestore.timeLastEdited = Math.floor(Date.now() / 1000);
+  quizToRestore.timeLastEdited = getCurrentTime();
   data.quizzes.push(quizToRestore);
   setData(data);
   trash.quizzes.splice(quizIndex, 1);
@@ -212,8 +256,8 @@ function adminQuizCreate(
     quizId: 0,
     quizOwner: authUserId,
     name,
-    timeCreated: Math.floor(Date.now() / 1000),
-    timeLastEdited: Math.floor(Date.now() / 1000),
+    timeCreated: getCurrentTime(),
+    timeLastEdited: getCurrentTime(),
     description,
     numQuestions: 0,
     questions: []
@@ -312,7 +356,7 @@ function adminQuizNameUpdate(
     return { error: 'Name is already used by the current logged in user for another quiz' };
   }
 
-  const currentQuiz = usersQuizzes.find(q => q.quizId === quizId);
+  const currentQuiz = findQuiz(usersQuizzes, quizId);
   currentQuiz.name = name;
   return {};
 }
@@ -332,8 +376,8 @@ function adminQuizDescriptionUpdate(
   description: string
 ): EmptyObject | ErrorObject {
   const data = getData();
-  const user = data.users.find(u => u.userId === authUserId);
-  const quiz = data.quizzes.find(q => q.quizId === quizId);
+  const user = findUser(data.users, authUserId);
+  const quiz = findQuiz(data.quizzes, quizId);
 
   if (user === undefined) {
     return { error: 'not a valid user' };
@@ -371,7 +415,7 @@ function adminQuizTransfer(
   userEmail: string
 ): EmptyObject | ErrorObject {
   const data = getData();
-  const quizTransfer = data.quizzes.find((q) => q.quizId === quizId);
+  const quizTransfer = findQuiz(data.quizzes, quizId);
   const newOwner = data.users.find(user => user.email === userEmail);
 
   if (quizTransfer === undefined) {
@@ -445,17 +489,14 @@ function adminQuizQuestionCreate(
   quiz.numQuestions++;
   quiz.timeLastEdited = getCurrentTime();
 
-  // Generates new answers array, with added colour and answerId
-  const answers = generateAnswers(questionBody.answers);
-  const questionId = generateQuestionId(quiz);
-
   // Push new question containing above data into the questions array
+  const questionId = generateQuestionId(quiz);
   quiz.questions.push({
-    questionId: questionId,
+    questionId,
     question: questionBody.question,
     duration: questionBody.duration,
     points: questionBody.points,
-    answers: answers
+    answers: generateAnswers(questionBody.answers)
   });
 
   return { questionId };
@@ -490,13 +531,12 @@ function adminQuizQuestionUpdate(
   if ('error' in error) return error;
 
   quiz.timeLastEdited = getCurrentTime();
-  const answers = generateAnswers(questionBody.answers);
 
   // Sets all the new data for the question
   question.question = questionBody.question;
   question.duration = questionBody.duration;
   question.points = questionBody.points;
-  question.answers = answers;
+  question.answers = generateAnswers(questionBody.answers);
 
   return {};
 }
@@ -526,29 +566,31 @@ function adminQuizQuestionDelete(authUserId: number,
   const data = getData();
   const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
   const quiz: Quiz = data.quizzes[quizIndex];
-  const questionIndex = quiz.questions.findIndex((question) => question.questionId === questionId);
-  if (questionIndex === -1) {
+  const questionIndex = findQuestionIndex(quiz.questions, questionId);
+  if (questionIndex === INDEX_NOT_FOUND) {
     return { error: 'Question Id does not refer to a valid question within this quiz.' };
   }
 
   quiz.questions.splice(questionIndex, 1);
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
   setData(data);
 
   return {};
 }
+
 /**
- * Duplicate a particular question to immediately after where the source question is.
+ * Moves a question within a quiz from one index to another index
  *
  * @param {number} userId - The ID of the user performing the move.
  * @param {number} quizId - The ID of the quiz containing the question.
  * @param {number} questionId - The ID of the question to be moved
  * @param {number} newPos - The new position of the question (zero-indexed)
- * @returns {EmptyObject | NewErrorObj} - Returns an empty object on success or an error object with error and statusCode on failure.
+ * 
+ * @returns {object} - Returns an empty object on success, else an error object
  */
 function adminQuizQuestionMove (userId: number, quizId: number, questionId: number, newPos: number): EmptyObject | NewErrorObj {
   const data = getData();
-  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  const quiz = findQuiz(data.quizzes, quizId);
   if (quiz === undefined) {
     return {
       error: 'Quiz cannot be found from ID',
@@ -563,9 +605,9 @@ function adminQuizQuestionMove (userId: number, quizId: number, questionId: numb
     };
   }
 
-  const qIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+  const qIndex = findQuestionIndex(quiz.questions, questionId);
 
-  if (qIndex === -1) {
+  if (qIndex === INDEX_NOT_FOUND) {
     return {
       error: 'No such question in this quiz',
       statusCode: 400
@@ -582,9 +624,10 @@ function adminQuizQuestionMove (userId: number, quizId: number, questionId: numb
   const question = quiz.questions[qIndex];
   quiz.questions.splice(qIndex, 1);
   quiz.questions.splice(newPos, 0, question);
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
   return {};
 }
+
 /**
  * Duplicate a particular question to immediately after where the source question is.
  *
@@ -605,20 +648,20 @@ function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQu
   }
 
   const data = getData();
-  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quizIndex = findQuizIndex(data.quizzes, quizId);
   const quiz: Quiz = data.quizzes[quizIndex];
-  const sourceQuestionIndex = quiz.questions.findIndex((question) => question.questionId === sourceQuestionId);
-  if (sourceQuestionIndex === -1) {
+  const sourceQuestionIndex = findQuestionIndex(quiz.questions, sourceQuestionId);
+  if (sourceQuestionIndex === INDEX_NOT_FOUND) {
     return { error: 'Source Question Id does not refer to a valid question within this quiz.' };
   }
 
   const duplicatedQuestion = { ...quiz.questions[sourceQuestionIndex] };
   duplicatedQuestion.questionId = generateQuestionId(quiz);
   quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
-  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  quiz.timeLastEdited = getCurrentTime();
   setData(data);
   const newQuestionId = duplicatedQuestion.questionId;
-  return { newQuestionId: newQuestionId };
+  return { newQuestionId };
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////
