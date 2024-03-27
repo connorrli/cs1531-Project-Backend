@@ -256,8 +256,7 @@ describe('Testing adminQuizQuestionCreate function:', () => {
     if ('error' in response) {
       expect(quizBefore).toStrictEqual(quizAfter);
       expect(quizAfter.duration).toStrictEqual(NO_DURATION);
-    }
-    else {
+    } else {
       expect(quizAfter.questions[0]).toStrictEqual({
         questionId: expect.any(Number),
         question: VALID_QUESTION,
