@@ -34,10 +34,9 @@ import {
   adminQuizQuestionMove
 } from './quiz';
 import { AdminQuizListReturn } from './quiz';
-import { ErrorObject, User, UserSession } from './interface';
+import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './other';
-import { RecordWithTtl } from 'dns';
 
 // Set up web app
 const app = express();
