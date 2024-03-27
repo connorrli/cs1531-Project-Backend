@@ -379,16 +379,12 @@ function adminQuizDescriptionUpdate(
   const user = findUser(data.users, authUserId);
   const quiz = findQuiz(data.quizzes, quizId);
 
-  if (user === undefined) {
-    return { error: 'not a valid user' };
-  }
-
   if (quiz === undefined) {
-    return { error: 'not a valid quiz' };
+    return { error: 'not a valid quiz', statusValue: 403 };
   }
 
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   if (description.length > 100) {
@@ -419,7 +415,7 @@ function adminQuizTransfer(
   const newOwner = data.users.find(user => user.email === userEmail);
 
   if (quizTransfer === undefined) {
-    return { error: 'Quiz not found' };
+    return { error: 'Quiz not found', statusValue: 403 };
   }
 
   if (quizTransfer.quizOwner !== userId) {
