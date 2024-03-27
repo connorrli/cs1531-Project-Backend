@@ -436,6 +436,42 @@ function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId:
   return {};
 }
 
+/**
+ * Duplicate a particular question to immediately after where the source question is.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz containing the source question.
+ * @param {number} sourceQuestionId - The ID of the source question to be duplicated.
+ * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
+ */
+function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} | ErrorObject {
+  if (!isValidUser(authUserId)) {
+    return { error: 'Not a valid authUserId.' };
+  }
+  if (!isValidQuiz(quizId)) {
+    return { error: 'Not a valid quizId.' };
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quiz: Quiz = data.quizzes[quizIndex];
+  const sourceQuestionIndex = quiz.questions.findIndex((question) => question.questionId === sourceQuestionId);
+  if (sourceQuestionIndex === -1) {
+    return { error: 'Source Question Id does not refer to a valid question within this quiz.' };
+  }
+
+  const duplicatedQuestion = { ...quiz.questions[sourceQuestionIndex] };
+  duplicatedQuestion.questionId = generateQuestionId(quiz);
+  quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+  const newQuestionId = duplicatedQuestion.questionId;
+  return { newQuestionId: newQuestionId };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -451,5 +487,6 @@ export {
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizQuestionDelete,
+  adminQuizQuestionDuplicate,
   adminQuizTransfer
 };
