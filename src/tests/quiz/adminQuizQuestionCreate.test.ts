@@ -7,6 +7,7 @@ import {
 } from '../requests';
 import { QuestionBody } from '../../interface';
 
+const NO_DURATION = 0;
 // Expected Constants
 const SUCCESS_RESPONSE = { questionId: expect.any(Number) };
 const ERROR = { error: expect.any(String) };
@@ -252,15 +253,18 @@ describe('Testing adminQuizQuestionCreate function:', () => {
     const response = questionCreateRequest(userToken, quizId, questionBody);
 
     const quizAfter = quizInfoRequest(quizId, userToken);
-    if ('error' in response) expect(quizBefore).toStrictEqual(quizAfter);
-    else {
+    if ('error' in response) {
+      expect(quizBefore).toStrictEqual(quizAfter);
+      expect(quizAfter.duration).toStrictEqual(NO_DURATION);
+    } else {
       expect(quizAfter.questions[0]).toStrictEqual({
         questionId: expect.any(Number),
         question: VALID_QUESTION,
         duration: VALID_DURATION,
         points: VALID_POINTS_AWARDED,
-        answers: NEW_ANSWERS
+        answers: NEW_ANSWERS,
       });
+      expect(quizAfter.duration).toStrictEqual(quizBefore.duration + VALID_DURATION);
     }
 
     expect(response).toStrictEqual(expected);

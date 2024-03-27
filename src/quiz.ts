@@ -14,7 +14,8 @@ import {
   generateAnswers,
   generateQuestionId,
   findQuestionIndex,
-  findQuizIndex
+  findQuizIndex,
+  updateQuizDuration
 } from './helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from './helpers/globalHelpers';
 
@@ -83,6 +84,7 @@ export interface AdminQuizInfoReturn {
   description: string;
   numQuestions: number;
   questions: Question[];
+  duration: number;
 }
 
 /**
@@ -260,7 +262,8 @@ function adminQuizCreate(
     timeLastEdited: getCurrentTime(),
     description,
     numQuestions: 0,
-    questions: []
+    questions: [],
+    duration: 0
   };
   const trash = getTrash();
 
@@ -313,6 +316,7 @@ function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn 
     description: quiz.description,
     numQuestions: quiz.numQuestions,
     questions: quiz.questions,
+    duration: quiz.duration
   };
 }
 
@@ -487,6 +491,7 @@ function adminQuizQuestionCreate(
     points: questionBody.points,
     answers: generateAnswers(questionBody.answers)
   });
+  updateQuizDuration(quiz);
 
   return { questionId };
 }
@@ -526,6 +531,7 @@ function adminQuizQuestionUpdate(
   question.duration = questionBody.duration;
   question.points = questionBody.points;
   question.answers = generateAnswers(questionBody.answers);
+  updateQuizDuration(quiz);
 
   return {};
 }
@@ -559,6 +565,7 @@ function adminQuizQuestionDelete(authUserId: number,
 
   quiz.questions.splice(questionIndex, 1);
   quiz.timeLastEdited = getCurrentTime();
+  updateQuizDuration(quiz);
   setData(data);
 
   return {};
@@ -642,6 +649,7 @@ function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQu
   duplicatedQuestion.questionId = generateQuestionId(quiz);
   quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
   quiz.timeLastEdited = getCurrentTime();
+  updateQuizDuration(quiz);
   setData(data);
   const newQuestionId = duplicatedQuestion.questionId;
   return { newQuestionId };

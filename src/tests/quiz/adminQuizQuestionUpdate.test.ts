@@ -289,6 +289,7 @@ describe('Testing adminQuizQuestionUpdate function:', () => {
     const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
     if ('error' in response) {
       expect(updatedQuestion).toStrictEqual(preUpdateQuestion);
+      expect(updatedQuiz.duration).toStrictEqual(preUpdateQuiz.duration);
     } else {
       expect(updatedQuestion).toStrictEqual({
         questionId: questionId,
@@ -300,6 +301,7 @@ describe('Testing adminQuizQuestionUpdate function:', () => {
       for (const answer of answers) {
         expect(typeof updatedQuestion.answers.find(ans => ans.answer === answer.answer)).not.toStrictEqual('undefined');
       }
+      expect(updatedQuiz.duration).toStrictEqual(duration);
     }
     expect(response).toStrictEqual(expected);
   });
@@ -316,6 +318,7 @@ describe('Testing adminQuizQuestionUpdate function:', () => {
     const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
 
     expect(updatedQuestion).toStrictEqual(preUpdateQuestion);
+    expect(updatedQuiz.duration).toStrictEqual(preUpdateQuiz.duration);
     expect(response).toStrictEqual(ERROR);
   });
 });

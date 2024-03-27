@@ -41,7 +41,8 @@ describe('adminQuizInfo function tests', () => {
           timeLastEdited: expect.any(Number),
           description: 'This is a test quiz',
           numQuestions: 0,
-          questions: []
+          questions: [],
+          duration: 0
         });
       }
     }

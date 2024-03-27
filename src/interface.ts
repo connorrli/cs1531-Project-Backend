@@ -27,6 +27,7 @@ interface Quiz {
   description: string;
   numQuestions: number;
   questions: Question[];
+  duration: number;
 }
 
 /**

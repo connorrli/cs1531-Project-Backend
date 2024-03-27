@@ -57,10 +57,7 @@ function quizQuestionCreateChecker(
     return { error: 'More than 10 points awarded' };
   }
 
-  let duration = questionBody.duration;
-  for (const question of quiz.questions) {
-    duration += question.duration;
-  }
+  const duration = quiz.duration + questionBody.duration;
   if (duration > MINUTE * 3) return { error: 'Duration is beyond 3 minutes' };
 
   for (const answerObj of questionBody.answers) {
