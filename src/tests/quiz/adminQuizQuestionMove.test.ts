@@ -40,7 +40,7 @@ const questionBody3 = {
   ]
 };
 
-const thisWillBeUsefulLater: number = Math.floor(Date.now() / 1000);
+//const thisWillBeUsefulLater: number = Math.floor(Date.now() / 1000);
 const ERROR = { error: expect.any(String) };
 
 beforeEach(() => {
@@ -90,7 +90,7 @@ describe('Expected behaviour if requests are weird', () => {
   });
 });
 
-/*describe('lets hope its been more than a second', () => {
+/* describe('lets hope its been more than a second', () => {
   for (let justForGoodMeasure = 0; justForGoodMeasure < 1000000000; justForGoodMeasure++) {
     // this may be a bad idea
   }
@@ -99,6 +99,6 @@ describe('Expected behaviour if requests are weird', () => {
     const quizInfo = quizInfoRequest(quiz.quizId, john.token);
     expect(quizInfo.timeLastEdited).toBeGreaterThan(thisWillBeUsefulLater);
   });
-});*/
+}); */
 
-//^ THE ABOVE CONSISTANTLY PASSES but lets be real im not comfortable with this ahahah
+// ^ THE ABOVE CONSISTANTLY PASSES but lets be real im not comfortable with this ahahah
