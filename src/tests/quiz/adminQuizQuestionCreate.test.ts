@@ -2,6 +2,7 @@ import {
   clearRequest,
   questionCreateRequest,
   quizCreateRequest,
+  quizInfoRequest,
   userCreateRequest
 } from '../requests';
 import { QuestionBody } from '../../interface';
@@ -31,6 +32,20 @@ describe('Testing adminQuizQuestionCreate function:', () => {
     {
       answer: 'anchovies',
       correct: true
+    }
+  ];
+  const NEW_ANSWERS = [
+    {
+      answerId: expect.any(Number),
+      answer: VALID_ANSWERS_ARRAY[0].answer,
+      colour: expect.any(String),
+      correct: VALID_ANSWERS_ARRAY[0].correct
+    },
+    {
+      answerId: expect.any(Number),
+      answer: VALID_ANSWERS_ARRAY[1].answer,
+      colour: expect.any(String),
+      correct: VALID_ANSWERS_ARRAY[1].correct
     }
   ];
 
@@ -233,7 +248,21 @@ describe('Testing adminQuizQuestionCreate function:', () => {
       answers
     };
 
+    const quizBefore = quizInfoRequest(quizId, userToken);
     const response = questionCreateRequest(userToken, quizId, questionBody);
+
+    const quizAfter = quizInfoRequest(quizId, userToken);
+    if ('error' in response) expect(quizBefore).toStrictEqual(quizAfter);
+    else {
+      expect(quizAfter.questions[0]).toStrictEqual({
+        questionId: expect.any(Number),
+        question: VALID_QUESTION,
+        duration: VALID_DURATION,
+        points: VALID_POINTS_AWARDED,
+        answers: NEW_ANSWERS
+      });
+    }
+
     expect(response).toStrictEqual(expected);
   });
 });
