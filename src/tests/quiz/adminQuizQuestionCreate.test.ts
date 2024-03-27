@@ -11,7 +11,6 @@ import { QuestionBody } from '../../interface';
 const SUCCESS_RESPONSE = { questionId: expect.any(Number) };
 const ERROR = { error: expect.any(String) };
 
-
 describe('Testing adminQuizQuestionCreate function:', () => {
   let userToken : string;
   let quizId : number;
@@ -48,7 +47,7 @@ describe('Testing adminQuizQuestionCreate function:', () => {
       colour: expect.any(String),
       correct: VALID_ANSWERS_ARRAY[1].correct
     }
-]
+  ];
 
   test.each([
     {
