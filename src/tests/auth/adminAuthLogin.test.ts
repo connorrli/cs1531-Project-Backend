@@ -16,10 +16,6 @@ const authLoginReq = (email: string, password: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/login', { json: { email, password } });
   return JSON.parse(res.body.toString());
 };
-/* const userDetailsReq = (token: string) => {
-    const res = request('GET', SERVER_URL + '/v1/admin/user/details?token=' + token);
-    return JSON.parse(res.body.toString());
-}; */
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
