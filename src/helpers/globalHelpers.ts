@@ -15,7 +15,7 @@ import { User } from '../interface';
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-const MILLISECONDS_IN_SECONDS = 1000;
+const MILLISECONDS_IN_SECOND = 1000;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -27,7 +27,7 @@ const MILLISECONDS_IN_SECONDS = 1000;
   * @returns {number} - Returns the current time as number of seconds since epoch
 */
 export function getCurrentTime(): number {
-  return Math.floor(Date.now() / MILLISECONDS_IN_SECONDS);
+  return Math.floor(Date.now() / MILLISECONDS_IN_SECOND);
 }
 
 /**
