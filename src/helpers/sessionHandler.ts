@@ -1,9 +1,9 @@
-/*---------------------------------------------------------------------------------- 
+/* ----------------------------------------------------------------------------------
 | SESSION HANDLER
 |   - CONTAINS FUNCTIONS RELATED TO SESSIONS HANDLING INCLUDING:
 |       > GENERATING SESSIONS WITH UNIQUE TOKEN
 |       > FETCHING SESSIONS GIVEN A TOKEN
-------------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------------ */
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
@@ -53,7 +53,7 @@ export function generateSession(userId: number): generateSessionReturn {
 function halfToken(): string {
   const halfOfToken = Math.floor(
     Math.random() * Math.floor(Math.random() * Date.now())
-    )
+  )
     .toString();
 
   return halfOfToken;

@@ -17,8 +17,8 @@ type EmptyObject = Record<string, never>
 /// ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  * Resets the state of the application back to the start. 
-  * 
+  * Resets the state of the application back to the start.
+  *
   * This function does not take in any parameters or return anything.
 */
 function clear(): EmptyObject {
@@ -35,8 +35,8 @@ function clear(): EmptyObject {
   * @returns {boolean} - Returns false if any of the quizzes are not owned by the user
 */
 function trashOwner(userId: number, quizIds: Array<number>): boolean {
-  /* check every single quiz in quizIds and check if the userId is the owner 
-  of that quiz by iterating through trash.quizzes, return false as soon as a quiz 
+  /* check every single quiz in quizIds and check if the userId is the owner
+  of that quiz by iterating through trash.quizzes, return false as soon as a quiz
   is not owned by the user */
   const trash = getTrash();
   if (!trash) {
@@ -60,7 +60,7 @@ function trashOwner(userId: number, quizIds: Array<number>): boolean {
   * @returns {object} - Returns false if any quizzes are not in the trash
 */
 function quizInTrash(quizIds: Array<number>): boolean {
-  /* iterate through every single quiz in quizids and check if trash.quizzes 
+  /* iterate through every single quiz in quizids and check if trash.quizzes
   has that quizId, as soon as a quiz is not in trash return false */
   const trash = getTrash();
   if (!trash) {
@@ -82,7 +82,7 @@ function quizInTrash(quizIds: Array<number>): boolean {
   * @param {number} userId - ID for the calling user
   * @param {Array<number>} quizIds - Array of quiz IDs
   *
-  * @returns {object} - Returns error object if any errors are found, 
+  * @returns {object} - Returns error object if any errors are found,
   *                     otherwise returns empty object
 */
 function clearTrash(userId: number, quizIds: Array<number>): EmptyObject | ErrorObject {

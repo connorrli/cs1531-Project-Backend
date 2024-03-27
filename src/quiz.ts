@@ -8,10 +8,10 @@ import { Question, ErrorObject, Quiz } from './interface';
 import { getTrash, setTrash } from './trash';
 import { QuestionBody } from './interface';
 import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
-import { 
+import {
   findQuiz,
-  findQuestion, 
-  generateAnswers, 
+  findQuestion,
+  generateAnswers,
   generateQuestionId,
   findQuestionIndex,
   findQuizIndex
@@ -585,7 +585,7 @@ function adminQuizQuestionDelete(authUserId: number,
  * @param {number} quizId - The ID of the quiz containing the question.
  * @param {number} questionId - The ID of the question to be moved
  * @param {number} newPos - The new position of the question (zero-indexed)
- * 
+ *
  * @returns {object} - Returns an empty object on success, else an error object
  */
 function adminQuizQuestionMove (userId: number, quizId: number, questionId: number, newPos: number): EmptyObject | NewErrorObj {
