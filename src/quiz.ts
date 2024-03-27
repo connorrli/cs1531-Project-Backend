@@ -296,9 +296,6 @@ function adminQuizCreate(
   *                     name, time made and edited, and description
 */
 function adminQuizInfo(authUserId: number, quizId: number): AdminQuizInfoReturn | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
     return { error: 'Not a valid quizId.' };
   }
@@ -333,14 +330,11 @@ function adminQuizNameUpdate(
   quizId: number,
   name: string
 ): EmptyObject | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'INVALID QUIZ: Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'INVALID QUIZ: Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
   if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
     return { error: 'Name contains invalid characters. Valid characters are alphanumeric and spaces.' };
@@ -549,14 +543,11 @@ function adminQuizQuestionDelete(authUserId: number,
   quizId: number,
   questionId: number
 ): EmptyObject | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   const data = getData();
