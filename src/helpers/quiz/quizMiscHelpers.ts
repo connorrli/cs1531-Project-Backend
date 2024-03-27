@@ -10,13 +10,14 @@ import { Answer, AnswerReq, Question, Quiz } from '../../interface';
 
 const EMPTY = 0;
 const FIRST_QUESTION_ID = 1;
+const NO_DURATION = 0;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  * Generates an array of answer objects including colour and id
+  * Generates an array of answer objects including colour and id.
   *
   * @param {Array} answersReqArray - Array containing all answers from body of request
   *
@@ -42,7 +43,7 @@ export function generateAnswers(answersReqArray: AnswerReq[]): Answer[] {
 }
 
 /**
-  * Generates a new question id by finding current max id and adding 1
+  * Generates a new question id by finding current max id and adding 1.
   *
   * @param {object} quiz - A quiz object
   *
@@ -61,7 +62,7 @@ export function generateQuestionId(quiz: Quiz): number {
 }
 
 /**
-  * Finds a quiz object given its unique id
+  * Finds a quiz object given its unique id.
   *
   * @param {Array} quizzes - An array containing all quizzes
   *
@@ -72,7 +73,7 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz {
 }
 
 /**
-  * Finds a quiz's index given its unique id
+  * Finds a quiz's index given its unique id.
   *
   * @param {Array} quizzes - An array containing all quizzes
   *
@@ -83,7 +84,7 @@ export function findQuizIndex(quizzes: Quiz[], quizId: number): number {
 }
 
 /**
-  * Finds a question object given its unique id
+  * Finds a question object given its unique id.
   *
   * @param {Array} questions - An array containing all questions within a quiz
   *
@@ -94,7 +95,7 @@ export function findQuestion(questions: Question[], questionId: number): undefin
 }
 
 /**
-  * Finds a question's index given its unique id
+  * Finds a question's index given its unique id.
   *
   * @param {Array} questions - An array containing all questions within a quiz
   *
@@ -102,4 +103,22 @@ export function findQuestion(questions: Question[], questionId: number): undefin
 */
 export function findQuestionIndex(questions: Question[], questionId: number): number {
   return questions.findIndex(question => question.questionId === questionId);
+}
+
+/**
+  * Updates the duration property by adding or subtracting duration to current duration.
+  *
+  * @param {object} quiz - The quiz object
+  * @param {number} durationToAdd - Duration to add or remove from quiz
+  *
+  * @returns {Object | undefined} - Returns index to question if found, otherwise -1
+*/
+export function updateQuizDuration(quiz: Quiz) {
+  let duration = NO_DURATION;
+  for (const question of quiz.questions) {
+    duration += question.duration;
+  }
+  quiz.duration = duration;
+
+  return;
 }
