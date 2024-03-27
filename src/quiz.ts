@@ -27,6 +27,8 @@ export interface AdminQuizListReturn {
   quizzes: OwnedQuizObject[];
 }
 
+type AdminQuizRestoreReturn = Record<string, never>;
+
 interface AdminQuizCreateReturn {
   quizId: number;
 }
@@ -52,6 +54,17 @@ export interface AdminQuizInfoReturn {
   description: string;
   numQuestions: number;
   questions: Question[];
+}
+
+interface QRErrorObject { error: string, statusCode: number}
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+interface NewErrorObj {
+  error: string,
+  statusCode: number
 }
 
 type EmptyObject = Record<string, never>
@@ -114,6 +127,39 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
 
   return {};
 }
+
+function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | QRErrorObject {
+  const data = getData();
+  const trash = getTrash();
+
+  const findToken = data.sessions.find(user => user.token === token);
+  const findQuizIdTrash = trash.quizzes.find(quiz => quiz.quizId === quizId);
+  const findQuizName = data.quizzes.find(quiz => quiz.name === findQuizIdTrash.name);
+
+  if (findQuizIdTrash === undefined) {
+    return { statusCode: 400, error: 'QuizId entered does not exist in trash' };
+  }
+  if ((findQuizIdTrash.quizOwner !== findToken.userId)) {
+    return { statusCode: 403, error: 'Quiz is not owned by user' };
+  }
+  if (findQuizName !== undefined) {
+    return { statusCode: 400, error: 'Quiz name is already in use' };
+  }
+  if (token.length === 0 || findToken === undefined) {
+    return { statusCode: 401, error: 'Token is empty or invalid' };
+  }
+
+  const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizToRestore = trash.quizzes[quizIndex];
+  quizToRestore.timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(quizToRestore);
+  setData(data);
+  trash.quizzes.splice(quizIndex, 1);
+  setTrash(trash);
+
+  return {};
+}
+
 /**
   * Given basic details about a new quiz, create one for the logged in user.
   *
@@ -491,6 +537,89 @@ function adminQuizQuestionDelete(authUserId: number,
 
   return {};
 }
+/**
+ * Duplicate a particular question to immediately after where the source question is.
+ *
+ * @param {number} userId - The ID of the user performing the move.
+ * @param {number} quizId - The ID of the quiz containing the question.
+ * @param {number} questionId - The ID of the question to be moved
+ * @param {number} newPos - The new position of the question (zero-indexed)
+ * @returns {EmptyObject | NewErrorObj} - Returns an empty object on success or an error object with error and statusCode on failure.
+ */
+function adminQuizQuestionMove (userId: number, quizId: number, questionId: number, newPos: number): EmptyObject | NewErrorObj {
+  const data = getData();
+  const quiz = data.quizzes.find(quiz => quiz.quizId === quizId);
+  if (quiz === undefined) {
+    return {
+      error: 'Quiz cannot be found from ID',
+      statusCode: 403
+    };
+  }
+
+  if (!isOwner(userId, quizId)) {
+    return {
+      error: 'User is not owner of this quiz.',
+      statusCode: 403
+    };
+  }
+
+  const qIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+
+  if (qIndex === -1) {
+    return {
+      error: 'No such question in this quiz',
+      statusCode: 400
+    };
+  }
+
+  if (newPos >= quiz.questions.length || newPos < 0) {
+    return {
+      error: 'Improper new position',
+      statusCode: 400
+    };
+  }
+
+  const question = quiz.questions[qIndex];
+  quiz.questions.splice(qIndex, 1);
+  quiz.questions.splice(newPos, 0, question);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  return {};
+}
+/**
+ * Duplicate a particular question to immediately after where the source question is.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz containing the source question.
+ * @param {number} sourceQuestionId - The ID of the source question to be duplicated.
+ * @returns {newQuestionId | ErrorObject} - Returns a newQuestionId on success or an error object on failure.
+ */
+function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} | ErrorObject {
+  if (!isValidUser(authUserId)) {
+    return { error: 'Not a valid authUserId.' };
+  }
+  if (!isValidQuiz(quizId)) {
+    return { error: 'Not a valid quizId.' };
+  }
+  if (!isOwner(authUserId, quizId)) {
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+  }
+
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quiz: Quiz = data.quizzes[quizIndex];
+  const sourceQuestionIndex = quiz.questions.findIndex((question) => question.questionId === sourceQuestionId);
+  if (sourceQuestionIndex === -1) {
+    return { error: 'Source Question Id does not refer to a valid question within this quiz.' };
+  }
+
+  const duplicatedQuestion = { ...quiz.questions[sourceQuestionIndex] };
+  duplicatedQuestion.questionId = generateQuestionId(quiz);
+  quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
+  setData(data);
+  const newQuestionId = duplicatedQuestion.questionId;
+  return { newQuestionId: newQuestionId };
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
@@ -504,8 +633,11 @@ export {
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
   adminQuizTrashView,
+  adminQuizRestore,
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizQuestionDelete,
+  adminQuizQuestionMove,
+  adminQuizQuestionDuplicate,
   adminQuizTransfer
 };

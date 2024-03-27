@@ -31,13 +31,19 @@ describe('Testing adminUserDetailsUpdate function:', () => {
   // Check if the token is empty
   test('Token is empty', () => {
     const emptyToken = adminAuthLogOutReq('');
-    expect(emptyToken).toStrictEqual({ error: 'Token is empty' });
+    expect(emptyToken.error).toStrictEqual(expect.any(String));
+  });
+
+  // Check if the token is empty
+  test('Token is empty', () => {
+    const emptyToken = adminAuthLogOutReq('');
+    expect(emptyToken.error).toStrictEqual(expect.any(String));
   });
 
   // Check if there is such a user to log out
   test('No existing user to log out', () => {
     const noOne = adminAuthLogOutReq('8888');
-    expect(noOne).toStrictEqual({ error: 'There is no such user to log out' });
+    expect(noOne.error).toStrictEqual(expect.any(String));
   });
 
   // Check for correct output

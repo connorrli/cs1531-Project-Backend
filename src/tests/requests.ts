@@ -69,3 +69,15 @@ export const questionDeleteRequest = (token: string, quizId: number, questionId:
   const response = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}`, { qs: { token } });
   return JSON.parse(response.body.toString());
 };
+
+// 'questionDuplicateRequest' function
+export const questionDuplicateRequest = (token: string, quizId: number, questionId: number) => {
+  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token } });
+  return JSON.parse(response.body.toString());
+};
+
+// 'questionMove' function
+export const questionMoveRequest = (token: string, quizId: number, questionId: number, newPosition: number) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { json: { token, newPosition } });
+  return JSON.parse(response.body.toString());
+};
