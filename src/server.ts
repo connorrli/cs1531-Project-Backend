@@ -11,7 +11,6 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
-
 import {
   adminUserDetails,
   adminAuthRegister,
@@ -20,7 +19,6 @@ import {
   adminUserDetailsUpdate,
   adminAuthLogout
 } from './auth';
-
 import {
   adminQuizCreate,
   adminQuizList,
@@ -424,6 +422,7 @@ app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   return res.json(response);
 });
 
+// admim
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
   const token: string = req.query.token.toString();

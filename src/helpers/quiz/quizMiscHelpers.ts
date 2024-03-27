@@ -1,6 +1,19 @@
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////// IMPORTS /////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
 import { Answer, AnswerReq, Question, Quiz } from '../../interface';
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// CONSTANTS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
 const EMPTY = 0;
 const FIRST_QUESTION_ID = 1;
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 /**
   * Generates an array of answer objects including colour and id
@@ -48,15 +61,6 @@ export function generateQuestionId(quiz: Quiz): number {
 }
 
 /**
-  * Get current time using Math.floor(Date.now() / 1000)
-  *
-  * @returns {number} - Returns the current time as number of seconds since epoch
-*/
-export function getCurrentTime(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-/**
   * Finds a quiz object given its unique id
   *
   * @param {Array} quizzes - An array containing all quizzes
@@ -68,7 +72,18 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz {
 }
 
 /**
-  * Finds a question object give its unique id
+  * Finds a quiz's index given its unique id
+  *
+  * @param {Array} quizzes - An array containing all quizzes
+  *
+  * @returns {Object | undefined} - Returns index to quiz if found, otherwise -1
+*/
+export function findQuizIndex(quizzes: Quiz[], quizId: number): number {
+  return quizzes.findIndex(quiz => quiz.quizId === quizId);
+}
+
+/**
+  * Finds a question object given its unique id
   *
   * @param {Array} questions - An array containing all questions within a quiz
   *
@@ -76,4 +91,15 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz {
 */
 export function findQuestion(questions: Question[], questionId: number): undefined | Question {
   return questions.find(question => question.questionId === questionId);
+}
+
+/**
+  * Finds a question's index given its unique id
+  *
+  * @param {Array} questions - An array containing all questions within a quiz
+  *
+  * @returns {Object | undefined} - Returns index to question if found, otherwise -1
+*/
+export function findQuestionIndex(questions: Question[], questionId: number): number {
+  return questions.findIndex(question => question.questionId === questionId);
 }

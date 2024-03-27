@@ -7,12 +7,20 @@ let trash : TrashStore = {
   sessions: [],
 };
 
-// Use get() to access the trash
+/**
+  * Fetches the trash object containing trashed items
+  *
+  * @returns {object} - Returns a trash object
+*/
 function getTrash() {
   return trash;
 }
 
-// Use set(newTrash) to pass in the entire trash object, with modifications made
+/**
+  * Sets the trash object with new data
+  *
+  * @param {object} newTrash - New trash object
+*/
 function setTrash(newTrash: TrashStore) {
   trash = newTrash;
 }

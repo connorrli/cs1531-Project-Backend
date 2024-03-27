@@ -7,6 +7,7 @@ import { ErrorObject, QuestionBody, Quiz } from '../../interface';
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
 type quizQuestionCreateCheckerReturn = Record<string, never>
 const NO_ERROR = { };
 const MIN_QUESTION_LEN = 5;
@@ -20,6 +21,19 @@ const MIN_ANSWER_LENGTH = 1;
 const MAX_ANSWER_LENGTH = 30;
 const MINUTE = 60;
 
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+/**
+  * Checks for all errors related to quiz question creation
+  *
+  * @param {number} userId - ID for a user
+  * @param {object} quiz - Quiz object to add question to
+  * @param {object} questionBody - Object containing core question data
+  *
+  * @returns {object} - Returns an error or empty object if no error
+*/
 function quizQuestionCreateChecker(
   userId: number,
   quiz: Quiz,
