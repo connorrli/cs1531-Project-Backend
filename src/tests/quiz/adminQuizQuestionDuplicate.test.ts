@@ -34,8 +34,8 @@ describe('Testing adminQuizQuestionDuplicate function', () => {
     };
     const question = questionCreateRequest(userToken, quizId, questionBody);
     if ('questionId' in question) {
-      // const response = questionDuplicateRequest(userToken, quizId, question.questionId);
-      // expect(response).toHaveProperty('newQuestionId', expect.any(Number));
+      const response = questionDuplicateRequest(userToken, quizId, question.questionId);
+      expect(response).toHaveProperty('newQuestionId', expect.any(Number));
     }
   });
 

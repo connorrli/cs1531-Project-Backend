@@ -31,7 +31,8 @@ import {
   adminQuizQuestionUpdate,
   adminQuizTransfer,
   adminQuizQuestionDelete,
-  adminQuizQuestionMove
+  adminQuizQuestionMove,
+  adminQuizQuestionDuplicate
 } from './quiz';
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
@@ -376,6 +377,30 @@ app.delete('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Re
 
   save();
   return res.status(200).json(response);
+});
+
+// adminQuizQuestionDuplicate POST request route
+app.post('/v1/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const quizId: number = parseInt(req.params.quizId);
+  const questionId: number = parseInt(req.params.questionId);
+  const token: string = req.body.token;
+
+  const session = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Invalid session' });
+  }
+
+  const response = adminQuizQuestionDuplicate(session.userId, quizId, questionId);
+  if ('error' in response) {
+    if (response.error.includes('valid question')) {
+      return res.status(400).json(response);
+    }
+    if (response.error.includes('valid quizId') || response.error.includes('owns')) {
+      return res.status(403).json(response);
+    }
+  }
+  save();
+  return res.json(response);
 });
 
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
