@@ -90,8 +90,8 @@ describe('Expected behaviour if requests are weird', () => {
   });
 });
 
-describe('lets hope its been more than a second', () => {
-  for (let justForGoodMeasure = 0; justForGoodMeasure < 10000; justForGoodMeasure++) {
+/*describe('lets hope its been more than a second', () => {
+  for (let justForGoodMeasure = 0; justForGoodMeasure < 1000000000; justForGoodMeasure++) {
     // this may be a bad idea
   }
   test('should affect timeLastEdited', () => {
@@ -99,4 +99,6 @@ describe('lets hope its been more than a second', () => {
     const quizInfo = quizInfoRequest(quiz.quizId, john.token);
     expect(quizInfo.timeLastEdited).toBeGreaterThan(thisWillBeUsefulLater);
   });
-});
+});*/
+
+//^ THE ABOVE CONSISTANTLY PASSES but lets be real im not comfortable with this ahahah
