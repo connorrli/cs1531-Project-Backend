@@ -302,17 +302,15 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const desc: string = req.body.description;
   const session: UserSession | ErrorObject = getSession(token);
   if ('error' in session) {
-    return res.status(401).json({ error: 'token is empty or not valid' });
+    return res.status(401).json(session);
   }
   const userId: number = session.userId;
   const response: ErrorObject | Record<string, never> = adminQuizDescriptionUpdate(userId, quizid, desc);
   if ('error' in response) {
-    if (response.error.includes('too long')) {
-      return res.status(400).json(response);
-    } else {
-      return res.status(403).json(response);
-    }
+    if ('statusValue' in response) return res.status(response.statusValue).json({ error: response.error });
+    return res.status(400).json(response);
   }
+
   save();
   return res.json(response);
 });
@@ -342,7 +340,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const session: UserSession | ErrorObject = getSession(token);
 
   if ('error' in session) {
-    return res.status(401).json({ error: 'Token is not valid.' });
+    return res.status(401).json(session);
   }
 
   const response = adminQuizQuestionMove(session.userId, quizId, questionId, newPosition);
