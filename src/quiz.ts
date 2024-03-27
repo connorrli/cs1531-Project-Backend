@@ -564,6 +564,7 @@ function adminQuizQuestionDelete(authUserId: number,
   }
 
   quiz.questions.splice(questionIndex, 1);
+  quiz.numQuestions--;
   quiz.timeLastEdited = getCurrentTime();
   updateQuizDuration(quiz);
   setData(data);
@@ -650,6 +651,7 @@ function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQu
   quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
   quiz.timeLastEdited = getCurrentTime();
   updateQuizDuration(quiz);
+  quiz.numQuestions++;
   setData(data);
   const newQuestionId = duplicatedQuestion.questionId;
   return { newQuestionId };
