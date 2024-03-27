@@ -27,6 +27,8 @@ export interface AdminQuizListReturn {
   quizzes: OwnedQuizObject[];
 }
 
+type AdminQuizRestoreReturn = Record<string, never>;
+
 interface AdminQuizCreateReturn {
   quizId: number;
 }
@@ -40,6 +42,12 @@ export interface AdminQuizInfoReturn {
   numQuestions: number;
   questions: Question[];
 }
+
+interface QRErrorObject { error: string, statusCode: number}
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 interface NewErrorObj {
   error: string,
@@ -106,6 +114,39 @@ function adminQuizRemove(authUserId: number, quizId: number): EmptyObject | Erro
 
   return {};
 }
+
+function adminQuizRestore(token: string, quizId: number): AdminQuizRestoreReturn | QRErrorObject {
+  const data = getData();
+  const trash = getTrash();
+
+  const findToken = data.sessions.find(user => user.token === token);
+  const findQuizIdTrash = trash.quizzes.find(quiz => quiz.quizId === quizId);
+  const findQuizName = data.quizzes.find(quiz => quiz.name === findQuizIdTrash.name);
+
+  if (findQuizIdTrash === undefined) {
+    return { statusCode: 400, error: 'QuizId entered does not exist in trash' };
+  }
+  if ((findQuizIdTrash.quizOwner !== findToken.userId)) {
+    return { statusCode: 403, error: 'Quiz is not owned by user' };
+  }
+  if (findQuizName !== undefined) {
+    return { statusCode: 400, error: 'Quiz name is already in use' };
+  }
+  if (token.length === 0 || findToken === undefined) {
+    return { statusCode: 401, error: 'Token is empty or invalid' };
+  }
+
+  const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizToRestore = trash.quizzes[quizIndex];
+  quizToRestore.timeLastEdited = Math.floor(Date.now() / 1000);
+  data.quizzes.push(quizToRestore);
+  setData(data);
+  trash.quizzes.splice(quizIndex, 1);
+  setTrash(trash);
+
+  return {};
+}
+
 /**
   * Given basic details about a new quiz, create one for the logged in user.
   *
@@ -535,6 +576,7 @@ export {
   adminQuizNameUpdate,
   adminQuizDescriptionUpdate,
   adminQuizTrashView,
+  adminQuizRestore,
   adminQuizQuestionCreate,
   adminQuizQuestionUpdate,
   adminQuizQuestionDelete,

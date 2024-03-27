@@ -11,6 +11,7 @@ import path from 'path';
 import process from 'process';
 import { setData, getData } from './dataStore';
 import { getSession } from './helpers/sessionHandler';
+
 import {
   adminUserDetails,
   adminAuthRegister,
@@ -19,6 +20,7 @@ import {
   adminUserDetailsUpdate,
   adminAuthLogout
 } from './auth';
+
 import {
   adminQuizCreate,
   adminQuizList,
@@ -31,9 +33,11 @@ import {
   adminQuizQuestionUpdate,
   adminQuizTransfer,
   adminQuizQuestionDelete,
+  adminQuizRestore,
   adminQuizQuestionMove,
   adminQuizQuestionDuplicate
 } from './quiz';
+
 import { AdminQuizListReturn } from './quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './trash';
@@ -125,13 +129,13 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 // adminAuthLogOut POST request route
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
-
   const response = adminAuthLogout(token);
+
   if ('error' in response) {
     return res.status(401).json(response);
   }
-
   save();
+  res.status(200);
   return res.json(response);
 });
 
@@ -219,7 +223,24 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(response);
 });
 
-// quizDelete DELETE request route
+// quizRestore POST request route
+app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const token: string = req.body.token.toString();
+  const quizId: number = parseInt(req.params.quizid.toString());
+  const session = getSession(token);
+  if ('error' in session) {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+  const response = adminQuizRestore(token, quizId);
+  if ('error' in response) {
+    return res.status(response.statusCode).json({ error: response.error });
+  }
+  save();
+  res.status(200);
+  return res.json(response);
+});
+
+// quizSendToTrash DELETE request route
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
   const token: string = req.query.token.toString();
