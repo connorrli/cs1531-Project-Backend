@@ -16,7 +16,7 @@ import {
   findQuestionIndex,
   findQuizIndex
 } from './helpers/quiz/quizMiscHelpers';
-import { findUser, getCurrentTime } from './helpers/globalHelpers';
+import { getCurrentTime } from './helpers/globalHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -370,7 +370,6 @@ function adminQuizDescriptionUpdate(
   description: string
 ): EmptyObject | ErrorObject {
   const data = getData();
-  const user = findUser(data.users, authUserId);
   const quiz = findQuiz(data.quizzes, quizId);
 
   if (quiz === undefined) {
@@ -624,14 +623,11 @@ function adminQuizQuestionMove (userId: number, quizId: number, questionId: numb
  * @returns {newQuestionId | ErrorObject} - Returns a newQuestionId on success or an error object on failure.
  */
 function adminQuizQuestionDuplicate(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} | ErrorObject {
-  if (!isValidUser(authUserId)) {
-    return { error: 'Not a valid authUserId.' };
-  }
   if (!isValidQuiz(quizId)) {
-    return { error: 'Not a valid quizId.' };
+    return { error: 'Not a valid quizId.', statusValue: 403 };
   }
   if (!isOwner(authUserId, quizId)) {
-    return { error: 'Quiz ID does not refer to a quiz that this user owns.' };
+    return { error: 'Quiz ID does not refer to a quiz that this user owns.', statusValue: 403 };
   }
 
   const data = getData();
