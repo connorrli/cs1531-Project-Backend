@@ -315,8 +315,8 @@ app.post('/v1/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   save();
   res.json(response);
 });
-// adminQuizQuestionMvoe PUT req
-app.post('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+// adminQuizQuestionMove PUT req
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
   const quizId: number = parseInt(req.params.quizid);
   const questionId: number = parseInt(req.params.questionid);
   const { token, newPosition } = req.body as { token: string, newPosition: number };

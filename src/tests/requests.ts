@@ -78,6 +78,6 @@ export const questionDuplicateRequest = (token: string, quizId: number, question
 
 // 'questionMove' function
 export const questionMoveRequest = (token: string, quizId: number, questionId: number, newPosition: number) => {
-  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { json: { token, newPosition } });
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { json: { token, newPosition } });
   return JSON.parse(response.body.toString());
 };
