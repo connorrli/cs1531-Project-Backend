@@ -1,8 +1,8 @@
 import {
   clearRequest,
-  // loginRequest,
+  loginRequest,
   passwordUpdateRequest,
-  // userDetailsRequest,
+  userDetailsRequest,
   userCreateRequest
 } from '../requests';
 
@@ -29,10 +29,9 @@ describe('Testing adminUserPasswordUpdate function:', () => {
     const response1 = passwordUpdateRequest(userToken1, oldPassword, newPassword);
     expect(response1).toStrictEqual(expectedReturn1);
 
-    // Commented out certain expect statements until routes have been fully implemented
-    // loginRequest(INIT_VALID_EMAIL, newPassword);
-    // const response2 = userDetailsRequest(userToken1);
-    // expect(response2.user.numSuccessfulLogins).toStrictEqual(expectedReturn2);
+    loginRequest(INIT_VALID_EMAIL, newPassword);
+    const response2 = userDetailsRequest(userToken1);
+    expect(response2.user.numSuccessfulLogins).toStrictEqual(expectedReturn2);
   });
   test('User Doesn\'t Exist', () => {
     const newPassword = 'password321';
@@ -46,9 +45,9 @@ describe('Testing adminUserPasswordUpdate function:', () => {
     const response1 = passwordUpdateRequest(userToken1, newPassword, INIT_VALID_PASSWORD);
     expect(response1).toStrictEqual(ERROR);
 
-    // loginRequest(INIT_VALID_EMAIL, INIT_VALID_PASSWORD);
-    // const response2 = userDetailsRequest(userToken1);
+    loginRequest(INIT_VALID_EMAIL, INIT_VALID_PASSWORD);
+    const response2 = userDetailsRequest(userToken1);
 
-    // expect(response2.user.numSuccessfulLogins).toStrictEqual(1);
+    expect(response2.user.numSuccessfulLogins).toStrictEqual(1);
   });
 });
