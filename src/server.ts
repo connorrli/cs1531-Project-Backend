@@ -4,6 +4,7 @@ import { echo } from './newecho';
 import morgan from 'morgan';
 import config from './config.json';
 import cors from 'cors';
+import errorHandler from 'middleware-http-errors';
 import YAML from 'yaml';
 import sui from 'swagger-ui-express';
 import fs from 'fs';
@@ -475,7 +476,10 @@ app.use((req: Request, res: Response) => {
   res.json({ error });
 });
 
-// Start server
+// For handling errors
+app.use(errorHandler());
+
+// start server
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
