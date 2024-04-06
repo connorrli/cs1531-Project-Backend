@@ -13,7 +13,7 @@ import {
 } from '../errors';
 import {
   getData
-} from '../../dataStore';
+} from '../../data/dataStore';
 import { DataStore } from '../../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////

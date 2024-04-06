@@ -8,7 +8,7 @@ import {
   nameLastValidCheck
 } from '../checkForErrors';
 
-import { getData } from '../../dataStore';
+import { getData } from '../../data/dataStore';
 import { User, UserSession } from '../../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////

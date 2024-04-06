@@ -2,19 +2,19 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { checkDetailsUpdate } from './helpers/auth/userUpdateErrors';
-import { checkUserPasswordUpdate } from './helpers/auth/userPasswordUpdateErrors';
-import { getData, setData } from './dataStore';
-import { invalidRegConditions } from './helpers/auth/registErrors';
-import { error } from './helpers/errors';
-import { authUserIdCheck } from './helpers/checkForErrors';
-import { generateSession } from './helpers/sessionHandler';
+import { checkDetailsUpdate } from '../helpers/auth/userUpdateErrors';
+import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateErrors';
+import { getData, setData } from '../data/dataStore';
+import { invalidRegConditions } from '../helpers/auth/registErrors';
+import { error } from '../helpers/errors';
+import { authUserIdCheck } from '../helpers/checkForErrors';
+import { generateSession } from '../helpers/sessionHandler';
 
 import {
   ErrorObject,
   User,
   UserSession,
-} from './interface';
+} from '../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////

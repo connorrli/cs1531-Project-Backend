@@ -7,7 +7,7 @@ import {
   userCreateRequest
 } from '../requests';
 import { QuestionBody } from '../../interface';
-import { AdminQuizInfoReturn } from '../../quiz';
+import { AdminQuizInfoReturn } from '../../Iter2/quiz';
 
 // Expected Constants
 const SUCCESS_RESPONSE = { };
