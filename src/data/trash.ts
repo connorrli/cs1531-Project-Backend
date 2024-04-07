@@ -1,4 +1,4 @@
-import { TrashStore } from './interface';
+import { TrashStore } from '../interface';
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 let trash : TrashStore = {

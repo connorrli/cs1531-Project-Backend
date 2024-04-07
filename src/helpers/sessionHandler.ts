@@ -9,7 +9,7 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { setData, getData } from '../dataStore';
+import { setData, getData } from '../data/dataStore';
 import { ErrorObject, UserSession } from '../interface';
 import { getCurrentTime } from './globalHelpers';
 

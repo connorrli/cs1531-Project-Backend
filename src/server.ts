@@ -10,7 +10,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { setData, getData } from './dataStore';
+import { setData, getData } from './data/dataStore';
 import { getSession } from './helpers/sessionHandler';
 import {
   adminUserDetails,
@@ -19,7 +19,7 @@ import {
   adminUserPasswordUpdate,
   adminUserDetailsUpdate,
   adminAuthLogout
-} from './auth';
+} from './Iter2/auth';
 import {
   adminQuizCreate,
   adminQuizList,
@@ -35,12 +35,12 @@ import {
   adminQuizRestore,
   adminQuizQuestionMove,
   adminQuizQuestionDuplicate
-} from './quiz';
+} from './Iter2/quiz';
 
-import { AdminQuizListReturn } from './quiz';
+import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
-import { getTrash, setTrash } from './trash';
-import { clear, clearTrash, trashOwner, quizInTrash } from './other';
+import { getTrash, setTrash } from './data/trash';
+import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
 
 // Set up web app
 const app = express();

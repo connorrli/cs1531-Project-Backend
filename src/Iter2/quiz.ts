@@ -2,12 +2,12 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { getData, setData } from './dataStore';
-import { isValidUser, isValidQuiz, isOwner } from './helpers/checkForErrors';
-import { Question, ErrorObject, Quiz } from './interface';
-import { getTrash, setTrash } from './trash';
-import { QuestionBody } from './interface';
-import { quizQuestionCreateChecker } from './helpers/quiz/quizQuestionCreateErrors';
+import { getData, setData } from '../data/dataStore';
+import { isValidUser, isValidQuiz, isOwner } from '../helpers/checkForErrors';
+import { Question, ErrorObject, Quiz } from '../interface';
+import { getTrash, setTrash } from '../data/trash';
+import { QuestionBody } from '../interface';
+import { quizQuestionCreateChecker } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
   findQuiz,
   findQuestion,
@@ -16,8 +16,8 @@ import {
   findQuestionIndex,
   findQuizIndex,
   updateQuizDuration
-} from './helpers/quiz/quizMiscHelpers';
-import { getCurrentTime } from './helpers/globalHelpers';
+} from '../helpers/quiz/quizMiscHelpers';
+import { getCurrentTime } from '../helpers/globalHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
