@@ -1,14 +1,30 @@
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////// IMPORTS /////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
 import request from 'sync-request-curl';
 import { url, port } from '../config.json';
-import { QuestionBody } from '../interface';
+import { QuestionBody, QuestionBodyV2 } from '../interface';
 
 const SERVER_URL = `${url}:${port}`;
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////// ITER2 REQUEST FUNCTIONS //////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+/*----------------------------------------------------------------------------------
+| OTHER HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
 
 // 'clearRequest' function
 export const clearRequest = () => {
   const response = request('DELETE', SERVER_URL + '/v1/clear', { qs: { } });
   return JSON.parse(response.body.toString());
 };
+
+/*----------------------------------------------------------------------------------
+| AUTH HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
 
 // 'loginRequest' function
 export const loginRequest = (email: string, password: string) => {
@@ -39,6 +55,10 @@ export const userCreateRequest = (email: string, password: string, nameFirst: st
   const response = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email, password, nameFirst, nameLast } });
   return JSON.parse(response.body.toString());
 };
+
+/*----------------------------------------------------------------------------------
+| QUIZ HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
 
 // 'quizCreateRequest' function
 export const quizCreateRequest = (token: string, name: string, description: string) => {
@@ -81,3 +101,134 @@ export const questionMoveRequest = (token: string, quizId: number, questionId: n
   const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/move`, { json: { token, newPosition } });
   return JSON.parse(response.body.toString());
 };
+
+// 'questionCreateRequestV2' function
+export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBody) => {
+  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, { json: { questionBody }, headers: { token } });
+  return JSON.parse(response.body.toString());
+};
+
+// 'userLogoutRequestV2' function
+export const userLogoutRequestV2 = (token: string) => {
+  const response = request('POST', SERVER_URL + '/v2/admin/auth/logout', { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'userDetailsRequestV2' function
+export const userDetailsRequestV2 = (token: string) => {
+  const response = request('GET', SERVER_URL + '/v2/admin/user/details', { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////// ITER3 REQUEST FUNCTIONS //////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+/*----------------------------------------------------------------------------------
+| OTHER HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------
+| AUTH HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
+
+// 'userDetailsUpdateRequestV2' function
+export const userDetailsUpdateRequestV2 = (token: string, email: string, nameFirst: string, nameLast: string) => {
+  const response = request('PUT', SERVER_URL + '/v2/admin/user/details', { headers: { token }, json: { email, nameFirst, nameLast } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'userPasswordUpdateRequestV2' function
+export const userPasswordUpdateRequestV2 = (token: string, oldPassword: string, newPassword: string) => {
+  const response = request('PUT', SERVER_URL + '/v2/admin/user/password', { headers: { token }, json: { oldPassword, newPassword } });
+  return JSON.parse(response.body.toString());
+}
+
+
+/*----------------------------------------------------------------------------------
+| QUIZ HTTP WRAPPERS
+------------------------------------------------------------------------------------*/
+
+// 'quizTrashRequestV2' function 
+export const quizTrashRequestV2 = (token: string, quizId: number) => {
+  const response = request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizListRequestV2' function
+export const quizListRequestV2 = (token: string) => {
+  const response = request('GET', SERVER_URL + '/v2/admin/quiz/list', { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizCreateRequestV2' function
+export const quizCreateRequestV2 = (token: string, name: string, description: string) => {
+  const response = request('POST', SERVER_URL + '/v2/admin/quiz', { headers: { token }, json: { name, description } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizInfoRequestV2' function
+export const quizInfoRequestV2 = (token: string, quizId: number) => {
+  const response = request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizNameUpdateRequestV2' function
+export const quizNameUpdateRequestV2 = (token: string, quizId: number, name: string) => {
+  const response = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/name`, { headers: { token }, json: { name } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizDescriptionUpdateRequestV2' function
+export const quizDescriptionUpdateRequestV2 = (token: string, quizId: number, description: string) => {
+  const response = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/description`, { headers: { token }, json: { description } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizTrashViewRequestV2' function
+export const quizTrashViewRequestV2 = (token: string) => {
+  const response = request('GET', SERVER_URL + '/v2/admin/quiz/trash', { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizRestoreRequestV2' function
+export const quizRestoreRequestV2 = (token: string, quizId: number) => {
+  const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/restore`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizTrashEmptyRequestV2' function
+export const quizTrashEmptyRequestV2 = (token: string, quizIds: Array<number>) => {
+  const response = request('DELETE', SERVER_URL + '/v2/admin/quiz/trash/empty', { headers: { token }, qs: { quizIds: JSON.stringify(quizIds) } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'quizTransferRequestV2' function
+export const quizTransferRequestV2 = (token: string, quizId: number, userEmail: string) => {
+  const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/transfer`, { headers: { token }, json: { userEmail } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'questionUpdateRequestV2' function
+export const questionUpdateRequestV2 = (token: string, quizId: number, questionId: number, questionBody: QuestionBodyV2) => {
+  const response = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, { headers: { token }, json: { questionBody } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'questionDeleteRequestV2' function
+export const questionDeleteRequestV2 = (token: string, quizId: number, questionId: number ) => {
+  const response = request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'questionMoveRequestV2' function
+export const questionMoveRequestV2 = (token: string, quizId: number, questionId: number, newPosition: number) => {
+  const response = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/move`, { headers: { token }, json: { newPosition } });
+  return JSON.parse(response.body.toString());
+}
+
+// 'questionDuplicateRequestV2' function
+export const questionDuplicateRequestV2 = (token: string, quizId: number, questionId: number) => {
+  const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+}
