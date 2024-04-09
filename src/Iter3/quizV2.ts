@@ -5,11 +5,11 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { getData /* setData */ } from '../data/dataStore';
+import { getData } from '../data/dataStore';
 // import { isValidUser, isValidQuiz, isOwner } from '../helpers/checkForErrors';
 // import { Question, ErrorObject, Quiz } from '../interface';
 // import { getTrash, setTrash } from '../data/trash';
-import { QuestionBodyV2 } from '../interface';
+import { QuestionBodyV2, QuizSession, QuizV2 } from '../interface';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
   findQuiz,
@@ -21,10 +21,15 @@ import {
   updateQuizDuration
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
+// import { stateMachine, States, Actions } from '../helpers/stateHandler';
 import HTTPError from 'http-errors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,7 +40,7 @@ interface adminQuizQuestionCreateReturn {
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
+/// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 /**
