@@ -9,6 +9,7 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+import HTTPError from 'http-errors';
 import { setData, getData } from '../data/dataStore';
 import { ErrorObject, UserSession } from '../interface';
 import { getCurrentTime } from './globalHelpers';
@@ -71,6 +72,23 @@ export function getSession(token: string): UserSession | ErrorObject {
   const session = data.sessions.find(session => session.token === decodedToken);
   if (typeof session === 'undefined') {
     return { error: `session with token ${token} is undefined` };
+  }
+
+  return session;
+}
+
+/**
+  * Gets the session object associated with the given token
+  *
+  * @returns {UserSession | ErrorObject}
+*/
+export function getSessionV2(token: string): UserSession {
+  const data = getData();
+  const decodedToken = decodeURIComponent(token);
+
+  const session = data.sessions.find(session => session.token === decodedToken);
+  if (typeof session === 'undefined') {
+    throw HTTPError(401, `ERROR 401: Session with token ${token} is undefined`);
   }
 
   return session;

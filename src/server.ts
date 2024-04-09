@@ -11,7 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { setData, getData } from './data/dataStore';
-import { getSession } from './helpers/sessionHandler';
+import { getSession, getSessionV2 } from './helpers/sessionHandler';
 import {
   adminUserDetails,
   adminAuthRegister,
@@ -41,6 +41,7 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
+import { adminQuizQuestionCreateV2 } from './Iter3/quizV2';
 
 // Set up web app
 const app = express();
@@ -61,6 +62,10 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////// DATA FUNCTIONS //////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
@@ -89,6 +94,10 @@ const save = () => {
 const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
 };
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////// ITERATION 2 ROUTES ////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
 
 // quizTrashView GET request route
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
@@ -454,6 +463,23 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   }
   save();
   return res.json(response);
+});
+
+/// ////////////////////////////////////////////////////////////////////////////////
+/// //////////////////////////// ITERATION 3 ROUTES ////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////////
+
+app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const questionBody = req.body.questionBody;
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionCreateV2(session.userId, quizId, questionBody);
+
+  save();
+  res.json(response);
 });
 
 // ====================================================================
