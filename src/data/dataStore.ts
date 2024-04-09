@@ -1,5 +1,10 @@
 import { DataStore } from '../interface';
 
+interface Timer {
+  sessionId: number;
+  timer: ReturnType<typeof setTimeout>;
+}
+
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 // Our datastore definition
 let data : DataStore = {
@@ -7,6 +12,8 @@ let data : DataStore = {
   quizzes: [],
   sessions: [],
 };
+
+const timers : Timer[] = [];
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
 
@@ -36,4 +43,8 @@ function setData(newData: DataStore) {
   data = newData;
 }
 
-export { getData, setData };
+function getTimer(sessionId: number) {
+  return timers.find(timer => timer.sessionId === sessionId).timer;
+}
+
+export { getData, setData, getTimer };
