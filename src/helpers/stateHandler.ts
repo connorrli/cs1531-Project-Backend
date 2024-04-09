@@ -59,7 +59,7 @@ export function stateMachine(quiz: QuizV2, quizSession: QuizSession, action: str
       handleGoToAnswer(quizSession, timer);
       break;
     case Actions.GO_TO_FINAL_RESULTS:
-      clearTimeout(timer);
+      handleGoToFinalResults(quizSession, timer);
       break;
     case Actions.END:
       handleEnd(quizSession, timer);
@@ -67,6 +67,24 @@ export function stateMachine(quiz: QuizV2, quizSession: QuizSession, action: str
     default:
       throw HTTPError(400, 'Action provided is not a valid action');
   }
+}
+
+/**
+ * Handles GO_TO_FINAL_RESULTS action
+ *
+ * @param quizSession - An object for a quiz session, described in interface.ts
+ * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
+ */
+function handleGoToFinalResults(quizSession: QuizSession, timer: Timer) {
+  if (
+    quizSession.state !== States.QUESTION_CLOSE &&
+    quizSession.state !== States.ANSWER_SHOW
+  ) {
+    throw HTTPError(400, 'Cannot be applied in current state');
+  }
+
+  clearTimeout(timer);
+  quizSession.state = States.FINAL_RESULTS;
 }
 
 /**
