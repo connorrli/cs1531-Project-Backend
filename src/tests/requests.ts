@@ -102,12 +102,6 @@ export const questionMoveRequest = (token: string, quizId: number, questionId: n
   return JSON.parse(response.body.toString());
 };
 
-// 'questionCreateRequestV2' function
-export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBody) => {
-  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question`, { json: { questionBody }, headers: { token } });
-  return JSON.parse(response.body.toString());
-};
-
 // 'userLogoutRequestV2' function
 export const userLogoutRequestV2 = (token: string) => {
   const response = request('POST', SERVER_URL + '/v2/admin/auth/logout', { headers: { token } });
@@ -209,6 +203,12 @@ export const quizTransferRequestV2 = (token: string, quizId: number, userEmail: 
   return JSON.parse(response.body.toString());
 }
 
+// 'questionCreateRequestV2' function
+export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBody) => {
+  const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question`, { json: { questionBody }, headers: { token } });
+  return JSON.parse(response.body.toString());
+};
+
 // 'questionUpdateRequestV2' function
 export const questionUpdateRequestV2 = (token: string, quizId: number, questionId: number, questionBody: QuestionBodyV2) => {
   const response = request('PUT', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}`, { headers: { token }, json: { questionBody } });
@@ -232,3 +232,4 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, { headers: { token } });
   return JSON.parse(response.body.toString());
 }
+
