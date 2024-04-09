@@ -123,12 +123,12 @@ export function updateQuizDuration(quiz: Quiz) {
 }
 
 /**
- * 
+ *
  * @param quizId - Unique ID for a quiz object
  * @param quizSessionId - Unique ID for a quiz session object
  * @returns - Located quiz session or undefined
  */
-function findQuizSession(quizId: number, quizSessionId: number): QuizSession | undefined {
+export function findQuizSession(quizId: number, quizSessionId: number): QuizSession | undefined {
   const data = getData();
   const quiz = findQuiz(data.quizzes, quizId);
 

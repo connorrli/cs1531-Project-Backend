@@ -2,8 +2,8 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { getTimer } from "../data/dataStore";
-import { QuizSession, QuizV2 } from "../interface";
+import { getTimer } from '../data/dataStore';
+import { QuizSession, QuizV2 } from '../interface';
 import HTTPError from 'http-errors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -37,11 +37,11 @@ export enum Actions {
 /**
  * Function that takes in a quiz, quiz session and action, carrying out said action.
  * Results in a state change for the session. If not possible, throws HTTPError.
- * 
+ *
  * @param quiz - An object for a quiz, described in interface.ts
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param action - an action which is a string, a list can be found in Actions enum
- * 
+ *
  * @returns - Nothing
  */
 export function stateMachine(quiz: QuizV2, quizSession: QuizSession, action: string) {
@@ -67,13 +67,11 @@ export function stateMachine(quiz: QuizV2, quizSession: QuizSession, action: str
     default:
       throw HTTPError(400, 'Action provided is not a valid action');
   }
-
-  return;
 }
 
 /**
  * Handles END action
- * 
+ *
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
@@ -84,7 +82,7 @@ function handleEnd(quizSession: QuizSession, timer: Timer) {
 
 /**
  * Handles GO_TO_ANSWER action
- * 
+ *
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
@@ -98,13 +96,11 @@ function handleGoToAnswer(quizSession: QuizSession, timer: Timer) {
 
   clearTimeout(timer);
   quizSession.state = States.ANSWER_SHOW;
-
-  return;
 }
 
 /**
  * Handles SKIP_COUNTDOWN action
- * 
+ *
  * @param quiz - An object for a quiz, described in interface.ts
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
@@ -126,20 +122,18 @@ function handleSkipCountdown(
     },
     quiz.questions[quizSession.atQuestion - 1].duration * 1000
   );
-
-  return;
 }
 
 /**
  * Handles NEXT_QUESTION action
- * 
+ *
  * @param quiz - An object for a quiz, described in interface.ts
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
 function handleNextQuestion(
-  quiz: QuizV2, 
-  quizSession: QuizSession, 
+  quiz: QuizV2,
+  quizSession: QuizSession,
   timer: Timer
 ) {
   if (
@@ -174,6 +168,4 @@ function handleNextQuestion(
     },
     3 * 1000
   );
-
-  return;
 }
