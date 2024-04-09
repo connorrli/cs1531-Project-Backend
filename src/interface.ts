@@ -26,8 +26,12 @@ interface Quiz {
   timeLastEdited: number;
   description: string;
   numQuestions: number;
-  questions: Question[];
+  questions: Question[] | QuestionV2[];
   duration: number;
+}
+
+interface QuizV2 extends Quiz {
+  thumbnailUrl: string;
 }
 
 /**
@@ -51,6 +55,10 @@ interface Question {
   answers: Answer[];
 }
 
+interface QuestionV2 extends Question {
+  thumbnailUrl: string;
+}
+
 /**
   * Describes the QuestionBody object and all properties contained in it.
   *
@@ -61,6 +69,14 @@ interface QuestionBody {
   duration: number;
   points: number;
   answers: AnswerReq[];
+}
+
+interface QuestionBodyV2 extends QuestionBody {
+  thumbnailUrl: string;
+}
+
+interface QuestionBodyV2 extends QuestionBody {
+  thumbnailUrl: string;
 }
 
 /**
@@ -89,7 +105,7 @@ interface UserSession {
 */
 interface DataStore {
   users: User[];
-  quizzes: Quiz[];
+  quizzes: Quiz[] | QuizV2[];
   sessions: UserSession[];
 }
 
@@ -128,4 +144,5 @@ export {
   TrashStore,
   UserSession,
   QuestionBody,
+  QuestionBodyV2,
 };
