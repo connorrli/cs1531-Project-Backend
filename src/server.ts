@@ -465,7 +465,6 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-
 /// ////////////////////////////////////////////////////////////////////////////////
 /// //////////////////////////// ITERATION 3 ROUTES ////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -476,7 +475,7 @@ app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   const questionBody = req.body.questionBody;
 
   const session = getSessionV2(token);
-  
+
   const response = adminQuizQuestionCreateV2(session.userId, quizId, questionBody);
 
   save();

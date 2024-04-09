@@ -288,7 +288,7 @@ describe('Testing adminQuizQuestionCreateV2 function:', () => {
   const VALID_QUESTION = 'What is the worst food of the following?';
   const VALID_DURATION = 5;
   const VALID_POINTS_AWARDED = 5;
-  const VALID_THUMBNAIL_JPEG =  'https://example.jpeg';
+  const VALID_THUMBNAIL_JPEG = 'https://example.jpeg';
   const VALID_THUMBNAIL_JPG = 'http://example.jpg';
   const VALID_THUMBNAIL_PNG = 'https://example.png';
   const VALID_ANSWERS_ARRAY = [
@@ -299,20 +299,6 @@ describe('Testing adminQuizQuestionCreateV2 function:', () => {
     {
       answer: 'anchovies',
       correct: true
-    }
-  ];
-  const NEW_ANSWERS = [
-    {
-      answerId: expect.any(Number),
-      answer: VALID_ANSWERS_ARRAY[0].answer,
-      colour: expect.any(String),
-      correct: VALID_ANSWERS_ARRAY[0].correct
-    },
-    {
-      answerId: expect.any(Number),
-      answer: VALID_ANSWERS_ARRAY[1].answer,
-      colour: expect.any(String),
-      correct: VALID_ANSWERS_ARRAY[1].correct
     }
   ];
 
@@ -547,7 +533,7 @@ describe('Testing adminQuizQuestionCreateV2 function:', () => {
       thumbnailUrl: '',
       expected: ERROR,
     }
-  ])('Testing $testTitle', ({ question, duration, points, answers, thumbnailUrl, expected}) => {
+  ])('Testing $testTitle', ({ question, duration, points, answers, thumbnailUrl, expected }) => {
     const questionBody: QuestionBodyV2 = {
       question,
       duration,

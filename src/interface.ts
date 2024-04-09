@@ -75,10 +75,6 @@ interface QuestionBodyV2 extends QuestionBody {
   thumbnailUrl: string;
 }
 
-interface QuestionBodyV2 extends QuestionBody {
-  thumbnailUrl: string;
-}
-
 /**
   * Describes the AnswerReq object and all properties contained in it
   *

@@ -5,7 +5,7 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { getData, /*setData*/ } from '../data/dataStore';
+import { getData /* setData */ } from '../data/dataStore';
 // import { isValidUser, isValidQuiz, isOwner } from '../helpers/checkForErrors';
 // import { Question, ErrorObject, Quiz } from '../interface';
 // import { getTrash, setTrash } from '../data/trash';
@@ -83,4 +83,4 @@ function adminQuizQuestionCreateV2(
 
 export {
   adminQuizQuestionCreateV2,
-}
+};

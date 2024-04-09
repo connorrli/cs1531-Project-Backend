@@ -91,7 +91,7 @@ function quizQuestionCreateCheckerV2(
   // Check if calling user actualy owns the quiz
   if (quiz.quizOwner !== userId) {
     throw HTTPError(403, 'ERROR 403: User is not owner of the quiz');
-  } 
+  }
 
   // QUESTION PROPERTIES CHECKS
 
@@ -100,25 +100,25 @@ function quizQuestionCreateCheckerV2(
     throw HTTPError(400, 'ERROR 400: Question length < 5');
   } else if (questionBody.question.length > MAX_QUESTION_LEN) {
     throw HTTPError(400, 'ERROR 400: Question length > 50');
-  } 
+  }
 
   // Check if number of answers is within constraints (2 <= x <= 6)
   if (questionBody.answers.length < MIN_NO_ANSWERS) {
     throw HTTPError(400, 'ERROR 400: Less than 2 answers');
   } else if (questionBody.answers.length > MAX_NO_ANSWERS) {
     throw HTTPError(400, 'ERROR 400: More than 6 answers');
-  } 
+  }
 
   // Check if a negative duration has been provided
   if (questionBody.duration <= MIN_DURATION) {
     throw HTTPError(400, 'ERROR 400: Invalid duration, must be positive');
-  } 
-  
+  }
+
   if (questionBody.points < MIN_POINTS_AWARDED) {
     throw HTTPError(400, 'ERROR 400: Less than 1 point awarded');
   } else if (questionBody.points > MAX_POINTS_AWARDED) {
     throw HTTPError(400, 'ERROR 400: More than 10 points awarded');
-  } 
+  }
 
   // Check if total duration is within constraints (0s <= x <= 180s)
   const duration = quiz.duration + questionBody.duration;
@@ -138,7 +138,7 @@ function quizQuestionCreateCheckerV2(
       .find(answer => answer.correct === true);
     if (typeof hasCorrectAnswer === 'undefined') {
       throw HTTPError(400, 'ERROR 400: No correct answer for current question');
-    } 
+    }
 
     // Check if answer is within length constraints
     if (answerObj.answer.length < MIN_ANSWER_LENGTH) {
@@ -155,7 +155,7 @@ function quizQuestionCreateCheckerV2(
   } else if (!url.startsWith('https://') && !url.startsWith('http://')) {
     throw HTTPError(400, 'ERROR 400: Thumbnail URL does not start with https:// or http://');
   } else if (
-    !url.endsWith('.jpeg') && 
+    !url.endsWith('.jpeg') &&
     !url.endsWith('.jpg') &&
     !url.endsWith('.png')
   ) {
