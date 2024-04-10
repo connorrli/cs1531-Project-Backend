@@ -20,16 +20,27 @@ import {
   // User,
   // UserSession,
 } from '../interface';
+import { authUserIdCheck } from '../helpers/checkForErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+const NO_ERROR = 0;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 type EmptyObject = Record<string, never>;
+interface UserDetails {
+  userId: number;
+  name: string;
+  email: string;
+  numSuccessfulLogins: number;
+  numFailedPasswordsSinceLastLogin: number;
+}
+interface AdminUserDetailsReturn { user: UserDetails; }
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -58,10 +69,34 @@ function adminAuthLogoutV2(token: string): EmptyObject | ErrorObject {
   return { };
 }
 
+/**
+  * Given an admin user's authUserId, return details about the user.
+    "name" is the first and last name concatenated with a single space between them.
+  *
+  * @param {integer} authUserId - Stores user authentication and details about logins
+  *
+  * @returns {empty object} - Returns the user id number, name, email, count of successful logins and the times where the password has been entered incorrectly
+*/
+function adminUserDetailsV2 (authUserId: number): AdminUserDetailsReturn | ErrorObject {
+  const data = getData();
+  const userData = data.users.find(u => u.userId === authUserId);
+
+  const user : UserDetails = {
+    userId: userData.userId,
+    name: userData.nameFirst + ' ' + userData.nameLast,
+    email: userData.email,
+    numSuccessfulLogins: userData.numSuccessfulLogins,
+    numFailedPasswordsSinceLastLogin: userData.numFailedPasswordsSinceLastLogin,
+  };
+
+  return { user };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 export {
-  adminAuthLogoutV2
+  adminAuthLogoutV2,
+  adminUserDetailsV2,
 }

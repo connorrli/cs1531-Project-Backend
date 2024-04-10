@@ -480,6 +480,16 @@ app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// adminUserDetailsV2 GET request route
+app.get('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminUserDetails(session.userId);
+
+  return res.json(response);
+});
+
 app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
   const token = req.header('token');
@@ -492,6 +502,7 @@ app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   save();
   res.json(response);
 });
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
