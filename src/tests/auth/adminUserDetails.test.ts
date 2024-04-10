@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
+import { userDetailsRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -38,7 +39,7 @@ const userDetailsReq = (token: string) => {
 };
 
 // Success cases
-describe('Should give correct user details', () => {
+describe('Testing adminUserDetails function (Success)', () => {
   test('Correct user details', () => {
     const user1 = authRegisterReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
     expect(user1).toStrictEqual(TOKEN);
@@ -94,7 +95,7 @@ describe('Should give correct user details', () => {
 });
 
 // Error cases
-describe('Should throw error when needed', () => {
+describe('Testing adminUserDetails function (Fail)', () => {
   test('throws an error when there is no user and therefore no session', () => {
     expect(userDetailsReq('1')).toStrictEqual(ERROR);
   });
@@ -102,5 +103,74 @@ describe('Should throw error when needed', () => {
     const user1 = authRegisterReq('yabbadabbadoo@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
     expect(user1).toStrictEqual(TOKEN);
     if ('token' in user1) expect(userDetailsReq(user1.token + '1')).toStrictEqual(ERROR);
+  });
+});
+
+
+// Success cases
+describe('Testing adminUserDetailsV2 function (Success)', () => {
+  test('Correct user details', () => {
+    const user1 = authRegisterReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
+    expect(user1).toStrictEqual(TOKEN);
+    if ('token' in user1) {
+      const token: string = user1.token;
+      expect(userDetailsRequestV2(token)).toStrictEqual({
+        user:
+                {
+                  userId: expect.any(Number),
+                  name: 'Yabba Dabba',
+                  email: 'yabbadabbadooidonotexist@gmail.com',
+                  numSuccessfulLogins: 1,
+                  numFailedPasswordsSinceLastLogin: 0
+                }
+      });
+
+      const newToken = authLoginReq('yabbadabbadooidonotexist@gmail.com', 'yabba123dabbA').token as string;
+      let userDetails = userDetailsRequestV2(newToken);
+      if ('user' in userDetails) {
+        expect(userDetails.user.numSuccessfulLogins).toEqual(2);
+        authLoginReq('yabbadabbadooidonotexist@gmail.com', 'password123');
+      }
+      // Re-fetch details with updated login data
+      userDetails = userDetailsRequestV2(newToken);
+      if ('user' in userDetails) {
+        expect(userDetails.user.numFailedPasswordsSinceLastLogin).toEqual(1);
+      }
+    } else { expect(2).toEqual(1); }
+    const user2 = authRegisterReq('johnnymcjohn@gmail.com', 'John9090', 'John', 'Mc-John');
+    expect(user2).toStrictEqual(TOKEN);
+    if ('token' in user2) {
+      expect(userDetailsRequestV2(user2.token)).toStrictEqual({
+        user: {
+          userId: expect.any(Number),
+          name: 'John Mc-John',
+          email: 'johnnymcjohn@gmail.com',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0
+        }
+      });
+    }
+  });
+  test.each([
+    { email: 'hehehoho@gmail.com', password: 'HEHEhohoh1234', nameFirst: 'hehe', nameLast: 'hoho' },
+    { email: 'waaahwahhhawh@gmail.com', password: 'HuruhurEhohoh1234', nameFirst: 'HHhhe', nameLast: 'gghuu' },
+    { email: 'hotmailbestmail@gmail.com', password: 'MIAMI89maim', nameFirst: 'Gigamesh', nameLast: 'Eater of Worlds' },
+    { email: 'icantdothisanymore@gmail.com', password: 'iHateJest2024', nameFirst: 'Grug', nameLast: 'McGreg' }
+  ])('Should give a user for various different registrations', ({ email, password, nameFirst, nameLast }) => {
+    const user = authRegisterReq(email, password, nameFirst, nameLast);
+    expect(user).toStrictEqual(TOKEN);
+    if ('token' in user) expect(userDetailsRequestV2(user.token)).toStrictEqual(USER);
+  });
+});
+
+// Error cases
+describe('Testing adminUserDetailsV2 function (Fail)', () => {
+  test('throws an error when there is no user and therefore no session', () => {
+    expect(userDetailsRequestV2('1')).toStrictEqual(ERROR);
+  });
+  test('throws an error when userid is wrong but there is actually a guy registered', () => {
+    const user1 = authRegisterReq('yabbadabbadoo@gmail.com', 'yabba123dabbA', 'Yabba', 'Dabba');
+    expect(user1).toStrictEqual(TOKEN);
+    if ('token' in user1) expect(userDetailsRequestV2(user1.token + '1')).toStrictEqual(ERROR);
   });
 });
