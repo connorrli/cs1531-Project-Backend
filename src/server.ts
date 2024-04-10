@@ -41,7 +41,13 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
-import { adminQuizCreateV2, adminQuizInfoV2, adminQuizListV2, adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { 
+  adminQuizCreateV2, 
+  adminQuizInfoV2, 
+  adminQuizListV2, 
+  adminQuizNameUpdateV2, 
+  adminQuizQuestionCreateV2 
+} from './Iter3/quizV2';
 import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
@@ -540,7 +546,7 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// quizCreate POST request route
+// quizCreateV2 POST request route
 app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   const token: string = req.header('token');
   const session = getSessionV2(token);
@@ -552,7 +558,7 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// quizRemove DELETE request route
+// quizRemoveV2 DELETE request route
 app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.header('token');
@@ -565,7 +571,7 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// adminQuizInfo GET request route
+// adminQuizInfoV2 GET request route
 app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.header('token');
@@ -573,6 +579,20 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
 
   const response = adminQuizInfoV2(session.userId, quizId);
 
+  return res.json(response);
+});
+
+// adminQuizNameUpdateV2 PUT request route
+app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const { name } = req.body;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizNameUpdateV2(session.userId, quizId, name);
+
+  save();
   return res.json(response);
 });
 

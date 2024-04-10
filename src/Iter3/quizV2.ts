@@ -282,7 +282,41 @@ function adminQuizInfoV2(authUserId: number, quizId: number): AdminQuizInfoRetur
   };
 }
 
+/**
+  * Update the name of the relevant quiz.
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} name - Provides the name of the user who logged in for the quiz
+  *
+  * @returns {object} - Returns object containing nothing
+*/
+function adminQuizNameUpdateV2(
+  authUserId: number,
+  quizId: number,
+  name: string
+): EmptyObject {
+  if (!isValidQuiz(quizId) || !isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+  if (!/^[a-zA-Z0-9\s]+$/.test(name)) {
+    throw HTTPError(400, 'ERROR 400: Name contains invalid characters (not alphanumeric)');
+  }
+  if (name.length < 3 || name.length > 30) {
+    throw HTTPError(400, 'ERROR 400: Name must be between 3 and 30 characters long');
+  }
+  const data = getData();
+  const allQuizzes = data.quizzes;
+  const usersQuizzes = allQuizzes.filter(q => q.quizOwner === authUserId);
+  const quizWithName = usersQuizzes.find(q => q.name === name);
+  if (quizWithName !== undefined && quizWithName.quizId !== quizId) {
+    throw HTTPError(400, 'ERROR 400: This name has already been used by logged in user');
+  }
 
+  const currentQuiz = findQuiz(usersQuizzes, quizId);
+  currentQuiz.name = name;
+  return {};
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
@@ -293,5 +327,6 @@ export {
   adminQuizListV2,
   adminQuizCreateV2,
   adminQuizRemoveV2,
-  adminQuizInfoV2
+  adminQuizInfoV2,
+  adminQuizNameUpdateV2,
 };
