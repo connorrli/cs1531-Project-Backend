@@ -5,10 +5,10 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { getData } from '../data/dataStore';
-// import { isValidUser, isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { ErrorObject, QuestionBodyV2, QuizV2 } from '../interface';
-import { getTrash, /* setTrash */ } from '../data/trash';
+import { getData, setData } from '../data/dataStore';
+import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
+import { QuestionBodyV2, QuizV2 } from '../interface';
+import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
   findQuiz,
@@ -16,12 +16,12 @@ import {
   generateAnswers,
   generateQuestionId,
   // findQuestionIndex,
-  // findQuizIndex,
+  findQuizIndex,
   updateQuizDuration
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
-// import { stateMachine, States, Actions } from '../helpers/stateHandler';
 import HTTPError from 'http-errors';
+import { States } from '../helpers/stateHandler';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -59,6 +59,11 @@ export interface AdminQuizListReturn {
 interface AdminQuizCreateReturn {
   quizId: number;
 }
+
+/**
+ * Describes type for empty object.
+ */
+type EmptyObject = Record<string, never>
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
@@ -176,6 +181,7 @@ function adminQuizCreateV2(
     numQuestions: 0,
     questions: [],
     duration: 0,
+    quizSessions: [],
     thumbnailUrl: '',
   };
   const trash = getTrash();
@@ -202,6 +208,41 @@ function adminQuizCreateV2(
   return { quizId: quiz.quizId };
 }
 
+/**
+  * Given a particular quiz, permanently remove the quiz.
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  *
+  * @returns {object} - Returns an empty object to the user
+*/
+function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
+  if (!isValidQuiz(quizId) || !isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const data = getData();
+  const quizIndex = findQuizIndex(data.quizzes, quizId);
+  const quizToRemove = data.quizzes[quizIndex];
+
+  for (const session of quizToRemove.quizSessions) {
+    if (session.state !== States.END) {
+      throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
+    }
+  }
+
+  quizToRemove.timeLastEdited = getCurrentTime();
+  const trash = getTrash();
+  trash.quizzes.push(quizToRemove);
+  setTrash(trash);
+  data.quizzes.splice(quizIndex, 1);
+  setData(data);
+
+  return { };
+}
+
+
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -210,4 +251,5 @@ export {
   adminQuizQuestionCreateV2,
   adminQuizListV2,
   adminQuizCreateV2,
+  adminQuizRemoveV2,
 };
