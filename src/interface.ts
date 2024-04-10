@@ -4,7 +4,7 @@
 /**
   * Describes the User object and all properties contained in it.
 */
-interface User {
+export interface User {
   userId: number;
   email: string;
   password: string;
@@ -18,7 +18,7 @@ interface User {
 /**
   * Describes the Quiz object and all properties contained in it.
 */
-interface Quiz {
+export interface Quiz {
   quizId: number;
   quizOwner: number;
   name: string;
@@ -30,14 +30,27 @@ interface Quiz {
   duration: number;
 }
 
-interface QuizV2 extends Quiz {
+export interface QuizV2 extends Quiz {
   thumbnailUrl: string;
+  quizSessions: QuizSession[];
+}
+
+export interface QuizSession {
+  sessionId: number;
+  state: string;
+  atQuestion: number;
+  players: Player[];
+}
+
+export interface Player {
+  playerId: number;
+  name: string;
 }
 
 /**
   * Describes the Answer object and all properties contained in it.
 */
-interface Answer {
+export interface Answer {
   answerId: number;
   answer: string;
   colour: string;
@@ -47,7 +60,7 @@ interface Answer {
 /**
   * Describes the Question object and all properties contained in it.
 */
-interface Question {
+export interface Question {
   questionId: number;
   question: string;
   duration: number;
@@ -55,7 +68,7 @@ interface Question {
   answers: Answer[];
 }
 
-interface QuestionV2 extends Question {
+export interface QuestionV2 extends Question {
   thumbnailUrl: string;
 }
 
@@ -64,14 +77,14 @@ interface QuestionV2 extends Question {
   *
   * This is typically an object seen within body of a question-related request.
 */
-interface QuestionBody {
+export interface QuestionBody {
   question: string;
   duration: number;
   points: number;
   answers: AnswerReq[];
 }
 
-interface QuestionBodyV2 extends QuestionBody {
+export interface QuestionBodyV2 extends QuestionBody {
   thumbnailUrl: string;
 }
 
@@ -80,7 +93,7 @@ interface QuestionBodyV2 extends QuestionBody {
   *
   * This is typically an object seen within QuestionBody-type object.
 */
-interface AnswerReq {
+export interface AnswerReq {
   answer: string;
   correct: boolean;
 }
@@ -90,7 +103,7 @@ interface AnswerReq {
   *
   * This is an object that contains a unique session token and associated user's ID.
 */
-interface UserSession {
+export interface UserSession {
   token: string;
   userId: number;
   timeCreated: number;
@@ -99,7 +112,7 @@ interface UserSession {
 /**
   * Describes the DataStore object, which is an object containing users, quizzes and sessions arrays.
 */
-interface DataStore {
+export interface DataStore {
   users: User[];
   quizzes: Quiz[] | QuizV2[];
   sessions: UserSession[];
@@ -110,7 +123,7 @@ interface DataStore {
   *
   * It is associated with all trash functionality, and will contain trashed quizzes.
 */
-interface TrashStore {
+export interface TrashStore {
   users: User[];
   quizzes: Quiz[];
   sessions: UserSession[];
@@ -120,7 +133,7 @@ interface TrashStore {
   * Describes the ErrorObject object, which is an object containing an error string and
   * optionally a status value.
 */
-interface ErrorObject {
+export interface ErrorObject {
   error: string;
   statusValue?: number;
 }
@@ -128,17 +141,3 @@ interface ErrorObject {
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
-
-export {
-  ErrorObject,
-  User,
-  Quiz,
-  Question,
-  Answer,
-  AnswerReq,
-  DataStore,
-  TrashStore,
-  UserSession,
-  QuestionBody,
-  QuestionBodyV2,
-};

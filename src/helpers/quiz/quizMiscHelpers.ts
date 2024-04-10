@@ -2,7 +2,8 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { Answer, AnswerReq, Question, Quiz } from '../../interface';
+import { getData } from '../../data/dataStore';
+import { Answer, AnswerReq, Question, Quiz, QuizSession, QuizV2 } from '../../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -68,7 +69,7 @@ export function generateQuestionId(quiz: Quiz): number {
   *
   * @returns {object | undefined} - Returns the quiz object if found, otherwise undefined
 */
-export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz {
+export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz | QuizV2 {
   return quizzes.find(quiz => quiz.quizId === quizId);
 }
 
@@ -119,4 +120,19 @@ export function updateQuizDuration(quiz: Quiz) {
     duration += question.duration;
   }
   quiz.duration = duration;
+}
+
+/**
+ *
+ * @param quizId - Unique ID for a quiz object
+ * @param quizSessionId - Unique ID for a quiz session object
+ * @returns - Located quiz session or undefined
+ */
+export function findQuizSession(quizId: number, quizSessionId: number): QuizSession | undefined {
+  const data = getData();
+  const quiz = findQuiz(data.quizzes, quizId);
+
+  if (typeof quiz !== 'undefined' && 'quizSessions' in quiz) {
+    return quiz.quizSessions.find(session => session.sessionId === quizSessionId);
+  }
 }
