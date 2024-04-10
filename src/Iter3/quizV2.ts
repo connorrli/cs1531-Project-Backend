@@ -7,7 +7,7 @@
 
 import { getData, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { QuestionBodyV2, QuestionV2, QuizV2 } from '../interface';
+import { QuestionBodyV2, QuestionV2, QuizV2, UserSession } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
@@ -264,7 +264,7 @@ function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
 */
 function adminQuizInfoV2(authUserId: number, quizId: number): AdminQuizInfoReturn {
   if (!isValidQuiz(quizId) || !isOwner(authUserId, quizId)) {
-    throw HTTPError(403, 'ERROR 403: Not owner of quiz');
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
   }
 
   const quiz = getData().quizzes.find(quiz => quiz.quizId === quizId);
@@ -348,6 +348,49 @@ function adminQuizDescriptionUpdateV2(
   return {};
 }
 
+/**
+  * Given an array of quiz ids, restore quizzes if possible.
+  *
+  * @param {integer} token - Unique session token
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  *
+  * @returns {object} - Returns an empty object to the user
+  * 
+*/
+function adminQuizRestoreV2(session: UserSession, quizId: number): EmptyObject {
+  const data = getData();
+  const trash = getTrash();
+
+  const findQuizIdTrash = trash.quizzes.find(quiz => quiz.quizId === quizId);
+  const findQuizName = data.quizzes.find(quiz => quiz.name === findQuizIdTrash.name);
+
+  // It should be okay to keep this ordering because quiz owner can't even be checked
+  // if the quiz doesn't exist, making 400 the only returnable code.
+  if (findQuizIdTrash === undefined) {
+    throw HTTPError(400, 'ERROR 400: Quiz ID does not exist in trash');
+  }
+  if (findQuizIdTrash.quizOwner !== session.userId) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz')
+  }
+  if (findQuizName !== undefined) {
+    throw HTTPError(400, 'ERROR 400: Quiz name is already in use')
+  }
+
+  const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
+  const quizToRestore = trash.quizzes[quizIndex];
+
+  quizToRestore.timeLastEdited = getCurrentTime();
+  data.quizzes.push(quizToRestore);
+
+  setData(data);
+
+  trash.quizzes.splice(quizIndex, 1);
+
+  setTrash(trash);
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -360,4 +403,5 @@ export {
   adminQuizInfoV2,
   adminQuizNameUpdateV2,
   adminQuizDescriptionUpdateV2,
+  adminQuizRestoreV2,
 };

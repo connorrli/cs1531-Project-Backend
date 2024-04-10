@@ -48,7 +48,8 @@ import {
   adminQuizListV2, 
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
-  adminQuizRemoveV2
+  adminQuizRemoveV2,
+  adminQuizRestoreV2
 } from './Iter3/quizV2';
 import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserDetailsV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
 
@@ -566,6 +567,18 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const response = adminQuizRemoveV2(session.userId, quizId);
 
   saveTrash();
+  save();
+  return res.json(response);
+});
+
+// quizRestoreV2 POST request route
+app.post('/v2/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid.toString());
+  const session = getSessionV2(token);
+
+  const response = adminQuizRestoreV2(session, quizId);
+
   save();
   return res.json(response);
 });
