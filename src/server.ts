@@ -42,6 +42,7 @@ import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
 import { adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { adminAuthLogoutV2 } from './Iter3/authV2';
 
 // Set up web app
 const app = express();
@@ -473,7 +474,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.header('token');
 
-  const response = adminAuthLogout(token);
+  const response = adminAuthLogoutV2(token);
 
   save();
   return res.json(response);

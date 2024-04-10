@@ -7,19 +7,19 @@
 
 // import { checkDetailsUpdate } from '../helpers/auth/userUpdateErrors';
 // import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateErrors';
-// import { getData, setData } from '../data/dataStore';
+import { getData } from '../data/dataStore';
+import HTTPError from 'http-errors';
 // import { invalidRegConditions } from '../helpers/auth/registErrors';
 // import { error } from '../helpers/errors';
 // import { authUserIdCheck } from '../helpers/checkForErrors';
 // import { generateSession } from '../helpers/sessionHandler';
 
-/*
+
 import {
   ErrorObject,
-  User,
-  UserSession,
+  // User,
+  // UserSession,
 } from '../interface';
-*/
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -29,9 +29,34 @@ import {
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+type EmptyObject = Record<string, never>;
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// FUNCTIONS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+/**
+  * Given a token for a session, log out the associated user.
+  *
+  * @param {string} token - Unique token stored inside a session
+  *
+  * @returns {object} - Returns empty object if successful, otherwise error
+*/
+function adminAuthLogout(token: string): EmptyObject | ErrorObject {
+  const data = getData();
+  // const session = data.sessions; - This isn't being used yet ?
+
+  if (token.length === 0) {
+    throw HTTPError(401, `Token ${token} is invalid`);
+  }
+  const finder = (data.sessions).find(user => user.token === token);
+  if (finder === undefined) {
+    throw HTTPError(401, `Token ${token} is invalid`);
+  }
+  const tokenLocate = data.sessions.findIndex(index => index.token === token);
+  data.sessions.splice(tokenLocate, 1);
+  return { };
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
