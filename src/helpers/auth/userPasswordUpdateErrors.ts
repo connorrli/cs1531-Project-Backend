@@ -4,6 +4,7 @@
 
 import { ErrorObject, User } from '../../interface';
 import { passwordValidCheck } from '../checkForErrors';
+import HTTPError from 'http-errors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -41,8 +42,23 @@ function checkUserPasswordUpdate(userData: User, oldPassword: string, newPasswor
   return NO_ERROR;
 }
 
+function checkUserPasswordUpdateV2(userData: User, oldPassword: string, newPassword: string): void {
+  let error : ErrorObject | number = NO_ERROR;
+
+  if (oldPassword !== userData.password) {
+    throw HTTPError(400, 'ERROR 400: Old password is incorrect');
+  } else if (oldPassword === newPassword) {
+    throw HTTPError(400, 'ERROR 400: New password is the same as old password');
+  } else if (userData.previousPasswords.includes(newPassword)) {
+    throw HTTPError(400, 'ERROR 400: New password has already been used before');
+  }
+
+  error = passwordValidCheck(newPassword);
+  if (error !== NO_ERROR) throw HTTPError(400, 'ERROR 400: New password is invalid');
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-export { checkUserPasswordUpdate };
+export { checkUserPasswordUpdate, checkUserPasswordUpdateV2 };

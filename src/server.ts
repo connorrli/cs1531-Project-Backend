@@ -41,7 +41,8 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
-import { adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { adminQuizListV2, adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { adminAuthLogoutV2, adminUserDetailsUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
 const app = express();
@@ -469,6 +470,52 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 /// //////////////////////////// ITERATION 3 ROUTES ////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+// adminAuthLogOutV2 POST request route
+app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
+  const token = req.header('token');
+
+  const response = adminAuthLogoutV2(token);
+
+  save();
+  return res.json(response);
+});
+
+// adminUserDetailsV2 GET request route
+app.get('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminUserDetails(session.userId);
+
+  return res.json(response);
+});
+
+// adminUserDetailsUpdateV2 PUT request route
+app.put('/v2/admin/user/details', (req: Request, res: Response) => {
+  const { email, nameFirst, nameLast } = req.body;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminUserDetailsUpdateV2(session, email, nameFirst, nameLast);
+
+  save();
+  return res.json(response);
+});
+
+// adminUserPasswordUpdateV2 PUT request route
+app.put('/v2/admin/user/password', (req: Request, res: Response) => {
+  const { oldPassword, newPassword } = req.body;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
+
+  save();
+  return res.json(response);
+});
+
 app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
   const token = req.header('token');
@@ -481,6 +528,31 @@ app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   save();
   res.json(response);
 });
+
+// quizListV2 GET request route
+app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
+  const query = req.query;
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminQuizListV2(session.userId);
+
+  return res.json(response);
+});
+
+// quizCreate POST request route
+app.post('/v2/admin/quiz', (req: Request, res: Response) => {
+  const token: string = req.header('token');
+  const session = getSessionV2(token);
+  const { name, description } = req.body;
+
+  const response = adminQuizCreate(session.userId, name, description);
+
+
+  save();
+  return res.json(response);
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
