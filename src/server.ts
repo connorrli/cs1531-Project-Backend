@@ -41,7 +41,7 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
-import { adminQuizCreateV2, adminQuizListV2, adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { adminQuizCreateV2, adminQuizInfoV2, adminQuizListV2, adminQuizQuestionCreateV2 } from './Iter3/quizV2';
 import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
@@ -552,6 +552,7 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// quizRemove DELETE request route
 app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.header('token');
@@ -561,6 +562,17 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
 
   saveTrash();
   save();
+  return res.json(response);
+});
+
+// adminQuizInfo GET request route
+app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminQuizInfoV2(session.userId, quizId);
+
   return res.json(response);
 });
 

@@ -7,7 +7,7 @@
 
 import { getData, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { QuestionBodyV2, QuizV2 } from '../interface';
+import { QuestionBodyV2, QuestionV2, QuizV2 } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
@@ -58,6 +58,18 @@ export interface AdminQuizListReturn {
  */
 interface AdminQuizCreateReturn {
   quizId: number;
+}
+
+interface AdminQuizInfoReturn {
+  quizId: number;
+  name: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  description: string;
+  numQuestions: number;
+  questions: QuestionV2[];
+  duration: number;
+  thumbnailUrl: string;
 }
 
 /**
@@ -241,6 +253,35 @@ function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
   return { };
 }
 
+/**
+  * Given quizId, find and return information for that quiz
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  *
+  * @returns {object} - Returns object containing details such as quizId,
+  *                     name, time made and edited, and description
+*/
+function adminQuizInfoV2(authUserId: number, quizId: number): AdminQuizInfoReturn {
+  if (!isValidQuiz(quizId) || !isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: Not owner of quiz');
+  }
+
+  const quiz = getData().quizzes.find(quiz => quiz.quizId === quizId);
+
+  return {
+    quizId: quiz.quizId,
+    name: quiz.name,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
+    description: quiz.description,
+    numQuestions: quiz.numQuestions,
+    questions: quiz.questions,
+    duration: quiz.duration,
+    thumbnailUrl: quiz.thumbnailUrl
+  };
+}
+
 
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -252,4 +293,5 @@ export {
   adminQuizListV2,
   adminQuizCreateV2,
   adminQuizRemoveV2,
+  adminQuizInfoV2
 };
