@@ -34,6 +34,21 @@ interface adminQuizQuestionCreateReturn {
   questionId: number;
 }
 
+/**
+ * Describes an owned quiz object, which shows key quiz details (quizId, name).
+ */
+interface OwnedQuizObject {
+  quizId: number;
+  name: string;
+}
+
+/**
+ * Describes success return object for adminQuizList.
+ */
+export interface AdminQuizListReturn {
+  quizzes: OwnedQuizObject[];
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -77,10 +92,31 @@ function adminQuizQuestionCreateV2(
   return { questionId };
 }
 
+/**
+  * Provide a list of all quizzes that are owned by the currently logged in user.
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  *
+  * @returns {object} - Returns the quiz id number and name of the quiz
+*/
+function adminQuizListV2(authUserId: number): AdminQuizListReturn {
+  const data = getData();
+  const ownedQuizzes : OwnedQuizObject[] = [];
+
+  for (const quiz of data.quizzes) {
+    if (quiz.quizOwner === authUserId) {
+      const obj : OwnedQuizObject = { quizId: quiz.quizId, name: quiz.name };
+      ownedQuizzes.push(obj);
+    }
+  }
+  return { quizzes: ownedQuizzes };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 export {
   adminQuizQuestionCreateV2,
+  adminQuizListV2,
 };

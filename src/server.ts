@@ -41,7 +41,7 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
-import { adminQuizQuestionCreateV2 } from './Iter3/quizV2';
+import { adminQuizListV2, adminQuizQuestionCreateV2 } from './Iter3/quizV2';
 import { adminAuthLogoutV2, adminUserDetailsUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
@@ -527,6 +527,17 @@ app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
 
   save();
   res.json(response);
+});
+
+// quizListV2 GET request route
+app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
+  const query = req.query;
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminQuizListV2(session.userId);
+
+  return res.json(response);
 });
 
 
