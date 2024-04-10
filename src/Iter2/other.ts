@@ -85,7 +85,7 @@ function quizInTrash(quizIds: Array<number>): boolean {
   * @returns {object} - Returns error object if any errors are found,
   *                     otherwise returns empty object
 */
-function clearTrash(userId: number, quizIds: Array<number>): EmptyObject | ErrorObject {
+function clearTrash(userId: number, quizIds: Array<number>): EmptyObject {
   const trash = getTrash();
 
   for (let quizIndex = 0; quizIndex < trash.quizzes.length; quizIndex++) {

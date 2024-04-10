@@ -1,6 +1,7 @@
 // Import statements of various packages/libraries that we will leverage for the project
 import express, { json, Request, Response } from 'express';
 import { echo } from './newecho';
+import HTTPError from 'http-errors';
 import morgan from 'morgan';
 import config from './config.json';
 import cors from 'cors';
@@ -556,6 +557,28 @@ app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   // This had no differences to old, so can keep using it.
   const quizzes = adminQuizTrashView(session.userId);
   return res.json(quizzes);
+});
+
+// quizTrashEmptyV2 DELETE request route
+app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const quizIds: Array<number> = JSON.parse(req.query.quizIds.toString());
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  // I think this may be wrong but checking owner prop first is annoying
+  if (!quizInTrash(quizIds)) {
+    throw HTTPError(400, 'ERROR 400: At least one quiz isn\'t in trash');
+  }
+  if (!trashOwner(session.userId, quizIds)) {
+    throw HTTPError(403, 'ERROR 403: One or more of quiz IDs refer to an unowned quiz')
+  }
+
+  // This function also still works for iteration 3
+  const response = clearTrash(session.userId, quizIds);
+
+  saveTrash();
+  save();
+  return res.json(response);
 });
 
 // quizRemoveV2 DELETE request route
