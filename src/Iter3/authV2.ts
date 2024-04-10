@@ -42,7 +42,7 @@ type EmptyObject = Record<string, never>;
   *
   * @returns {object} - Returns empty object if successful, otherwise error
 */
-function adminAuthLogout(token: string): EmptyObject | ErrorObject {
+function adminAuthLogoutV2(token: string): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
 
@@ -61,3 +61,7 @@ function adminAuthLogout(token: string): EmptyObject | ErrorObject {
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+export {
+  adminAuthLogoutV2
+}
