@@ -469,6 +469,16 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 /// //////////////////////////// ITERATION 3 ROUTES ////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+// adminAuthLogOutV2 POST request route
+app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
+  const token = req.header('token');
+
+  const response = adminAuthLogout(token);
+
+  save();
+  return res.json(response);
+});
+
 app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
   const token = req.header('token');
