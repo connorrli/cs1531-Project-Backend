@@ -99,12 +99,12 @@ loadTrash();
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
-  fs.writeFileSync('./database.json', JSON.stringify(getData()));
+  fs.writeFileSync('./database.json', JSON.stringify(getData(), null, 2));
 };
 
 // Save current `trash` trashStore object state into trashbase.json
 const saveTrash = () => {
-  fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash()));
+  fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash(), null, 2));
 };
 
 /// ////////////////////////////////////////////////////////////////////////////////
