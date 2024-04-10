@@ -47,9 +47,10 @@ import {
   adminQuizInfoV2, 
   adminQuizListV2, 
   adminQuizNameUpdateV2, 
-  adminQuizQuestionCreateV2 
+  adminQuizQuestionCreateV2, 
+  adminQuizRemoveV2
 } from './Iter3/quizV2';
-import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
+import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserDetailsV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
 const app = express();
@@ -492,7 +493,7 @@ app.get('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.header('token');
   const session = getSessionV2(token);
 
-  const response = adminUserDetails(session.userId);
+  const response = adminUserDetailsV2(session.userId);
 
   return res.json(response);
 });
@@ -523,19 +524,6 @@ app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
-  const quizId = parseInt(req.params.quizId);
-  const token = req.header('token');
-  const questionBody = req.body.questionBody;
-
-  const session = getSessionV2(token);
-
-  const response = adminQuizQuestionCreateV2(session.userId, quizId, questionBody);
-
-  save();
-  res.json(response);
-});
-
 // quizListV2 GET request route
 app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
   const query = req.query;
@@ -559,15 +547,38 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// quizTrashView GET request route
+app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  // This had no differences to old, so can keep using it.
+  const quizzes = adminQuizTrashView(session.userId);
+  return res.json(quizzes);
+});
+
 // quizRemoveV2 DELETE request route
 app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.header('token');
   const session = getSessionV2(token);
 
-  const response = adminQuizRemove(session.userId, quizId);
+  const response = adminQuizRemoveV2(session.userId, quizId);
 
   saveTrash();
+  save();
+  return res.json(response);
+});
+
+app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const questionBody = req.body.questionBody;
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionCreateV2(session.userId, quizId, questionBody);
+
   save();
   return res.json(response);
 });
@@ -597,7 +608,7 @@ app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// adminQuizDescriptionUpdate PUT request route
+// adminQuizDescriptionUpdateV2 PUT request route
 app.put('/v2/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const quizid = parseInt(req.params.quizId);
   const token = req.header('token');
