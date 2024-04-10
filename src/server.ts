@@ -540,6 +540,19 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// quizCreate POST request route
+app.post('/v2/admin/quiz', (req: Request, res: Response) => {
+  const token: string = req.header('token');
+  const session = getSessionV2(token);
+  const { name, description } = req.body;
+
+  const response = adminQuizCreate(session.userId, name, description);
+
+
+  save();
+  return res.json(response);
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
