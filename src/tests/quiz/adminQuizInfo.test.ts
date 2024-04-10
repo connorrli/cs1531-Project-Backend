@@ -1,5 +1,6 @@
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
+import { quizCreateRequestV2, quizInfoRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
@@ -68,6 +69,55 @@ describe('adminQuizInfo function tests', () => {
       const quiz = adminQuizCreate(authUser1.token, 'User 1 Quiz', 'This is a quiz created by user 1');
       if ('quizId' in quiz) {
         const quizInfo = adminQuizInfo(authUser2.token, quiz.quizId);
+        expect(quizInfo).toEqual(ERROR);
+      }
+    }
+  });
+});
+
+describe('adminQuizInfoV2 function tests', () => {
+  // A success case and multiple error cases
+  test('Returns quiz information for a valid quiz owned by the user', () => {
+    const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+    if ('token' in authUser) {
+      const quiz = quizCreateRequestV2(authUser.token, 'Test Quiz', 'This is a test quiz');
+      if ('quizId' in quiz) {
+        const quizInfo = quizInfoRequestV2(authUser.token, quiz.quizId);
+        expect(quizInfo).toStrictEqual({
+          quizId: quiz.quizId,
+          name: 'Test Quiz',
+          timeCreated: expect.any(Number),
+          timeLastEdited: expect.any(Number),
+          description: 'This is a test quiz',
+          numQuestions: 0,
+          questions: [],
+          thumbnailUrl: '',
+          duration: 0
+        });
+      }
+    }
+  });
+
+  test('Returns an error when token is not a valid user', () => {
+    const quizInfo = quizInfoRequestV2('42', 42);
+    expect(quizInfo).toEqual(ERROR);
+  });
+
+  test('Returns an error when quizId is not a valid quiz', () => {
+    const authUser = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+    if ('token' in authUser) {
+      const quizInfo = quizInfoRequestV2(authUser.token, 42);
+      expect(quizInfo).toEqual(ERROR);
+    }
+  });
+
+  test('Returns an error when quizId is not owned by token', () => {
+    const authUser1 = adminAuthRegister('user1@example.com', 'password231', 'First', 'User');
+    const authUser2 = adminAuthRegister('user2@example.com', 'password123', 'Second', 'User');
+    if ('token' in authUser1 && 'token' in authUser2) {
+      const quiz = adminQuizCreate(authUser1.token, 'User 1 Quiz', 'This is a quiz created by user 1');
+      if ('quizId' in quiz) {
+        const quizInfo = quizInfoRequestV2(authUser2.token, quiz.quizId);
         expect(quizInfo).toEqual(ERROR);
       }
     }
