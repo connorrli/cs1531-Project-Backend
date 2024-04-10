@@ -5,8 +5,8 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { checkDetailsUpdate, checkDetailsUpdateV2 } from '../helpers/auth/userUpdateErrors';
-import { checkUserPasswordUpdate, checkUserPasswordUpdateV2 } from '../helpers/auth/userPasswordUpdateErrors';
+import { checkDetailsUpdateV2 } from '../helpers/auth/userUpdateErrors';
+import { checkUserPasswordUpdateV2 } from '../helpers/auth/userPasswordUpdateErrors';
 import { getData } from '../data/dataStore';
 import HTTPError from 'http-errors';
 // import { invalidRegConditions } from '../helpers/auth/registErrors';
@@ -146,5 +146,5 @@ export {
   adminAuthLogoutV2,
   adminUserDetailsV2,
   adminUserDetailsUpdateV2,
-  adminUserPasswordUpdateV2,
+  adminUserPasswordUpdateV2
 }
