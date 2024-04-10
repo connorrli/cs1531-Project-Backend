@@ -26,7 +26,7 @@ export interface Quiz {
   timeLastEdited: number;
   description: string;
   numQuestions: number;
-  questions: Question[] | QuestionV2[];
+  questions: Question[] & QuestionV2[];
   duration: number;
 }
 
@@ -114,7 +114,7 @@ export interface UserSession {
 */
 export interface DataStore {
   users: User[];
-  quizzes: Quiz[] | QuizV2[];
+  quizzes: QuizV2[] & Quiz[];
   sessions: UserSession[];
 }
 
