@@ -12,13 +12,14 @@ import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
   findQuiz,
-  // findQuestion,
+  findQuestion,
   generateAnswers,
   generateQuestionId,
   // findQuestionIndex,
   findQuizIndex,
   updateQuizDuration,
-  findQuizV2
+  findQuizV2,
+  findQuestionV2
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
@@ -61,7 +62,7 @@ interface AdminQuizCreateReturn {
   quizId: number;
 }
 
-interface AdminQuizInfoReturn {
+export interface AdminQuizInfoReturn {
   quizId: number;
   name: string;
   timeCreated: number;
@@ -445,6 +446,51 @@ function adminQuizTransferV2(
   return {};
 }
 
+/**
+  * Update a question within a quiz
+  *
+  * @param {integer} userId - ID of a user
+  * @param {integer} quizId - ID of a quiz
+  * @param {string} questionId - ID of question within the given quiz
+  * @param {object} questionBody - Key details of question passed in body of request
+  *
+  * @returns {object} - Returns an empty object
+*/
+function adminQuizQuestionUpdateV2(
+  userId: number,
+  quizId: number,
+  questionId: number,
+  questionBody: QuestionBodyV2
+): EmptyObject {
+  const data = getData();
+
+  const quiz = findQuizV2(data.quizzes, quizId);
+  if (typeof quiz === 'undefined') {
+    throw HTTPError(403, 'ERROR 403: Invalid quiz');
+  }
+
+  const question = findQuestionV2(quiz.questions, questionId);
+  if (typeof question === 'undefined') {
+    throw HTTPError(400, 'ERROR 400: Invalid question');
+  }
+
+  // Error checks are mostly the exact same as create function, so this can be re-used
+  const error = quizQuestionCreateCheckerV2(userId, quiz, questionBody);
+
+  quiz.timeLastEdited = getCurrentTime();
+
+  // Sets all the new data for the question
+  question.question = questionBody.question;
+  question.duration = questionBody.duration;
+  question.points = questionBody.points;
+  question.answers = generateAnswers(questionBody.answers);
+  question.thumbnailUrl = questionBody.thumbnailUrl;
+  updateQuizDuration(quiz);
+
+  return {};
+}
+
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -459,4 +505,5 @@ export {
   adminQuizDescriptionUpdateV2,
   adminQuizRestoreV2,
   adminQuizTransferV2,
+  adminQuizQuestionUpdateV2,
 };

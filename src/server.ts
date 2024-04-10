@@ -49,6 +49,7 @@ import {
   adminQuizListV2, 
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
+  adminQuizQuestionUpdateV2, 
   adminQuizRemoveV2,
   adminQuizRestoreV2,
   adminQuizTransferV2
@@ -671,6 +672,21 @@ app.put('/v2/admin/quiz/:quizId/description', (req: Request, res: Response) => {
 
   save();
   return res.json(response);
+});
+
+// adminQuizQuestionUpdateV2 PUT request route
+app.put('/v2/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const questionId = parseInt(req.params.questionId);
+  const questionBody = req.body.questionBody;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionUpdateV2(session.userId, quizId, questionId, questionBody);
+
+  save();
+  res.json(response);
 });
 
 // ====================================================================
