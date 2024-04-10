@@ -5,7 +5,7 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-// import { checkDetailsUpdate } from '../helpers/auth/userUpdateErrors';
+import { checkDetailsUpdate, checkDetailsUpdateV2 } from '../helpers/auth/userUpdateErrors';
 // import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateErrors';
 import { getData } from '../data/dataStore';
 import HTTPError from 'http-errors';
@@ -18,7 +18,7 @@ import HTTPError from 'http-errors';
 import {
   ErrorObject,
   // User,
-  // UserSession,
+  UserSession,
 } from '../interface';
 import { authUserIdCheck } from '../helpers/checkForErrors';
 
@@ -58,11 +58,11 @@ function adminAuthLogoutV2(token: string): EmptyObject | ErrorObject {
   // const session = data.sessions; - This isn't being used yet ?
 
   if (token.length === 0) {
-    throw HTTPError(401, `Token ${token} is invalid`);
+    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
   }
   const finder = (data.sessions).find(user => user.token === token);
   if (finder === undefined) {
-    throw HTTPError(401, `Token ${token} is invalid`);
+    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
   }
   const tokenLocate = data.sessions.findIndex(index => index.token === token);
   data.sessions.splice(tokenLocate, 1);
@@ -92,6 +92,31 @@ function adminUserDetailsV2 (authUserId: number): AdminUserDetailsReturn | Error
   return { user };
 }
 
+/**
+  * Given an admin user's authUserId and a set of properties, update the properties of this logged in admin user.
+  *
+  * @param {object} session - Stores user authentication details after updating properties
+  * @param {integer} email - Stores the user email after updating their properties
+  * @param {string} nameFirst - Stores the first name of the logged in user after updating properties
+  * @param {string} nameLast - Stores the last name of the logged in user after updating properties
+  *
+  * @returns {empty object} - Returns an empty object to the user
+*/
+function adminUserDetailsUpdateV2 (session: UserSession, email: string, nameFirst: string, nameLast: string): EmptyObject | ErrorObject {
+  // Error check
+  checkDetailsUpdateV2(session, email, nameFirst, nameLast);
+
+  // Get and set new details
+  const data = getData();
+  const userData = data.users.find(user => user.userId === session.userId);
+
+  userData.email = email;
+  userData.nameFirst = nameFirst;
+  userData.nameLast = nameLast;
+
+  return { };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -99,4 +124,5 @@ function adminUserDetailsV2 (authUserId: number): AdminUserDetailsReturn | Error
 export {
   adminAuthLogoutV2,
   adminUserDetailsV2,
+  adminUserDetailsUpdateV2,
 }

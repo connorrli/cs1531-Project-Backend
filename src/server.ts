@@ -42,7 +42,7 @@ import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
 import { adminQuizQuestionCreateV2 } from './Iter3/quizV2';
-import { adminAuthLogoutV2 } from './Iter3/authV2';
+import { adminAuthLogoutV2, adminUserDetailsUpdateV2 } from './Iter3/authV2';
 
 // Set up web app
 const app = express();
@@ -487,6 +487,19 @@ app.get('/v2/admin/user/details', (req: Request, res: Response) => {
 
   const response = adminUserDetails(session.userId);
 
+  return res.json(response);
+});
+
+// adminUserDetailsUpdateV2 PUT request route
+app.put('/v2/admin/user/details', (req: Request, res: Response) => {
+  const { email, nameFirst, nameLast } = req.body;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminUserDetailsUpdateV2(session, email, nameFirst, nameLast);
+
+  save();
   return res.json(response);
 });
 
