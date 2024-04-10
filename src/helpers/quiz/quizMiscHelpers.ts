@@ -73,6 +73,10 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz | Qu
   return quizzes.find(quiz => quiz.quizId === quizId);
 }
 
+export function findQuizV2(quizzes: QuizV2[], quizId: number): undefined | QuizV2 {
+  return quizzes.find(quiz => quiz.quizId === quizId);
+}
+
 /**
   * Finds a quiz's index given its unique id.
   *

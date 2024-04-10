@@ -50,7 +50,8 @@ import {
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
   adminQuizRemoveV2,
-  adminQuizRestoreV2
+  adminQuizRestoreV2,
+  adminQuizTransferV2
 } from './Iter3/quizV2';
 import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserDetailsV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
 
@@ -528,12 +529,12 @@ app.put('/v2/admin/user/password', (req: Request, res: Response) => {
 
 // quizListV2 GET request route
 app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
-  const query = req.query;
   const token = req.header('token');
   const session = getSessionV2(token);
 
   const response = adminQuizListV2(session.userId);
 
+  console.log(response);
   return res.json(response);
 });
 
@@ -549,7 +550,7 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// quizTrashView GET request route
+// quizTrashViewV2 GET request route
 app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.header('token');
   const session = getSessionV2(token);
@@ -601,6 +602,20 @@ app.post('/v2/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const session = getSessionV2(token);
 
   const response = adminQuizRestoreV2(session, quizId);
+
+  save();
+  return res.json(response);
+});
+
+// quizTransferV2 POST request route
+app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const token = req.header('token');
+  const userEmail  = req.body.userEmail;
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizTransferV2(quizId, session.userId, userEmail);
 
   save();
   return res.json(response);

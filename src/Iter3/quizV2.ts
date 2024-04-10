@@ -17,7 +17,8 @@ import {
   generateQuestionId,
   // findQuestionIndex,
   findQuizIndex,
-  updateQuizDuration
+  updateQuizDuration,
+  findQuizV2
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
@@ -391,6 +392,59 @@ function adminQuizRestoreV2(session: UserSession, quizId: number): EmptyObject {
   return {};
 }
 
+/**
+ * Transfers ownership of a quiz from one user to another based on email
+ *
+ * @param {number} quizId - ID of the quiz that is having ownership transferred
+ * @param {number} userId - ID of the user who currently owns the quiz
+ * @param {string} userEmail - Email of the user who is to gain ownership over quiz
+ *
+ * @returns {object} - Returns an error object or empty object
+ */
+function adminQuizTransferV2(
+  quizId: number,
+  userId: number,
+  userEmail: string
+): EmptyObject {
+  const data = getData();
+  const quizTransfer = findQuizV2(data.quizzes, quizId);
+  const newOwner = data.users.find(user => user.email === userEmail);
+
+  if (quizTransfer === undefined) {
+    throw HTTPError(403, 'ERROR 403: Invalid quiz');
+  }
+
+  if (quizTransfer.quizOwner !== userId) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  if (newOwner === undefined) {
+    throw HTTPError(400, 'ERROR 400: No user registered with given email');
+  }
+
+  if (newOwner.userId === userId) {
+    throw HTTPError(400, 'ERROR 400: New owner is current owner');
+  }
+
+  for (const quiz of data.quizzes) {
+    if (quiz.quizOwner === newOwner.userId) {
+      if (quiz.name === quizTransfer.name) {
+        throw HTTPError(400, 'ERROR 400: New owner already has quiz with same name');
+      }
+    }
+  }
+
+  for (const session of quizTransfer.quizSessions) {
+    if (session.state !== States.END) {
+      throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
+    }
+  }
+
+  quizTransfer.quizOwner = newOwner.userId;
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -404,4 +458,5 @@ export {
   adminQuizNameUpdateV2,
   adminQuizDescriptionUpdateV2,
   adminQuizRestoreV2,
+  adminQuizTransferV2,
 };
