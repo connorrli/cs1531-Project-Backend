@@ -1,6 +1,6 @@
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
-import { quizListRequestV2 } from '../requests';
+import { quizCreateRequestV2, quizListRequestV2 } from '../requests';
 
 interface ErrorObject {
     error: string
@@ -57,14 +57,14 @@ describe('Testing quizList function:', () => {
 describe('Testing quizListV2 function:', () => {
   // token is not valtoken
   test('token is not a valtoken user', () => {
-    list1 = adminQuizCreate(user1Token, 'name', 'description');
+    list1 = quizCreateRequestV2(user1Token, 'name', 'description');
     const result = quizListRequestV2(user1Token + '1');
     expect(result).toEqual({ error: expect.any(String) });
   });
 
   // Checking if function produces correct output
   test('Correctly print quiz list', () => {
-    list1 = adminQuizCreate(user1Token, 'nameOfQuiz', 'description');
+    list1 = quizCreateRequestV2(user1Token, 'nameOfQuiz', 'description');
     const result = quizListRequestV2(user1Token);
     expect('quizzes' in result).toEqual(true);
     if (!('error' in list1)) { expect(result).toEqual({ quizzes: [{ quizId: list1.quizId, name: 'nameOfQuiz' }] }); }
