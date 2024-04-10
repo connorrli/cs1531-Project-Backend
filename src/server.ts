@@ -503,6 +503,19 @@ app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+// adminUserPasswordUpdateV2 PUT request route
+app.put('/v2/admin/user/password', (req: Request, res: Response) => {
+  const { oldPassword, newPassword } = req.body;
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminUserPasswordUpdate(session, oldPassword, newPassword);
+
+  save();
+  return res.json(response);
+});
+
 app.post('/v2/admin/quiz/:quizId/question', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
   const token = req.header('token');

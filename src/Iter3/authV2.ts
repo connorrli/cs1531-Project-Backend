@@ -6,7 +6,7 @@
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
 import { checkDetailsUpdate, checkDetailsUpdateV2 } from '../helpers/auth/userUpdateErrors';
-// import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateErrors';
+import { checkUserPasswordUpdate, checkUserPasswordUpdateV2 } from '../helpers/auth/userPasswordUpdateErrors';
 import { getData } from '../data/dataStore';
 import HTTPError from 'http-errors';
 // import { invalidRegConditions } from '../helpers/auth/registErrors';
@@ -117,6 +117,27 @@ function adminUserDetailsUpdateV2 (session: UserSession, email: string, nameFirs
   return { };
 }
 
+/**
+  * Given details relating to a password change, updates the password of a logged in user.
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {string} oldPassword - Stores the previous user password before the user changed it
+  * @param {string} newPassword - Stores the new user password after the user changed it
+  *
+  * @returns {empty object} - Returns an empty object to the user
+*/
+function adminUserPasswordUpdateV2(session: UserSession, oldPassword: string, newPassword: string): EmptyObject | ErrorObject {
+  const data = getData();
+  const userData = data.users.find(user => user.userId === session.userId);
+
+  checkUserPasswordUpdateV2(userData, oldPassword, newPassword);
+
+  userData.password = newPassword;
+  userData.previousPasswords.push(oldPassword);
+
+  return { };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -125,4 +146,5 @@ export {
   adminAuthLogoutV2,
   adminUserDetailsV2,
   adminUserDetailsUpdateV2,
+  adminUserPasswordUpdateV2,
 }
