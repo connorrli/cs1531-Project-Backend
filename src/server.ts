@@ -43,6 +43,7 @@ import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
 import { 
   adminQuizCreateV2, 
+  adminQuizDescriptionUpdateV2, 
   adminQuizInfoV2, 
   adminQuizListV2, 
   adminQuizNameUpdateV2, 
@@ -591,6 +592,20 @@ app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
   const session = getSessionV2(token);
 
   const response = adminQuizNameUpdateV2(session.userId, quizId, name);
+
+  save();
+  return res.json(response);
+});
+
+// adminQuizDescriptionUpdate PUT request route
+app.put('/v2/admin/quiz/:quizId/description', (req: Request, res: Response) => {
+  const quizid = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const description = req.body.description;
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizDescriptionUpdateV2(session.userId, quizid, description);
 
   save();
   return res.json(response);

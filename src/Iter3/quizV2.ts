@@ -318,6 +318,36 @@ function adminQuizNameUpdateV2(
   return {};
 }
 
+/**
+  * Update the description of the relevant quiz.
+  *
+  * @param {integer} authUserId - Stores user authentication and quiz details
+  * @param {integer} quizId - Displays the identification number of the current quiz
+  * @param {string} description - Displays the quiz questions in textual form for the user
+  *
+  * @returns {empty object} - Returns an empty object to the user
+*/
+function adminQuizDescriptionUpdateV2(
+  authUserId: number,
+  quizId: number,
+  description: string
+): EmptyObject {
+  const data = getData();
+  const quiz = findQuiz(data.quizzes, quizId);
+
+  if (quiz === undefined || !isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  if (description.length > 100) {
+    throw HTTPError(400, 'ERROR 400: Description length is too long (>100)');
+  }
+
+  quiz.description = description;
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -329,4 +359,5 @@ export {
   adminQuizRemoveV2,
   adminQuizInfoV2,
   adminQuizNameUpdateV2,
+  adminQuizDescriptionUpdateV2,
 };
