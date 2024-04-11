@@ -686,4 +686,22 @@ describe('Testing adminQuizQuestionUpdateV2 function:', () => {
     expect(updatedQuiz.duration).toStrictEqual(preUpdateQuiz.duration);
     expect(response).toStrictEqual(ERROR);
   });
+  test('Invalid quiz or question:', () => {
+    const otherUserToken = userCreateRequest('test1@gmail.com', 'Password123', 'Jane', 'Doe').token;
+    const questionBody : QuestionBodyV2 = VALID_QUESTION_OBJECT;
+
+    const preUpdateQuiz : AdminQuizInfoReturn = quizInfoRequestV2(userToken, quizId);
+    const preUpdateQuestion = preUpdateQuiz.questions.find(question => question.questionId === questionId);
+
+    const response = questionUpdateRequestV2(otherUserToken, quizId + 1, questionId, questionBody);
+    const response2 = questionUpdateRequestV2(otherUserToken, quizId, questionId + 1, questionBody);
+
+    const updatedQuiz : AdminQuizInfoReturn = quizInfoRequestV2(userToken, quizId);
+    const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
+
+    expect(updatedQuestion).toStrictEqual(preUpdateQuestion);
+    expect(updatedQuiz.duration).toStrictEqual(preUpdateQuiz.duration);
+    expect(response).toStrictEqual(ERROR);
+    expect(response2).toStrictEqual(ERROR);
+  });
 });
