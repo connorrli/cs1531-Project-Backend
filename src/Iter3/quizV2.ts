@@ -359,7 +359,7 @@ function adminQuizDescriptionUpdateV2(
   * @param {integer} quizId - Displays the identification number of the current quiz
   *
   * @returns {object} - Returns an empty object to the user
-  * 
+  *
 */
 function adminQuizRestoreV2(session: UserSession, quizId: number): EmptyObject {
   const data = getData();
@@ -374,10 +374,10 @@ function adminQuizRestoreV2(session: UserSession, quizId: number): EmptyObject {
     throw HTTPError(400, 'ERROR 400: Quiz ID does not exist in trash');
   }
   if (findQuizIdTrash.quizOwner !== session.userId) {
-    throw HTTPError(403, 'ERROR 403: User is not owner of quiz')
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
   }
   if (findQuizName !== undefined) {
-    throw HTTPError(400, 'ERROR 400: Quiz name is already in use')
+    throw HTTPError(400, 'ERROR 400: Quiz name is already in use');
   }
 
   const quizIndex = trash.quizzes.findIndex(quiz => quiz.quizId === quizId);
@@ -477,7 +477,7 @@ function adminQuizQuestionUpdateV2(
   }
 
   // Error checks are mostly the exact same as create function, so this can be re-used
-  const error = quizQuestionCreateCheckerV2(userId, quiz, questionBody);
+  quizQuestionCreateCheckerV2(userId, quiz, questionBody);
 
   quiz.timeLastEdited = getCurrentTime();
 

@@ -115,7 +115,7 @@ describe('adminQuizTransferV2 function', () => {
 
   test('should return an error if the quiz is not found', () => {
     const user1Token = userCreateRequest('user1@example.com', 'password123', 'User', 'One').token;
-    userCreateRequest('user2@example.com', 'password123', 'User', 'Two').token;
+    userCreateRequest('user2@example.com', 'password123', 'User', 'Two');
 
     const quizId = quizCreateRequestV2(user1Token, 'Quiz 1', 'Description');
     const result = quizTransferRequestV2(user1Token, quizId.quizId + 1, 'user2@example.com');
@@ -124,7 +124,7 @@ describe('adminQuizTransferV2 function', () => {
 
   test('should return an error if the specified userEmail is not associated with any user', () => {
     const user1Token = userCreateRequest('user1@example.com', 'password123', 'User', 'One').token;
-    userCreateRequest('user2@example.com', 'password123', 'User', 'Two').token;
+    userCreateRequest('user2@example.com', 'password123', 'User', 'Two');
 
     const quizId = quizCreateRequestV2(user1Token, 'Quiz 1', 'Description');
     const result = quizTransferRequestV2(user1Token, quizId.quizId, 'nonexistent@example.com');
@@ -133,7 +133,7 @@ describe('adminQuizTransferV2 function', () => {
 
   test('should return an error if the new owner is the current owner', () => {
     const user1Token = userCreateRequest('user1@example.com', 'password123', 'User', 'One').token;
-    userCreateRequest('user2@example.com', 'password123', 'User', 'Two').token;
+    userCreateRequest('user2@example.com', 'password123', 'User', 'Two');
 
     const quizId = quizCreateRequestV2(user1Token, 'Quiz 1', 'Description');
     const result = quizTransferRequestV2(user1Token, quizId.quizId, 'user1@example.com');

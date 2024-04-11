@@ -69,7 +69,7 @@ describe('Testing adminQuizQuestionMove function:', () => {
       expect(quizInfo2.questions[0].questionId).toEqual(question1.questionId);
     });
   });
-  
+
   describe('Expected behaviour if requests are weird', () => {
     test('invalid token should result in error', () => {
       const idBefore = quizInfoRequest(quiz.quizId, john.token).questions[0].questionId;
@@ -145,7 +145,7 @@ describe('Testing adminQuizQuestionMoveV2 function:', () => {
       expect(quizInfo2.questions[0].questionId).toEqual(question1.questionId);
     });
   });
-  
+
   describe('Expected behaviour if requests are weird(V2)', () => {
     test('invalid token should result in error', () => {
       const idBefore = quizInfoRequestV2(john.token, quiz.quizId).questions[0].questionId;

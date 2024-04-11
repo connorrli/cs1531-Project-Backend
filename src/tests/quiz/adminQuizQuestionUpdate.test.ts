@@ -648,7 +648,7 @@ describe('Testing adminQuizQuestionUpdateV2 function:', () => {
     const preUpdateQuestion = preUpdateQuiz.questions.find(question => question.questionId === questionId);
 
     const response = questionUpdateRequestV2(userToken, quizId, questionId, questionBody);
-    
+
     const updatedQuiz : AdminQuizInfoReturn = quizInfoRequestV2(userToken, quizId);
     const updatedQuestion = updatedQuiz.questions.find(question => question.questionId === questionId);
     if ('error' in response) {

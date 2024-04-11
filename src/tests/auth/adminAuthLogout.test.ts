@@ -3,7 +3,6 @@ import request from 'sync-request-curl';
 import { userLogoutRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
-const ERROR = { error: expect.any(String) };
 
 const adminAuthRegisterReq = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const result = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { nameFirst, nameLast, email, password } });
@@ -18,8 +17,6 @@ let user1Token : string;
 let User2Token : string;
 let user1;
 let user2;
-
-
 
 describe('Testing adminUserDetailsUpdate function:', () => {
   beforeEach(() => {

@@ -106,7 +106,6 @@ describe('Testing adminUserDetails function (Fail)', () => {
   });
 });
 
-
 // Success cases
 describe('Testing adminUserDetailsV2 function (Success)', () => {
   test('Correct user details', () => {

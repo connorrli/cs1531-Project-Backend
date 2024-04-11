@@ -2,11 +2,11 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { 
-  clearRequest, 
-  userCreateRequest, 
-  userDetailsUpdateRequest, 
-  userDetailsUpdateRequestV2 
+import {
+  clearRequest,
+  userCreateRequest,
+  userDetailsUpdateRequest,
+  userDetailsUpdateRequestV2
 } from '../requests';
 
 const ERROR = { error: expect.any(String) };

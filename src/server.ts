@@ -42,26 +42,26 @@ import { AdminQuizListReturn } from './Iter2/quiz';
 import { ErrorObject, UserSession } from './interface';
 import { getTrash, setTrash } from './data/trash';
 import { clear, clearTrash, trashOwner, quizInTrash } from './Iter2/other';
-import { 
-  adminQuizCreateV2, 
-  adminQuizDescriptionUpdateV2, 
-  adminQuizInfoV2, 
-  adminQuizListV2, 
-  adminQuizNameUpdateV2, 
-  adminQuizQuestionCreateV2, 
-  adminQuizQuestionDeleteV2, 
-  adminQuizQuestionDuplicateV2, 
-  adminQuizQuestionMoveV2, 
-  adminQuizQuestionUpdateV2, 
+import {
+  adminQuizCreateV2,
+  adminQuizDescriptionUpdateV2,
+  adminQuizInfoV2,
+  adminQuizListV2,
+  adminQuizNameUpdateV2,
+  adminQuizQuestionCreateV2,
+  adminQuizQuestionDeleteV2,
+  adminQuizQuestionDuplicateV2,
+  adminQuizQuestionMoveV2,
+  adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
   adminQuizTransferV2
 } from './Iter3/quizV2';
-import { 
-  adminAuthLogoutV2, 
-  adminUserDetailsUpdateV2, 
-  adminUserDetailsV2, 
-  adminUserPasswordUpdateV2 
+import {
+  adminAuthLogoutV2,
+  adminUserDetailsUpdateV2,
+  adminUserDetailsV2,
+  adminUserPasswordUpdateV2
 } from './Iter3/authV2';
 
 // Set up web app
@@ -580,7 +580,7 @@ app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
     throw HTTPError(400, 'ERROR 400: At least one quiz isn\'t in trash');
   }
   if (!trashOwner(session.userId, quizIds)) {
-    throw HTTPError(403, 'ERROR 403: One or more of quiz IDs refer to an unowned quiz')
+    throw HTTPError(403, 'ERROR 403: One or more of quiz IDs refer to an unowned quiz');
   }
 
   // This function also still works for iteration 3
@@ -620,7 +620,7 @@ app.post('/v2/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
 app.post('/v2/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid);
   const token = req.header('token');
-  const userEmail  = req.body.userEmail;
+  const userEmail = req.body.userEmail;
 
   const session = getSessionV2(token);
 

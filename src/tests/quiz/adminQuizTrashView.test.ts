@@ -1,6 +1,6 @@
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
-import { clearRequest, quizCreateRequestV2, quizTrashRequestV2, quizTrashViewRequestV2 } from '../requests';
+import { quizCreateRequestV2, quizTrashRequestV2, quizTrashViewRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
 // const ERROR = { error: expect.any(String) };
@@ -47,7 +47,7 @@ describe('Correct output with proper requests', () => {
   beforeEach(() => {
     quiz1 = adminQuizCreate(user1.token, 'Quiz', 'meow');
     quizrm = adminQuizRemove(user1.token, quiz1.quizId);
-  })
+  });
   test('Views one test from one user', () => {
     expect(quizrm).toStrictEqual({});
     expect(adminQuizTrashView(user1.token)).toStrictEqual({ quizzes: [{ quizId: quiz1.quizId, name: 'Quiz' }] });
@@ -80,11 +80,11 @@ describe('quizTrashViewV2 function tests', () => {
   beforeEach(() => {
     quizV2 = quizCreateRequestV2(user1.token, 'Quiz', 'meow').quizId;
     quizTrashRequestV2(user1.token, quizV2);
-  })
+  });
   test('Valid viewing', () => {
     expect(quizTrashViewRequestV2(user1.token)).toStrictEqual({ quizzes: [{ quizId: quizV2, name: 'Quiz' }] });
   });
   test('Invalid token', () => {
     expect(quizTrashViewRequestV2(user1.token + '1')).toEqual({ error: expect.any(String) });
   });
-})
+});

@@ -61,7 +61,7 @@ describe('Testing adminQuizRestore function:', () => {
     const restoreRemoveQuiz = adminQuizRestoreReq(user1Token, quiz1QuizId);
     expect(restoreRemoveQuiz.error).toStrictEqual(expect.any(String));
   });
-  
+
   // QuizId entered does not exist in trash
   test('QuizId entered does not exist in trash', () => {
     const quiz1 = quizCreateReq(user1Token, 'name', 'description');
@@ -71,19 +71,19 @@ describe('Testing adminQuizRestore function:', () => {
     const restoreQuiz = adminQuizRestoreReq(user1Token, 3);
     expect(restoreQuiz.error).toStrictEqual(expect.any(String));
   });
-  
+
   // Testing an empty token
   test('Token is empty', () => {
     const emptyToken = adminQuizRestoreReq('', 3);
     expect(emptyToken.error).toStrictEqual(expect.any(String));
   });
-  
+
   // Testing for invalid token
   test('Token is invalid', () => {
     const badToken = adminQuizRestoreReq('2', 3);
     expect(badToken.error).toStrictEqual(expect.any(String));
   });
-  
+
   // Testing restore but user does not own that quiz
   test('Quiz is not owned by you', () => {
     const quiz1 = quizCreateReq(user1Token, 'name', 'description');
@@ -93,7 +93,7 @@ describe('Testing adminQuizRestore function:', () => {
     const notOwned = adminQuizRestoreReq(user2Token, quiz1QuizId);
     expect(notOwned.error).toStrictEqual(expect.any(String));
   });
-  
+
   // Extra tests
   // Correct output when user creates 2 quizzes, deletes both and restores one
   test('Correct output for remainder of items in trash', () => {
@@ -107,10 +107,9 @@ describe('Testing adminQuizRestore function:', () => {
     adminQuizRemoveReq(user1Token, quiz2QuizId);
     const restoreQuiz1 = adminQuizRestoreReq(user1Token, quiz1QuizId);
     expect(restoreQuiz1).toStrictEqual({ });
-  
+
     expect(adminQuizTrashView(user1Token)).toStrictEqual({ quizzes: [{ quizId: quiz2.quizId, name: 'name2' }] });
   });
-  
 });
 
 describe('Testing adminQuizRestoreV2 function:', () => {
