@@ -3,7 +3,7 @@
 /// ////////////////////////////////////////////////////////////////////////////////
 
 import { getData } from '../../data/dataStore';
-import { Answer, AnswerReq, Question, Quiz, QuizSession, QuizV2 } from '../../interface';
+import { Answer, AnswerReq, Question, QuestionV2, Quiz, QuizSession, QuizV2 } from '../../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -73,6 +73,10 @@ export function findQuiz(quizzes: Quiz[], quizId: number): undefined | Quiz | Qu
   return quizzes.find(quiz => quiz.quizId === quizId);
 }
 
+export function findQuizV2(quizzes: QuizV2[], quizId: number): undefined | QuizV2 {
+  return quizzes.find(quiz => quiz.quizId === quizId);
+}
+
 /**
   * Finds a quiz's index given its unique id.
   *
@@ -92,6 +96,17 @@ export function findQuizIndex(quizzes: Quiz[], quizId: number): number {
   * @returns {Object | undefined} - Returns the question if found, otherwise undefined
 */
 export function findQuestion(questions: Question[], questionId: number): undefined | Question {
+  return questions.find(question => question.questionId === questionId);
+}
+
+/**
+  * Finds a question object given its unique id.
+  *
+  * @param {Array} questions - An array containing all questions within a quiz
+  *
+  * @returns {Object | undefined} - Returns the question if found, otherwise undefined
+*/
+export function findQuestionV2(questions: QuestionV2[], questionId: number): undefined | QuestionV2 {
   return questions.find(question => question.questionId === questionId);
 }
 

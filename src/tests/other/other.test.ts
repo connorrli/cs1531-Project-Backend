@@ -1,6 +1,7 @@
 // Import statements, initiating the server and ensuring that the database is empty before each test
 import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
+import { quizTrashEmptyRequestV2, quizTrashViewRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -79,6 +80,22 @@ describe('Delete quizzes out of trash', () => {
   test('Error handling for invalid quiz IDs', () => {
     const invalidQuiz = Math.max.apply(null, quizIds) + 1;
     const response = deleteQuizzesRequest(userToken, [invalidQuiz]);
+    expect(response.error).toBeDefined();
+  });
+});
+
+// 'clearTrash' function
+describe('Delete quizzes out of trash (V2)', () => {
+  test('Delete specific quizzes from trash', () => {
+    const result = quizTrashEmptyRequestV2(userToken, quizIds);
+    expect(result).toStrictEqual({});
+    const trash = quizTrashViewRequestV2(userToken);
+    expect(trash).toStrictEqual({ quizzes: [] });
+  });
+
+  test('Error handling for invalid quiz IDs', () => {
+    const invalidQuiz = Math.max.apply(null, quizIds) + 1;
+    const response = quizTrashEmptyRequestV2(userToken, [invalidQuiz]);
     expect(response.error).toBeDefined();
   });
 });

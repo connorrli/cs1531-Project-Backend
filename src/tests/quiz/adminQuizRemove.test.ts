@@ -1,5 +1,6 @@
 import { url, port } from '../../config.json';
 import request from 'sync-request-curl';
+import { quizCreateRequestV2, quizInfoRequestV2, quizTrashRequestV2, quizTrashViewRequestV2 } from '../requests';
 
 const SERVER_URL = `${url}:${port}`;
 const ERROR = { error: expect.any(String) };
@@ -97,6 +98,79 @@ describe('adminQuizRemove function tests', () => {
         const test5Q = adminQuizCreate(test5U1.token, 'Test Quiz', 'This is a test quiz');
         if ('quizId' in test5Q) {
           const result = adminQuizRemove(test5U1.token, test5Q.quizId);
+          expect(result).not.toStrictEqual(ERROR);
+        }
+      }
+    }
+  });
+});
+
+describe('adminQuizRemoveV2 function tests', () => {
+  // A success case and multiple error cases
+  test('Should remove a quiz owned by the user', () => {
+    const test1U = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+    if ('token' in test1U) {
+      const test1Q = quizCreateRequestV2(test1U.token, 'Test Quiz', 'This is a test quiz');
+      if ('quizId' in test1Q) {
+        expect(quizInfoRequestV2(test1U.token, test1Q.quizId)).not.toHaveProperty('error');
+        const result = quizTrashRequestV2(test1U.token, test1Q.quizId);
+        expect(result).toStrictEqual({});
+        expect(quizInfoRequestV2(test1U.token, test1Q.quizId)).toHaveProperty('error');
+
+        const trash = quizTrashViewRequestV2(test1U.token);
+
+        let removedQuiz;
+        for (const quiz of trash.quizzes) {
+          if (quiz.quizId === test1Q.quizId) {
+            removedQuiz = quiz;
+          }
+        }
+        expect(removedQuiz).toStrictEqual({ quizId: test1Q.quizId, name: 'Test Quiz' });
+      }
+    }
+  });
+
+  test('Should return an error when token is invalid', () => {
+    const test2U = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+    if ('token' in test2U) {
+      const test2Q = quizCreateRequestV2(test2U.token, 'Test Quiz', 'This is a test quiz');
+      if ('quizId' in test2Q) {
+        const result = quizTrashRequestV2(test2U.token + '1', test2Q.quizId);
+        expect(result).toStrictEqual(ERROR);
+      }
+    }
+  });
+
+  test('Should return an error when quizId does not refer to a valid quiz', () => {
+    const test3U = adminAuthRegister('test@example.com', 'password123', 'John', 'Doe');
+    if ('token' in test3U) {
+      const result = quizTrashRequestV2(test3U.token, 123);
+      expect(result).toStrictEqual(ERROR);
+    }
+  });
+
+  test('Should return an error when quizId does not refer to a quiz that the user owns', () => {
+    const test4U1 = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
+    if ('token' in test4U1) {
+      const test4U2 = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
+      if ('token' in test4U2) {
+        const test4Q = quizCreateRequestV2(test4U1.token, 'Test Quiz', 'This is a test quiz');
+        if ('quizId' in test4Q) {
+          const result = quizTrashRequestV2(test4U2.token, test4Q.quizId);
+          expect(result).toStrictEqual(ERROR);
+        }
+      }
+    }
+  });
+
+  test('Should NOT return an error when quizId DOES refer to a quiz that the user owns', () => {
+    const test5U1 = adminAuthRegister('test1@example.com', 'password123', 'John', 'Doe');
+    if ('token' in test5U1) {
+      const test5U2 = adminAuthRegister('test2@example.com', 'password1232', 'Jane', 'Smith');
+      if ('token' in test5U2) {
+        const test5Q = quizCreateRequestV2(test5U1.token, 'Test Quiz', 'This is a test quiz');
+        if ('quizId' in test5Q) {
+          const result = quizTrashRequestV2(test5U1.token, test5Q.quizId);
           expect(result).not.toStrictEqual(ERROR);
         }
       }
