@@ -572,6 +572,41 @@ function adminQuizQuestionMoveV2(userId: number, quizId: number, questionId: num
   return {};
 }
 
+/**
+ * Duplicate a particular question to immediately after where the source question is.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz containing the source question.
+ * @param {number} sourceQuestionId - The ID of the source question to be duplicated.
+ * @returns {newQuestionId | ErrorObject} - Returns a newQuestionId on success or an error object on failure.
+ */
+function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, sourceQuestionId: number): {newQuestionId: number} {
+  if (!isValidQuiz(quizId)) {
+    throw HTTPError(403, 'ERROR 403: Invalid quiz');
+  }
+  if (!isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const data = getData();
+  const quizIndex = findQuizIndex(data.quizzes, quizId);
+  const quiz: QuizV2 = data.quizzes[quizIndex];
+  const sourceQuestionIndex = findQuestionIndex(quiz.questions, sourceQuestionId);
+  if (sourceQuestionIndex === INDEX_NOT_FOUND) {
+    throw HTTPError(400, 'ERROR 400: Invalid question');
+  }
+
+  const duplicatedQuestion = { ...quiz.questions[sourceQuestionIndex] };
+  duplicatedQuestion.questionId = generateQuestionId(quiz);
+  quiz.questions.splice(sourceQuestionIndex + 1, 0, duplicatedQuestion);
+  quiz.timeLastEdited = getCurrentTime();
+  updateQuizDuration(quiz);
+  quiz.numQuestions++;
+  setData(data);
+  const newQuestionId = duplicatedQuestion.questionId;
+  return { newQuestionId };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -589,4 +624,5 @@ export {
   adminQuizQuestionUpdateV2,
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
+  adminQuizQuestionDuplicateV2,
 };

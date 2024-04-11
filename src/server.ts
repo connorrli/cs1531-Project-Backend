@@ -50,13 +50,19 @@ import {
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
   adminQuizQuestionDeleteV2, 
+  adminQuizQuestionDuplicateV2, 
   adminQuizQuestionMoveV2, 
   adminQuizQuestionUpdateV2, 
   adminQuizRemoveV2,
   adminQuizRestoreV2,
   adminQuizTransferV2
 } from './Iter3/quizV2';
-import { adminAuthLogoutV2, adminUserDetailsUpdateV2, adminUserDetailsV2, adminUserPasswordUpdateV2 } from './Iter3/authV2';
+import { 
+  adminAuthLogoutV2, 
+  adminUserDetailsUpdateV2, 
+  adminUserDetailsV2, 
+  adminUserPasswordUpdateV2 
+} from './Iter3/authV2';
 
 // Set up web app
 const app = express();
@@ -713,6 +719,20 @@ app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const session = getSessionV2(token);
 
   const response = adminQuizQuestionMoveV2(session.userId, quizId, questionId, newPosition);
+
+  save();
+  return res.json(response);
+});
+
+// adminQuizQuestionDuplicate POST request route
+app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const questionId = parseInt(req.params.questionId);
+  const token = req.header('token');
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionDuplicateV2(session.userId, quizId, questionId);
 
   save();
   return res.json(response);
