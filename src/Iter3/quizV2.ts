@@ -519,12 +519,56 @@ function adminQuizQuestionDeleteV2(authUserId: number,
     throw HTTPError(400, 'ERROR 400: Invalid question');
   }
 
+  for (const session of quiz.quizSessions) {
+    if (session.state !== States.END) {
+      throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
+    }
+  }
+
   quiz.questions.splice(questionIndex, 1);
   quiz.numQuestions--;
   quiz.timeLastEdited = getCurrentTime();
   updateQuizDuration(quiz);
   setData(data);
 
+  return {};
+}
+
+/**
+ * Moves a question within a quiz from one index to another index
+ *
+ * @param {number} userId - The ID of the user performing the move.
+ * @param {number} quizId - The ID of the quiz containing the question.
+ * @param {number} questionId - The ID of the question to be moved
+ * @param {number} newPos - The new position of the question (zero-indexed)
+ *
+ * @returns {object} - Returns an empty object on success, else an error object
+ */
+function adminQuizQuestionMoveV2(userId: number, quizId: number, questionId: number, newPos: number): EmptyObject {
+  const data = getData();
+  const quiz = findQuiz(data.quizzes, quizId);
+  if (quiz === undefined) {
+    throw HTTPError(403, 'ERROR 403: Invalid quiz');
+  }
+
+  if (!isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const qIndex = findQuestionIndex(quiz.questions, questionId);
+
+  if (qIndex === INDEX_NOT_FOUND) {
+    throw HTTPError(400, 'ERROR 400: Invalid question');
+  }
+
+  if (newPos >= quiz.questions.length || newPos < 0) {
+    throw HTTPError(400, 'ERROR 400: Invalid new position provided');
+  }
+
+  const question = quiz.questions[qIndex];
+  quiz.questions.splice(qIndex, 1);
+  quiz.questions.splice(newPos, 0, question);
+  quiz.timeLastEdited = getCurrentTime();
   return {};
 }
 
@@ -544,4 +588,5 @@ export {
   adminQuizTransferV2,
   adminQuizQuestionUpdateV2,
   adminQuizQuestionDeleteV2,
+  adminQuizQuestionMoveV2,
 };

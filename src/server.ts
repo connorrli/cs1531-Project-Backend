@@ -50,6 +50,7 @@ import {
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
   adminQuizQuestionDeleteV2, 
+  adminQuizQuestionMoveV2, 
   adminQuizQuestionUpdateV2, 
   adminQuizRemoveV2,
   adminQuizRestoreV2,
@@ -647,7 +648,7 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
   return res.json(response);
 });
 
-// adminQuizQuestionDelete DELETE request route
+// adminQuizQuestionDeleteV2 DELETE request route
 app.delete('/v2/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizId);
@@ -701,6 +702,20 @@ app.put('/v2/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
 
   save();
   res.json(response);
+});
+
+// adminQuizQuestionMoveV2 PUT request route
+app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const questionId = parseInt(req.params.questionid);
+  const newPosition = req.body.newPosition;
+  const token = req.header('token');
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionMoveV2(session.userId, quizId, questionId, newPosition);
+
+  save();
+  return res.json(response);
 });
 
 // ====================================================================
