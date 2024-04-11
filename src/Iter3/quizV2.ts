@@ -12,10 +12,10 @@ import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
   findQuiz,
-  findQuestion,
+  // findQuestion,
   generateAnswers,
   generateQuestionId,
-  // findQuestionIndex,
+  findQuestionIndex,
   findQuizIndex,
   updateQuizDuration,
   findQuizV2,
@@ -28,6 +28,8 @@ import { States } from '../helpers/stateHandler';
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
+const INDEX_NOT_FOUND = -1;
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
@@ -490,6 +492,41 @@ function adminQuizQuestionUpdateV2(
   return {};
 }
 
+/**
+ * Delete a question from the specified quiz.
+ *
+ * @param {number} authUserId - The ID of the authenticated user.
+ * @param {number} quizId - The ID of the quiz from which the question will be deleted.
+ * @param {number} questionId - The ID of the question to be deleted.
+ * @returns {EmptyObject | ErrorObject} - Returns an empty object on success or an error object on failure.
+ */
+function adminQuizQuestionDeleteV2(authUserId: number,
+  quizId: number,
+  questionId: number
+): EmptyObject {
+  if (!isValidQuiz(quizId)) {
+    throw HTTPError(403, 'ERROR 403: Invalid quiz');
+  }
+  if (!isOwner(authUserId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const data = getData();
+  const quizIndex = data.quizzes.findIndex((quiz) => quiz.quizId === quizId);
+  const quiz: QuizV2 = data.quizzes[quizIndex];
+  const questionIndex = findQuestionIndex(quiz.questions, questionId);
+  if (questionIndex === INDEX_NOT_FOUND) {
+    throw HTTPError(400, 'ERROR 400: Invalid question');
+  }
+
+  quiz.questions.splice(questionIndex, 1);
+  quiz.numQuestions--;
+  quiz.timeLastEdited = getCurrentTime();
+  updateQuizDuration(quiz);
+  setData(data);
+
+  return {};
+}
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
@@ -506,4 +543,5 @@ export {
   adminQuizRestoreV2,
   adminQuizTransferV2,
   adminQuizQuestionUpdateV2,
+  adminQuizQuestionDeleteV2,
 };

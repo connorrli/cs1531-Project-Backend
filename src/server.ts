@@ -49,6 +49,7 @@ import {
   adminQuizListV2, 
   adminQuizNameUpdateV2, 
   adminQuizQuestionCreateV2, 
+  adminQuizQuestionDeleteV2, 
   adminQuizQuestionUpdateV2, 
   adminQuizRemoveV2,
   adminQuizRestoreV2,
@@ -643,6 +644,19 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
 
   const response = adminQuizInfoV2(session.userId, quizId);
 
+  return res.json(response);
+});
+
+// adminQuizQuestionDelete DELETE request route
+app.delete('/v2/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizId);
+  const questionId = parseInt(req.params.questionId);
+  const session = getSessionV2(token);
+
+  const response = adminQuizQuestionDeleteV2(session.userId, quizId, questionId);
+
+  save();
   return res.json(response);
 });
 
