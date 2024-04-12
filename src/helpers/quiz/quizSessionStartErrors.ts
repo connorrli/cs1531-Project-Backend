@@ -10,15 +10,19 @@ const MAX_ACTIVE_QUIZZES = 10;
 const NO_QUESTIONS = 0;
 
 export function quizSessionStartChecker(userId: number, quizId: number, autoStartNum: number): void {
-  const quiz = findQuizV2(getData().quizzes, quizId);
+  // Check if quiz is in trash and if user is owner of trashed quiz.
+  const trashedQuiz = getTrash().quizzes.find(quiz => quiz.quizId === quizId);
+  if (typeof trashedQuiz !== 'undefined') {
+    if (trashedQuiz.quizOwner !== userId) {
+      throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+    }
+    throw HTTPError(400, 'ERROR 400: Quiz is currently in trash');
+  }
 
+  const quiz = findQuizV2(getData().quizzes, quizId);
   // Check if user owns quiz (if quiz doesn't exist, user can't own it)
   if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
-    // Check that quiz isn't in the trash
-    if (typeof getTrash().quizzes.find(quiz => quiz.quizId === quizId) !== 'undefined') {
-      throw HTTPError(400, 'ERROR 400: Quiz is currently in trash');
-    }
-    throw HTTPError(401, 'ERROR 401: User is not owner of quiz');
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
   }
 
   // Check if auto-start number is > 50 players joined
