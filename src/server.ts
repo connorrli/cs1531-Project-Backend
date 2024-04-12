@@ -543,7 +543,6 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
 
   const response = adminQuizListV2(session.userId);
 
-  console.log(response);
   return res.json(response);
 });
 

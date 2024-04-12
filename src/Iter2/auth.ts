@@ -7,7 +7,7 @@ import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateError
 import { getData, setData } from '../data/dataStore';
 import { invalidRegConditions } from '../helpers/auth/registErrors';
 import { error } from '../helpers/errors';
-import { authUserIdCheck } from '../helpers/checkForErrors';
+import { authUserIdCheck, passwordValidCheck } from '../helpers/checkForErrors';
 import { generateSession } from '../helpers/sessionHandler';
 import { getHashOf } from '../helpers/hash';
 
@@ -56,14 +56,17 @@ function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newP
   const userData = data.users.find(user => user.userId === session.userId);
 
   oldPassword = getHashOf(oldPassword);
-  console.log(oldPassword);
-  console.log(userData.password);
-  newPassword = getHashOf(newPassword);
+  const hashPassword: string = getHashOf(newPassword);
 
-  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  const error = checkUserPasswordUpdate(userData, oldPassword, hashPassword);
   if (typeof error !== 'number') return error;
 
-  userData.password = newPassword;
+  const valid = passwordValidCheck(newPassword);
+  if (valid !== 0) {
+    return { error: 'new password is invalid' };
+  }
+
+  userData.password = hashPassword;
   userData.previousPasswords.push(oldPassword);
   setData(data);
 
