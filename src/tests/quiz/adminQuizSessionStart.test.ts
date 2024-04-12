@@ -103,4 +103,15 @@ describe('Testing adminQuizSessionStart route/function:', () => {
     // const sessions = quizSessionsViewRequest(userToken, quizId);
     // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
   });
+  test('Quiz is in trash but user is not owner of quiz', () => {
+    const userToken2 = userCreateRequest('anotheruser@gmail.com', 'Password12345', 'Sally', 'Seashells').token;
+    quizTrashRequestV2(userToken, quizId);
+
+    const response = quizSessionStartRequest(userToken2, quizId, VALID_AUTO_START);
+
+    expect(response).toStrictEqual(ERROR_RESPONSE);
+
+    // const sessions = quizSessionsViewRequest(userToken, quizId);
+    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+  });
 });
