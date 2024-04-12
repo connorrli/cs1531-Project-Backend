@@ -37,8 +37,10 @@ export interface QuizV2 extends Quiz {
 
 export interface QuizSession {
   sessionId: number;
+  autoStartNum: number;
   state: string;
   atQuestion: number;
+  metadata: Omit<QuizV2, 'quizOwner' | 'quizSessions'>;
   players: Player[];
 }
 
