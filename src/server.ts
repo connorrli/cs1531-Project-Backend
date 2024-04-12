@@ -738,6 +738,13 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   return res.json(response);
 });
 
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const { name, sessionId } = req.body;
+  const response = adminQuizPlayerJoin(name, sessionId);
+  save();
+  return res.json(response);
+})
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
