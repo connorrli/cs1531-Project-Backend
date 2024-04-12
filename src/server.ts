@@ -748,6 +748,7 @@ app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) =
 
   const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
 
+  save();
   return res.json(response);
 });
 
