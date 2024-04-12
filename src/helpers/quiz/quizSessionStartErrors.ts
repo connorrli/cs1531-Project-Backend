@@ -1,9 +1,9 @@
-import { isOwner, isValidQuiz } from "../checkForErrors";
+import { isOwner, isValidQuiz } from '../checkForErrors';
 import HTTPError from 'http-errors';
-import { findQuizV2 } from "./quizMiscHelpers";
-import { getData } from "../../data/dataStore";
-import { States } from "../stateHandler";
-import { getTrash } from "../../data/trash";
+import { findQuizV2 } from './quizMiscHelpers';
+import { getData } from '../../data/dataStore';
+import { States } from '../stateHandler';
+import { getTrash } from '../../data/trash';
 
 const MAX_AUTO_START_NUM = 50;
 const MAX_ACTIVE_QUIZZES = 10;

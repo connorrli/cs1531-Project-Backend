@@ -1,5 +1,13 @@
-import { QuestionBodyV2 } from "../../interface";
-import { clearRequest, questionCreateRequestV2, questionDeleteRequestV2, quizCreateRequestV2, quizInfoRequestV2, quizSessionStartRequest, quizTrashRequestV2, userCreateRequest } from "../requests"
+import { QuestionBodyV2 } from '../../interface';
+import {
+  clearRequest,
+  questionCreateRequestV2,
+  questionDeleteRequestV2,
+  quizCreateRequestV2,
+  quizSessionStartRequest,
+  quizTrashRequestV2,
+  userCreateRequest
+} from '../requests';
 
 const SUCCESS_RESPONSE = { sessionId: expect.any(Number) };
 const ERROR_RESPONSE = { error: expect.any(String) };
@@ -14,7 +22,7 @@ beforeEach(() => {
   quizId = quizCreateRequestV2(userToken, 'Test Quiz', 'Test Description').quizId;
 
   const questionBody: QuestionBodyV2 = {
-    question: "Test question?",
+    question: 'Test question?',
     duration: 5,
     points: 5,
     answers: [
@@ -28,7 +36,7 @@ beforeEach(() => {
       },
     ],
     thumbnailUrl: 'https://example.com/images/bruh.png',
-  }
+  };
   questionId = questionCreateRequestV2(userToken, quizId, questionBody).questionId;
 });
 
@@ -55,7 +63,7 @@ describe('Testing adminQuizSessionStart route/function:', () => {
     }
 
     const response = quizSessionStartRequest(userToken, quizId, VALID_AUTO_START);
-    expect (response).toStrictEqual(ERROR_RESPONSE);
+    expect(response).toStrictEqual(ERROR_RESPONSE);
 
     // const sessions = quizSessionsViewRequest(userToken, quizId);
     // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
@@ -95,5 +103,4 @@ describe('Testing adminQuizSessionStart route/function:', () => {
     // const sessions = quizSessionsViewRequest(userToken, quizId);
     // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
   });
-  
 });

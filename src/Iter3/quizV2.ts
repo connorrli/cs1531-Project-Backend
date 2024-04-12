@@ -611,8 +611,8 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
 }
 
 function adminQuizSessionStart(
-  userId: number, 
-  quizId: number, 
+  userId: number,
+  quizId: number,
   autoStartNum: number
 ): AdminQuizSessionStartReturn {
   quizSessionStartChecker(userId, quizId, autoStartNum);

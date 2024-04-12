@@ -239,4 +239,4 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
 export const quizSessionStartRequest = (token: string, quizId: number, autoStartNum: number) => {
   const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, { headers: { token }, json: { autoStartNum } });
   return JSON.parse(response.body.toString());
-}
+};
