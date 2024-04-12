@@ -40,11 +40,19 @@ export interface QuizSession {
   state: string;
   atQuestion: number;
   players: Player[];
+  messages: chatMessage[];
 }
 
 export interface Player {
   playerId: number;
   name: string;
+}
+
+export interface chatMessage {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
 }
 
 /**
