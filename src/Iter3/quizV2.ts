@@ -691,4 +691,5 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
+  adminQuizThumbnailUpdate
 };
