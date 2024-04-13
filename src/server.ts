@@ -65,6 +65,9 @@ import {
   adminUserDetailsV2,
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
+import {
+  adminPlayerJoin
+} from './Iter3/player';
 
 // Set up web app
 const app = express();
@@ -743,6 +746,12 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   return res.json(response);
 });
 
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const { name, sessionId } = req.body as { name: string, sessionId: number };
+  const response = adminPlayerJoin(name, sessionId);
+  save();
+  return res.json(response);
+});
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
