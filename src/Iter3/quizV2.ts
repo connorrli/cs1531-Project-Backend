@@ -5,7 +5,7 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { getData, setData } from '../data/dataStore';
+import { getData, getTimers, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
 import { QuestionBodyV2, QuestionV2, QuizV2, UserSession } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
@@ -661,6 +661,8 @@ function adminQuizSessionStart(
       thumbnailUrl: quiz.thumbnailUrl
     }
   });
+
+  getTimers().push({ sessionId, timer: undefined });
 
   return { sessionId };
 }
