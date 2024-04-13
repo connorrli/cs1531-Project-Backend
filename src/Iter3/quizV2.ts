@@ -24,6 +24,7 @@ import {
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
 import { States } from '../helpers/stateHandler';
+import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -75,6 +76,8 @@ export interface AdminQuizInfoReturn {
   duration: number;
   thumbnailUrl: string;
 }
+
+interface AdminQuizSessionStartReturn { sessionId: number }
 
 /**
  * Describes type for empty object.
@@ -607,6 +610,65 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
   return { newQuestionId };
 }
 
+function adminQuizSessionStart(
+  userId: number,
+  quizId: number,
+  autoStartNum: number
+): AdminQuizSessionStartReturn {
+  quizSessionStartChecker(userId, quizId, autoStartNum);
+
+  const quiz = findQuizV2(getData().quizzes, quizId);
+  const sessionId = quiz.quizSessions.length + 1;
+
+  quiz.quizSessions.push({
+    // Though unsecure, spec doesn't require secure quiz sessions...
+    sessionId,
+    autoStartNum: autoStartNum,
+    state: States.LOBBY,
+    atQuestion: 0,
+    players: [],
+    metadata: {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      numQuestions: quiz.numQuestions,
+      questions: quiz.questions,
+      duration: quiz.duration,
+      thumbnailUrl: quiz.thumbnailUrl
+    }
+  });
+
+  return { sessionId };
+}
+
+function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: string): EmptyObject {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+  }
+
+  const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
+
+  if (!lowerCaseThumbnailUrl.endsWith('.jpeg') &&
+      !lowerCaseThumbnailUrl.endsWith('.jpg') &&
+      !lowerCaseThumbnailUrl.endsWith('.png')) {
+    throw HTTPError(400, 'ERROR 400: Does not end with the correct file type');
+  }
+
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'ERROR 400: Does not start with the correct protocol');
+  }
+
+  const quiz = findQuizV2(data.quizzes, quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = getCurrentTime();
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -625,4 +687,6 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart
 };

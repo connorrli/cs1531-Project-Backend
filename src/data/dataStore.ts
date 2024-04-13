@@ -47,4 +47,8 @@ function getTimer(sessionId: number) {
   return timers.find(timer => timer.sessionId === sessionId).timer;
 }
 
-export { getData, setData, getTimer };
+function getTimers() {
+  return timers;
+}
+
+export { getData, setData, getTimer, getTimers };

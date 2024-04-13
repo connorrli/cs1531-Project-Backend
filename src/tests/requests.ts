@@ -231,3 +231,17 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, { headers: { token } });
   return JSON.parse(response.body.toString());
 };
+
+export const playerJoinRequest = (name: String, sessionId: Number) => {
+  const response = request('POST', SERVER_URL + '/v1/player/join', { json: { sessionId: Number, name: String } });
+  return JSON.parse(response.body.toString());
+}
+
+/* ----------------------------------------------------------------------------------
+| QUIZ (SESSION) HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
+
+export const quizSessionStartRequest = (token: string, quizId: number, autoStartNum: number) => {
+  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, { headers: { token }, json: { autoStartNum } });
+  return JSON.parse(response.body.toString());
+};

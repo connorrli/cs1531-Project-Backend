@@ -55,6 +55,8 @@ import {
   adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart,
   adminQuizTransferV2
 } from './Iter3/quizV2';
 import {
@@ -63,6 +65,9 @@ import {
   adminUserDetailsV2,
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
+import { 
+  adminPlayerJoin
+} from './Iter3/player';
 
 // Set up web app
 const app = express();
@@ -543,7 +548,6 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
 
   const response = adminQuizListV2(session.userId);
 
-  console.log(response);
   return res.json(response);
 });
 
@@ -740,10 +744,33 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 
 app.post('/v1/player/join', (req: Request, res: Response) => {
   const { name, sessionId } = req.body;
-  const response = adminQuizPlayerJoin(name, sessionId);
+  const response = adminPlayerJoin(name, sessionId);
   save();
   return res.json(response);
 })
+// adminQuizThumbnailUpdate PUT request route
+app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const { imgUrl } = req.body;
+  const session = getSessionV2(token);
+  const response = adminQuizThumbnailUpdate(quizId, session.userId, imgUrl);
+  save();
+  return res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const autoStartNum = req.body.autoStartNum;
+  const quizId = parseInt(req.params.quizId);
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
+
+  save();
+  return res.json(response);
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
