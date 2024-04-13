@@ -55,6 +55,7 @@ import {
   adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
+  adminQuizSessionStart,
   adminQuizTransferV2
 } from './Iter3/quizV2';
 import {
@@ -733,6 +734,19 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   const session = getSessionV2(token);
 
   const response = adminQuizQuestionDuplicateV2(session.userId, quizId, questionId);
+
+  save();
+  return res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const autoStartNum = req.body.autoStartNum;
+  const quizId = parseInt(req.params.quizId);
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
 
   save();
   return res.json(response);
