@@ -97,7 +97,7 @@ describe('Testing adminQuizSessionStateUpdate function:', () => {
           correct: true
         },
         {
-          answer: '10 hours of fireplace crackling sounds ASMR',
+          answer: 'fireplace sounds ASMR',
           correct: false
         },
         {
@@ -160,9 +160,14 @@ describe('Testing adminQuizSessionStateUpdate function:', () => {
   
       // Go to answer
       quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.GO_TO_ANSWER);
+
   
       // Showing answer (in ANSWER_SHOW state)
       // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(States.ANSWER_SHOW);
+
+      const stateChangeRequest3 = quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(stateChangeRequest3).toStrictEqual(SUCCESS_RESPONSE);
+      // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(States.QUESTION_COUNTDOWN);
     });
     test('NEXT_QUESTION action (Invalid) -> State === "END"', () => {
       quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.END);
@@ -220,6 +225,7 @@ describe('Testing adminQuizSessionStateUpdate function:', () => {
 
       quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.NEXT_QUESTION);
       quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.GO_TO_ANSWER);
       const stateChangeRequest = quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
       expect(stateChangeRequest).toStrictEqual(SUCCESS_RESPONSE);
       // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(States.FINAL_RESULTS);
@@ -235,8 +241,29 @@ describe('Testing adminQuizSessionStateUpdate function:', () => {
       // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(States.END);
     });
   });
+  describe('Testing SKIP_COUNTDOWN action', () => {
+    test('SKIP_COUNTDOWN action (Valid)', () => {
+      /*-------------------------------------
+      | QUESTION_COUNTDOWN -> QUESTION_OPEN
+      ---------------------------------------*/
+
+      quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.NEXT_QUESTION);
+      const stateChangeRequest = quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(stateChangeRequest).toStrictEqual(SUCCESS_RESPONSE);
+      // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(states.QUESTION_OPEN);
+    });
+    test('SKIP_COUNTDOWN action (Invalid)', () => {
+      /*-------------------------------------
+      | LOBBY -> QUESTION_OPEN
+      ---------------------------------------*/
+
+      const stateChangeRequest = quizSessionStateUpdateRequest(userToken, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(stateChangeRequest).toStrictEqual(ERROR_RESPONSE);
+      // expect(quizSessionStatusRequest(userToken, quizId, sessionId).state).toStrictEqual(states.LOBBY);
+    });
+  });
   test('Invalid action', () => {
     const stateChangeRequest = quizSessionStateUpdateRequest(userToken, quizId, sessionId, 'INVALID_ACTION');
     expect(stateChangeRequest).toStrictEqual(ERROR_RESPONSE);
-  })
+  });
 });
