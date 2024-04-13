@@ -117,7 +117,10 @@ export interface UserSession {
 export interface DataStore {
   users: User[];
   quizzes: QuizV2[] & Quiz[];
-  sessions: UserSession[];
+  sessions: {
+    userSessions: UserSession[],
+    quizSessions: QuizSession[]
+  }
 }
 
 /**
