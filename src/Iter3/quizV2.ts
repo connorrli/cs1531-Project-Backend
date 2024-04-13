@@ -607,6 +607,41 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
   return { newQuestionId };
 }
 
+function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: string): EmptyObject {
+  const data = getData();
+
+  if (!isValidQuiz(quizId)) {
+    throw HTTPError(400, 'ERROR 400: Does not refer to a valid quiz');
+  }
+
+  // Convert thumbnail URL to lowercase for file extension checks
+  const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
+
+  // Check if the thumbnail URL ends with the correct file type (in lowercase)
+  if (!lowerCaseThumbnailUrl.endsWith('.jpeg') &&
+      !lowerCaseThumbnailUrl.endsWith('.jpg') &&
+      !lowerCaseThumbnailUrl.endsWith('.png')) {
+    throw HTTPError(400, 'ERROR 400: Does not end with the correct file type');
+  }
+
+  // Check if the thumbnail URL starts with the correct protocol (case-sensitive)
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'ERROR 400: Does not start with the correct protocol');
+  }
+
+  // Check if the user is the owner of the quiz
+  if (!isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  // Update the quiz thumbnail URL and time last edited
+  const quiz = findQuizV2(data.quizzes, quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = getCurrentTime();
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -625,4 +660,5 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
+  adminQuizThumbnailUpdate
 };
