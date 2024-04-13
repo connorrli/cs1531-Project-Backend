@@ -11,6 +11,7 @@ const NO_QUESTIONS = 0;
 
 export function quizSessionStartChecker(userId: number, quizId: number, autoStartNum: number): void {
   // Check if quiz is in trash and if user is owner of trashed quiz.
+  const data = getData();
   const trashedQuiz = getTrash().quizzes.find(quiz => quiz.quizId === quizId);
   if (typeof trashedQuiz !== 'undefined') {
     if (trashedQuiz.quizOwner !== userId) {
@@ -32,7 +33,7 @@ export function quizSessionStartChecker(userId: number, quizId: number, autoStar
 
   // Check there aren't max number of active quizzes already running (10)
   let numActiveQuizzes = 0;
-  for (const session of quiz.quizSessions) {
+  for (const session of data.sessions.quizSessions) {
     if (session.state !== States.END) {
       numActiveQuizzes++;
     }

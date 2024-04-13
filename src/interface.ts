@@ -32,7 +32,6 @@ export interface Quiz {
 
 export interface QuizV2 extends Quiz {
   thumbnailUrl: string;
-  quizSessions: QuizSession[];
 }
 
 export interface QuizSession {
