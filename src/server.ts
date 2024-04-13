@@ -160,7 +160,10 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 // adminAuthLogOut POST request route
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
-  const response = adminAuthLogout(token);
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminAuthLogout(session);
 
   if ('error' in response) {
     return res.status(401).json(response);
@@ -262,7 +265,7 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   if ('error' in session) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }
-  const response = adminQuizRestore(token, quizId);
+  const response = adminQuizRestore(session.userId, quizId);
   if ('error' in response) {
     return res.status(response.statusCode).json({ error: response.error });
   }
@@ -495,8 +498,9 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 // adminAuthLogOutV2 POST request route
 app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.header('token');
+  const session = getSessionV2(token);
 
-  const response = adminAuthLogoutV2(token);
+  const response = adminAuthLogoutV2(session);
 
   save();
   return res.json(response);
