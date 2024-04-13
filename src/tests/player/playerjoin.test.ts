@@ -13,9 +13,9 @@ let quizSession: { sessionId: number };
 
 beforeEach(() => {
   clearRequest();
-  const john = userCreateRequest('john@gmail.com', 'password123', 'john', 'doe');
-  const quiz = quizCreateRequestV2(john.token, 'quiz', 'm eow');
-  questionCreateRequestV2(john.token, quiz.quizId, {
+  const user = userCreateRequest('john@gmail.com', 'password123', 'john', 'doe');
+  const quiz = quizCreateRequestV2(user.token, 'quiz', 'm eow');
+  questionCreateRequestV2(user.token, quiz.quizId, {
     question: 'What course is this?',
     duration: 10,
     points: 5,
@@ -25,7 +25,7 @@ beforeEach(() => {
     ],
     thumbnailUrl: 'http://google.com.jpeg'
   });
-  quizSession = quizSessionStartRequest(john.token, quiz.quizId, 5);
+  quizSession = quizSessionStartRequest(user.token, quiz.quizId, 5);
 });
 
 test('Expected results under normal conditions', () => {
@@ -37,10 +37,15 @@ describe('Throws error under error conditions', () => {
     playerJoinRequest('jimmy', quizSession.sessionId);
     expect(playerJoinRequest('jimmy', quizSession.sessionId)).toStrictEqual(ERROR);
   });
-  test('Stupid idiot session id', () => {
-    expect(playerJoinRequest('jimmy', quizSession.sessionId + 1)).toStrictEqual(ERROR);
+
+  test('Invalid session id', () => {
+    const response = playerJoinRequest('jimmy', quizSession.sessionId + 1);
+    expect(response).toStrictEqual(ERROR);
   });
+
   test('Not in lobby state', () => {
-    // todo :}
+    // state changing function needs to be called here
+    /* const response = playerJoinRequest('jimmy', quizSession.sessionId);
+    expect(response).toStrictEqual(ERROR); */
   });
 });
