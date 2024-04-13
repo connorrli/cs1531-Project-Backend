@@ -231,3 +231,8 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, { headers: { token } });
   return JSON.parse(response.body.toString());
 };
+
+export const quizSessionStateUpdateRequest = (token: string, quizId: number, sessionId: number, action: string) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token }, json: { action } });
+  return JSON.parse(response.body.toString());
+}
