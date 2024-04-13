@@ -203,7 +203,7 @@ export const quizTransferRequestV2 = (token: string, quizId: number, userEmail: 
 };
 
 // 'questionCreateRequestV2' function
-export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBody) => {
+export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBodyV2) => {
   const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question`, { json: { questionBody }, headers: { token } });
   return JSON.parse(response.body.toString());
 };
@@ -232,10 +232,6 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   return JSON.parse(response.body.toString());
 };
 
-export const playerJoinRequest = (name: String, sessionId: Number) => {
-  const response = request('POST', SERVER_URL + '/v1/player/join', { json: { sessionId: Number, name: String } });
-  return JSON.parse(response.body.toString());
-}
 
 /* ----------------------------------------------------------------------------------
 | QUIZ (SESSION) HTTP WRAPPERS
@@ -243,5 +239,10 @@ export const playerJoinRequest = (name: String, sessionId: Number) => {
 
 export const quizSessionStartRequest = (token: string, quizId: number, autoStartNum: number) => {
   const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, { headers: { token }, json: { autoStartNum } });
+  return JSON.parse(response.body.toString());
+};
+
+export const playerJoinRequest = (name: string, sessionId: number) => {
+  const response = request('POST', SERVER_URL + '/v1/player/join', { json: { name: name, sessionId: sessionId } });
   return JSON.parse(response.body.toString());
 };
