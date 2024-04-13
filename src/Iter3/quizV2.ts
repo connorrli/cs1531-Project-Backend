@@ -611,9 +611,9 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
 }
 
 function adminQuizSessionStateUpdate(
-  userId: number, 
-  quizId: number, 
-  sessionId: number, 
+  userId: number,
+  quizId: number,
+  sessionId: number,
   action: string
 ): EmptyObject {
   if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {

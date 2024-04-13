@@ -244,7 +244,7 @@ export const quizSessionStartRequest = (token: string, quizId: number, autoStart
 export const quizSessionStateUpdateRequest = (token: string, quizId: number, sessionId: number, action: string) => {
   const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token }, json: { action } });
   return JSON.parse(response.body.toString());
-}
+};
 
 /* ----------------------------------------------------------------------------------
 | PLAYER HTTP WRAPPERS
