@@ -55,8 +55,9 @@ import {
   adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
-  adminQuizTransferV2,
-  adminQuizThumbnailUpdate
+  adminQuizThumbnailUpdate,
+  /*adminQuizSessionStart, */
+  adminQuizTransferV2
 } from './Iter3/quizV2';
 import {
   adminAuthLogoutV2,
@@ -749,6 +750,19 @@ app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   save();
   return res.json(response);
 });
+
+/* app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const autoStartNum = req.body.autoStartNum;
+  const quizId = parseInt(req.params.quizId);
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
+
+  save();
+  return res.json(response);
+}); */
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
