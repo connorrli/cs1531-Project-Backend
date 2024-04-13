@@ -1,5 +1,5 @@
 import { QuestionBodyV2 } from "../../interface";
-import { clearRequest, questionCreateRequestV2, quizCreateRequestV2, quizSessionStateUpdateRequest, userCreateRequest } from "../requests";
+import { clearRequest, questionCreateRequestV2, quizCreateRequestV2, quizSessionStartRequest, quizSessionStateUpdateRequest, userCreateRequest } from "../requests";
 
 const SUCCESS_RESPONSE = {};
 const ERROR_RESPONSE = { error: expect.any(String) };
@@ -237,5 +237,6 @@ describe('Testing adminQuizSessionStateUpdate function:', () => {
   });
   test('Invalid action', () => {
     const stateChangeRequest = quizSessionStateUpdateRequest(userToken, quizId, sessionId, 'INVALID_ACTION');
+    expect(stateChangeRequest).toStrictEqual(ERROR_RESPONSE);
   })
 });
