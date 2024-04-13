@@ -34,7 +34,7 @@ export function quizSessionStartChecker(userId: number, quizId: number, autoStar
   // Check there aren't max number of active quizzes already running (10)
   let numActiveQuizzes = 0;
   for (const session of data.sessions.quizSessions) {
-    if (session.state !== States.END) {
+    if (session.state !== States.END && session.metadata.quizId === quizId) {
       numActiveQuizzes++;
     }
 
