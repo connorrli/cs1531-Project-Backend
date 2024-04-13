@@ -73,7 +73,6 @@ describe('Testing adminUserPasswordUpdateV2 function:', () => {
   ])('Testing %s:', (testName, oldPassword, newPassword, expectedReturn1, expectedReturn2) => {
     const response1 = userPasswordUpdateRequestV2(userToken1, oldPassword, newPassword);
     expect(response1).toStrictEqual(expectedReturn1);
-
     loginRequest(INIT_VALID_EMAIL, newPassword);
     const response2 = userDetailsRequest(userToken1);
     expect(response2.user.numSuccessfulLogins).toStrictEqual(expectedReturn2);

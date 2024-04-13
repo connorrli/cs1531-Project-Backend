@@ -7,7 +7,7 @@
 
 import { getData, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { QuestionBodyV2, QuestionV2, QuizV2, UserSession } from '../interface';
+import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession, Player } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
@@ -19,11 +19,13 @@ import {
   findQuizIndex,
   updateQuizDuration,
   findQuizV2,
-  findQuestionV2
+  findQuestionV2,
+  findQuizSession
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
 import { States } from '../helpers/stateHandler';
+import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -74,6 +76,25 @@ export interface AdminQuizInfoReturn {
   questions: QuestionV2[];
   duration: number;
   thumbnailUrl: string;
+}
+
+interface AdminQuizSessionStartReturn { sessionId: number }
+
+export interface playerStatusReturn {
+  state: string;
+  numQuestions: number;
+  atQuestion: number;
+}
+
+interface everyChatMessage {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
+}
+
+export interface allChatMessagesReturn {
+  messages: everyChatMessage[];
 }
 
 /**
@@ -607,6 +628,98 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
   return { newQuestionId };
 }
 
+function adminQuizSessionStart(
+  userId: number,
+  quizId: number,
+  autoStartNum: number
+): AdminQuizSessionStartReturn {
+  quizSessionStartChecker(userId, quizId, autoStartNum);
+
+  const quiz = findQuizV2(getData().quizzes, quizId);
+  const sessionId = quiz.quizSessions.length + 1;
+
+  quiz.quizSessions.push({
+    // Though unsecure, spec doesn't require secure quiz sessions...
+    sessionId,
+    autoStartNum: autoStartNum,
+    state: States.LOBBY,
+    atQuestion: 0,
+    players: [],
+    metadata: {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      numQuestions: quiz.numQuestions,
+      questions: quiz.questions,
+      duration: quiz.duration,
+      thumbnailUrl: quiz.thumbnailUrl
+    }
+  });
+
+  return { sessionId };
+}
+
+function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: string): EmptyObject {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+  }
+
+  const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
+
+  if (!lowerCaseThumbnailUrl.endsWith('.jpeg') &&
+      !lowerCaseThumbnailUrl.endsWith('.jpg') &&
+      !lowerCaseThumbnailUrl.endsWith('.png')) {
+    throw HTTPError(400, 'ERROR 400: Does not end with the correct file type');
+  }
+
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'ERROR 400: Does not start with the correct protocol');
+  }
+
+  const quiz = findQuizV2(data.quizzes, quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = getCurrentTime();
+
+  return {};
+}
+
+// Status of guest player
+function playerStatus(playerId: number): playerStatusReturn{
+  const data = getData();
+
+  const findAllPlayers = data.players // Edit this
+  const player = findAllPlayers.find 
+}
+
+// View all chat messages
+function allChatMessages(playerId: number): allChatMessagesReturn {
+  
+  const player = "playerStatus function"(playerId);
+  const quizSessionId = player.SessionId;
+
+  const quizSession = quizSessions.find((q) => q.quizSessionId === quizSessionId);
+
+  const allChat: allChatMessagesReturn[] = quizSession.messages;
+  return allChat;
+
+}
+
+function adminQuizList(authUserId: number): AdminQuizListReturn { ////////////////////////////
+  const data = getData();
+  const ownedQuizzes : OwnedQuizObject[] = [];
+
+  for (const quiz of data.quizzes) {
+    if (quiz.quizOwner === authUserId) {
+      const obj : OwnedQuizObject = { quizId: quiz.quizId, name: quiz.name };
+      ownedQuizzes.push(obj);
+    }
+  }
+  return { quizzes: ownedQuizzes };
+}
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -625,4 +738,7 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart,
+  allChatMessages
 };
