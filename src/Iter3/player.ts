@@ -1,10 +1,31 @@
 import { getData } from "../data/dataStore";
+import HTTPError from 'http-errors';
+import { halfToken } from "../helpers/sessionHandler";
 
 export function adminPlayerJoin(name: string, sessionId: number) { 
     if (name.length === 0) {
         name = randPlayerName();
     }
-    return;
+    const data = getData();
+    const quizSession = data.sessions.quizSessions.find(q => q.sessionId === sessionId);
+    if (quizSession === undefined) {
+        throw HTTPError(400, 'ERROR 400: Session ID is not a valid session');
+    }
+    if (quizSession.state !== 'LOBBY') {
+        throw HTTPError(400, 'ERROR 400: Session is not in a lobby state');
+    }
+    const nameExists = quizSession.players.find(p => p.name === name);
+    if (nameExists !== undefined) {
+        throw HTTPError(400, 'ERROR 400: Name already in use!');
+    }
+    const pseudorandId = parseInt(halfToken());
+    const player = {
+        playerId: pseudorandId,
+        name: name
+    };
+    quizSession.players.push(player);
+
+    return { playerId: player.playerId };
 }
 
 function randPlayerName (): string {
@@ -17,11 +38,11 @@ function randPlayerName (): string {
             string += newchar;
         }
     }
-    let newint = Math.floor((Math.random() * 9.9)).toString();
+    let newint = Math.floor((Math.random() * 10)).toString();
     string += newint;
     while (string.length < 8) {
         if (string.includes(newint)) {
-            newint = Math.floor((Math.random() * 9.9)).toString();
+            newint = Math.floor((Math.random() * 10)).toString();
         } else {
             string+= newint;
         }

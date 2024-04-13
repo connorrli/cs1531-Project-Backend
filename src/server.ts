@@ -747,7 +747,7 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 });
 
 app.post('/v1/player/join', (req: Request, res: Response) => {
-  const { name, sessionId } = req.body;
+  const { name, sessionId } = req.body as { name: string, sessionId: number };
   const response = adminPlayerJoin(name, sessionId);
   save();
   return res.json(response);

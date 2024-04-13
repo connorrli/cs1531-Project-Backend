@@ -52,7 +52,7 @@ export function generateSession(userId: number): generateSessionReturn {
   *
   * @returns {string} halfOfToken - one half of the unique token
 */
-function halfToken(): string {
+export function halfToken(): string {
   const halfOfToken = Math.floor(
     Math.random() * Math.floor(Math.random() * Date.now())
   )
