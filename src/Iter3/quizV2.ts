@@ -643,6 +643,32 @@ function adminQuizSessionStart(
   return { sessionId };
 }
 
+function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: string): EmptyObject {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+  }
+
+  const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
+
+  if (!lowerCaseThumbnailUrl.endsWith('.jpeg') &&
+      !lowerCaseThumbnailUrl.endsWith('.jpg') &&
+      !lowerCaseThumbnailUrl.endsWith('.png')) {
+    throw HTTPError(400, 'ERROR 400: Does not end with the correct file type');
+  }
+
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'ERROR 400: Does not start with the correct protocol');
+  }
+
+  const quiz = findQuizV2(data.quizzes, quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = getCurrentTime();
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -661,5 +687,6 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
-  adminQuizSessionStart,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart
 };

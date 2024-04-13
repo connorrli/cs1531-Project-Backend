@@ -55,6 +55,7 @@ import {
   adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
+  adminQuizThumbnailUpdate,
   adminQuizSessionStart,
   adminQuizTransferV2
 } from './Iter3/quizV2';
@@ -734,6 +735,17 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
 
   const response = adminQuizQuestionDuplicateV2(session.userId, quizId, questionId);
 
+  save();
+  return res.json(response);
+});
+
+// adminQuizThumbnailUpdate PUT request route
+app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const { imgUrl } = req.body;
+  const session = getSessionV2(token);
+  const response = adminQuizThumbnailUpdate(quizId, session.userId, imgUrl);
   save();
   return res.json(response);
 });
