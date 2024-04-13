@@ -10,7 +10,10 @@ interface Timer {
 let data : DataStore = {
   users: [],
   quizzes: [],
-  sessions: [],
+  sessions: {
+    userSessions: [],
+    quizSessions: []
+  },
 };
 
 const timers : Timer[] = [];
@@ -47,4 +50,8 @@ function getTimer(sessionId: number) {
   return timers.find(timer => timer.sessionId === sessionId).timer;
 }
 
-export { getData, setData, getTimer };
+function getTimers() {
+  return timers;
+}
+
+export { getData, setData, getTimer, getTimers };

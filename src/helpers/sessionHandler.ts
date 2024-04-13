@@ -33,10 +33,11 @@ interface generateSessionReturn { token: string }
 */
 export function generateSession(userId: number): generateSessionReturn {
   const data = getData();
+  const userSessions = data.sessions.userSessions;
 
   const token = halfToken() + halfToken();
 
-  data.sessions.push({
+  userSessions.push({
     token: token,
     userId: userId,
     timeCreated: getCurrentTime(),
@@ -51,7 +52,7 @@ export function generateSession(userId: number): generateSessionReturn {
   *
   * @returns {string} halfOfToken - one half of the unique token
 */
-function halfToken(): string {
+export function halfToken(): string {
   const halfOfToken = Math.floor(
     Math.random() * Math.floor(Math.random() * Date.now())
   )
@@ -66,10 +67,10 @@ function halfToken(): string {
   * @returns {UserSession | ErrorObject}
 */
 export function getSession(token: string): UserSession | ErrorObject {
-  const data = getData();
+  const userSessions = getData().sessions.userSessions;
   const decodedToken = decodeURIComponent(token);
 
-  const session = data.sessions.find(session => session.token === decodedToken);
+  const session = userSessions.find(session => session.token === decodedToken);
   if (typeof session === 'undefined') {
     return { error: `session with token ${token} is undefined` };
   }
@@ -83,10 +84,10 @@ export function getSession(token: string): UserSession | ErrorObject {
   * @returns {UserSession | ErrorObject}
 */
 export function getSessionV2(token: string): UserSession {
-  const data = getData();
+  const userSessions = getData().sessions.userSessions;
   const decodedToken = decodeURIComponent(token);
 
-  const session = data.sessions.find(session => session.token === decodedToken);
+  const session = userSessions.find(session => session.token === decodedToken);
   if (typeof session === 'undefined') {
     throw HTTPError(401, `ERROR 401: Session with token ${token} is undefined`);
   }

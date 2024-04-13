@@ -15,6 +15,8 @@ import {
   // User,
   UserSession,
 } from '../interface';
+import { getHashOf } from '../helpers/hash';
+import { passwordValidCheck } from '../helpers/checkForErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -45,19 +47,12 @@ interface AdminUserDetailsReturn { user: UserDetails; }
   *
   * @returns {object} - Returns empty object if successful, otherwise error
 */
-function adminAuthLogoutV2(token: string): EmptyObject | ErrorObject {
+function adminAuthLogoutV2(session: UserSession): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
 
-  if (token.length === 0) {
-    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
-  }
-  const finder = (data.sessions).find(user => user.token === token);
-  if (finder === undefined) {
-    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
-  }
-  const tokenLocate = data.sessions.findIndex(index => index.token === token);
-  data.sessions.splice(tokenLocate, 1);
+  const tokenLocate = data.sessions.userSessions.findIndex(index => index.token === session.token);
+  data.sessions.userSessions.splice(tokenLocate, 1);
   return { };
 }
 
@@ -122,9 +117,17 @@ function adminUserPasswordUpdateV2(session: UserSession, oldPassword: string, ne
   const data = getData();
   const userData = data.users.find(user => user.userId === session.userId);
 
-  checkUserPasswordUpdateV2(userData, oldPassword, newPassword);
+  oldPassword = getHashOf(oldPassword);
+  const hashPassword: string = getHashOf(newPassword);
 
-  userData.password = newPassword;
+  checkUserPasswordUpdateV2(userData, oldPassword, hashPassword);
+
+  const error: ErrorObject | number = passwordValidCheck(newPassword);
+  if (error !== 0) {
+    throw HTTPError(400, 'ERROR 400: Bad new password');
+  }
+
+  userData.password = hashPassword;
   userData.previousPasswords.push(oldPassword);
 
   return { };

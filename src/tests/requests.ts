@@ -203,7 +203,7 @@ export const quizTransferRequestV2 = (token: string, quizId: number, userEmail: 
 };
 
 // 'questionCreateRequestV2' function
-export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBody) => {
+export const questionCreateRequestV2 = (token: string, quizId: number, questionBody: QuestionBodyV2) => {
   const response = request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question`, { json: { questionBody }, headers: { token } });
   return JSON.parse(response.body.toString());
 };
@@ -232,7 +232,25 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   return JSON.parse(response.body.toString());
 };
 
+/* ----------------------------------------------------------------------------------
+| QUIZ (SESSION) HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
+
+export const quizSessionStartRequest = (token: string, quizId: number, autoStartNum: number) => {
+  const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, { headers: { token }, json: { autoStartNum } });
+  return JSON.parse(response.body.toString());
+};
+
 export const quizSessionStateUpdateRequest = (token: string, quizId: number, sessionId: number, action: string) => {
   const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token }, json: { action } });
   return JSON.parse(response.body.toString());
 }
+
+/* ----------------------------------------------------------------------------------
+| PLAYER HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
+
+export const playerJoinRequest = (name: string, sessionId: number) => {
+  const response = request('POST', SERVER_URL + '/v1/player/join', { json: { name: name, sessionId: sessionId } });
+  return JSON.parse(response.body.toString());
+};

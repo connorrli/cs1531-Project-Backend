@@ -56,6 +56,8 @@ import {
   adminQuizRemoveV2,
   adminQuizRestoreV2,
   adminQuizSessionStateUpdate,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart,
   adminQuizTransferV2
 } from './Iter3/quizV2';
 import {
@@ -64,6 +66,9 @@ import {
   adminUserDetailsV2,
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
+import {
+  adminPlayerJoin
+} from './Iter3/player';
 
 // Set up web app
 const app = express();
@@ -159,7 +164,10 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 // adminAuthLogOut POST request route
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.body.token as string;
-  const response = adminAuthLogout(token);
+  const session = getSession(token);
+  if ('error' in session) return res.status(401).json(session);
+
+  const response = adminAuthLogout(session);
 
   if ('error' in response) {
     return res.status(401).json(response);
@@ -261,7 +269,7 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   if ('error' in session) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }
-  const response = adminQuizRestore(token, quizId);
+  const response = adminQuizRestore(session.userId, quizId);
   if ('error' in response) {
     return res.status(response.statusCode).json({ error: response.error });
   }
@@ -494,8 +502,9 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req: Request, res: Response) => {
 // adminAuthLogOutV2 POST request route
 app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   const token = req.header('token');
+  const session = getSessionV2(token);
 
-  const response = adminAuthLogoutV2(token);
+  const response = adminAuthLogoutV2(session);
 
   save();
   return res.json(response);
@@ -544,7 +553,6 @@ app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
 
   const response = adminQuizListV2(session.userId);
 
-  console.log(response);
   return res.json(response);
 });
 
@@ -748,6 +756,36 @@ app.put('/v1/admin/quiz/:quizId/session/:sessionId', (req: Request, res: Respons
   const session = getSessionV2(token);
 
   const response = adminQuizSessionStateUpdate(session.userId, quizId, sessionId, action);
+  save();
+  return res.json(response);
+});
+
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const { name, sessionId } = req.body as { name: string, sessionId: number };
+  const response = adminPlayerJoin(name, sessionId);
+  save();
+  return res.json(response);
+});
+
+// adminQuizThumbnailUpdate PUT request route
+app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const token = req.header('token');
+  const { imgUrl } = req.body;
+  const session = getSessionV2(token);
+  const response = adminQuizThumbnailUpdate(quizId, session.userId, imgUrl);
+  save();
+  return res.json(response);
+});
+
+app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const autoStartNum = req.body.autoStartNum;
+  const quizId = parseInt(req.params.quizId);
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
 
   save();
   return res.json(response);

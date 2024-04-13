@@ -25,6 +25,7 @@ import {
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
 import { States, stateMachine } from '../helpers/stateHandler';
+import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -76,6 +77,8 @@ export interface AdminQuizInfoReturn {
   duration: number;
   thumbnailUrl: string;
 }
+
+interface AdminQuizSessionStartReturn { sessionId: number }
 
 /**
  * Describes type for empty object.
@@ -198,7 +201,6 @@ function adminQuizCreateV2(
     numQuestions: 0,
     questions: [],
     duration: 0,
-    quizSessions: [],
     thumbnailUrl: '',
   };
   const trash = getTrash();
@@ -242,8 +244,8 @@ function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
   const quizIndex = findQuizIndex(data.quizzes, quizId);
   const quizToRemove = data.quizzes[quizIndex];
 
-  for (const session of quizToRemove.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizToRemove.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -438,8 +440,8 @@ function adminQuizTransferV2(
     }
   }
 
-  for (const session of quizTransfer.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizTransfer.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -520,8 +522,8 @@ function adminQuizQuestionDeleteV2(authUserId: number,
     throw HTTPError(400, 'ERROR 400: Invalid question');
   }
 
-  for (const session of quiz.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quiz.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -629,6 +631,66 @@ function adminQuizSessionStateUpdate(
   return { };
 }
 
+function adminQuizSessionStart(
+  userId: number,
+  quizId: number,
+  autoStartNum: number
+): AdminQuizSessionStartReturn {
+  quizSessionStartChecker(userId, quizId, autoStartNum);
+  const data = getData();
+
+  const quiz = findQuizV2(getData().quizzes, quizId);
+  const sessionId = data.sessions.quizSessions.length + 1;
+
+  data.sessions.quizSessions.push({
+    // Though unsecure, spec doesn't require secure quiz sessions...
+    sessionId,
+    autoStartNum: autoStartNum,
+    state: States.LOBBY,
+    atQuestion: 0,
+    players: [],
+    metadata: {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      numQuestions: quiz.numQuestions,
+      questions: quiz.questions,
+      duration: quiz.duration,
+      thumbnailUrl: quiz.thumbnailUrl
+    }
+  });
+
+  return { sessionId };
+}
+
+function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: string): EmptyObject {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+  }
+
+  const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
+
+  if (!lowerCaseThumbnailUrl.endsWith('.jpeg') &&
+      !lowerCaseThumbnailUrl.endsWith('.jpg') &&
+      !lowerCaseThumbnailUrl.endsWith('.png')) {
+    throw HTTPError(400, 'ERROR 400: Does not end with the correct file type');
+  }
+
+  if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://')) {
+    throw HTTPError(400, 'ERROR 400: Does not start with the correct protocol');
+  }
+
+  const quiz = findQuizV2(data.quizzes, quizId);
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = getCurrentTime();
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -648,4 +710,6 @@ export {
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
   adminQuizSessionStateUpdate,
+  adminQuizThumbnailUpdate,
+  adminQuizSessionStart
 };

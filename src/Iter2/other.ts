@@ -2,7 +2,7 @@
 /// ////////////////////////////////// IMPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-import { setData } from '../data/dataStore';
+import { getTimers, setData } from '../data/dataStore';
 import { getTrash, setTrash } from '../data/trash';
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,8 @@ type EmptyObject = Record<string, never>
   * This function does not take in any parameters or return anything.
 */
 function clear(): EmptyObject {
-  setData({ users: [], quizzes: [], sessions: [] });
+  setData({ users: [], quizzes: [], sessions: { userSessions: [], quizSessions: [] } });
+  getTimers().length = 0;
   return {};
 }
 

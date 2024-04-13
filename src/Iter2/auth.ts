@@ -7,15 +7,15 @@ import { checkUserPasswordUpdate } from '../helpers/auth/userPasswordUpdateError
 import { getData, setData } from '../data/dataStore';
 import { invalidRegConditions } from '../helpers/auth/registErrors';
 import { error } from '../helpers/errors';
-import { authUserIdCheck } from '../helpers/checkForErrors';
+import { authUserIdCheck, passwordValidCheck } from '../helpers/checkForErrors';
 import { generateSession } from '../helpers/sessionHandler';
+import { getHashOf } from '../helpers/hash';
 
 import {
   ErrorObject,
   User,
   UserSession,
 } from '../interface';
-
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -55,10 +55,18 @@ function adminUserPasswordUpdate(session: UserSession, oldPassword: string, newP
   const data = getData();
   const userData = data.users.find(user => user.userId === session.userId);
 
-  const error = checkUserPasswordUpdate(userData, oldPassword, newPassword);
+  oldPassword = getHashOf(oldPassword);
+  const hashPassword: string = getHashOf(newPassword);
+
+  const error = checkUserPasswordUpdate(userData, oldPassword, hashPassword);
   if (typeof error !== 'number') return error;
 
-  userData.password = newPassword;
+  const valid = passwordValidCheck(newPassword);
+  if (valid !== 0) {
+    return { error: 'new password is invalid' };
+  }
+
+  userData.password = hashPassword;
   userData.previousPasswords.push(oldPassword);
   setData(data);
 
@@ -80,6 +88,8 @@ function adminAuthRegister(email: string, password: string, nameFirst: string, n
 
   const error = invalidRegConditions(email, password, nameFirst, nameLast);
   if (error !== NO_ERROR) return error;
+
+  password = getHashOf(password);
 
   const data = getData();
   const newUser : User = {
@@ -124,6 +134,9 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   if (logger === undefined) {
     return error.throwError('noEmail');
   }
+
+  password = getHashOf(password);
+
   if (password !== logger.password) {
     logger.numFailedPasswordsSinceLastLogin++;
     return error.throwError('wrongPassword');
@@ -141,19 +154,16 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   *
   * @returns {object} - Returns empty object if successful, otherwise error
 */
-function adminAuthLogout(token: string): EmptyObject | ErrorObject {
+function adminAuthLogout(session: UserSession): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
 
-  if (token.length === 0) {
-    return { error: 'Token is empty' };
-  }
-  const finder = (data.sessions).find(user => user.token === token);
+  const finder = session;
   if (finder === undefined) {
     return { error: 'There is no such user to log out' };
   }
-  const tokenLocate = data.sessions.findIndex(index => index.token === token);
-  data.sessions.splice(tokenLocate, 1);
+  const tokenLocate = data.sessions.userSessions.findIndex(index => index.token === session.token);
+  data.sessions.userSessions.splice(tokenLocate, 1);
   return { };
 }
 
@@ -210,7 +220,6 @@ function adminUserDetailsUpdate (session: UserSession, email: string, nameFirst:
 
   return { };
 }
-
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////

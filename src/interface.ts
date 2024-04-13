@@ -32,13 +32,14 @@ export interface Quiz {
 
 export interface QuizV2 extends Quiz {
   thumbnailUrl: string;
-  quizSessions: QuizSession[];
 }
 
 export interface QuizSession {
   sessionId: number;
+  autoStartNum: number;
   state: string;
   atQuestion: number;
+  metadata: Omit<QuizV2, 'quizOwner' | 'quizSessions'>;
   players: Player[];
 }
 
@@ -115,7 +116,10 @@ export interface UserSession {
 export interface DataStore {
   users: User[];
   quizzes: QuizV2[] & Quiz[];
-  sessions: UserSession[];
+  sessions: {
+    userSessions: UserSession[],
+    quizSessions: QuizSession[]
+  }
 }
 
 /**
