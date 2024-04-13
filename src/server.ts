@@ -65,7 +65,7 @@ import {
   adminUserDetailsV2,
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
-import { 
+import {
   adminPlayerJoin
 } from './Iter3/player';
 
@@ -751,7 +751,7 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   const response = adminPlayerJoin(name, sessionId);
   save();
   return res.json(response);
-})
+});
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);

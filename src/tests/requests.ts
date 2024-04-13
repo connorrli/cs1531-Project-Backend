@@ -232,7 +232,6 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   return JSON.parse(response.body.toString());
 };
 
-
 /* ----------------------------------------------------------------------------------
 | QUIZ (SESSION) HTTP WRAPPERS
 ------------------------------------------------------------------------------------ */
