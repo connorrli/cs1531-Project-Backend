@@ -15,6 +15,8 @@ import {
   // User,
   UserSession,
 } from '../interface';
+import { getHashOf } from '../helpers/hash';
+import { passwordValidCheck } from '../helpers/checkForErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -122,9 +124,17 @@ function adminUserPasswordUpdateV2(session: UserSession, oldPassword: string, ne
   const data = getData();
   const userData = data.users.find(user => user.userId === session.userId);
 
-  checkUserPasswordUpdateV2(userData, oldPassword, newPassword);
+  oldPassword = getHashOf(oldPassword);
+  const hashPassword: string = getHashOf(newPassword);
 
-  userData.password = newPassword;
+  checkUserPasswordUpdateV2(userData, oldPassword, hashPassword);
+
+  const error: ErrorObject | number = passwordValidCheck(newPassword);
+  if (error !== 0) {
+    throw HTTPError(400, 'ERROR 400: Bad new password');
+  }
+
+  userData.password = hashPassword;
   userData.previousPasswords.push(oldPassword);
 
   return { };
