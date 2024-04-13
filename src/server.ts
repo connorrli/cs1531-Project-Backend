@@ -748,7 +748,7 @@ app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const response = adminQuizThumbnailUpdate(quizId, session.userId, imgUrl);
   save();
   return res.json(response);
-};
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
