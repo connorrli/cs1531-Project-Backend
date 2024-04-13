@@ -149,5 +149,7 @@ export function findQuizSession(quizId: number, quizSessionId: number): QuizSess
 
   if (typeof quiz !== 'undefined' && 'quizSessions' in quiz) {
     return quiz.quizSessions.find(session => session.sessionId === quizSessionId);
+  } else {
+    return undefined;
   }
 }
