@@ -154,19 +154,16 @@ function adminAuthLogin(email: string, password: string): AdminAuthLoginReturn |
   *
   * @returns {object} - Returns empty object if successful, otherwise error
 */
-function adminAuthLogout(token: string): EmptyObject | ErrorObject {
+function adminAuthLogout(session: UserSession): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
 
-  if (token.length === 0) {
-    return { error: 'Token is empty' };
-  }
-  const finder = (data.sessions).find(user => user.token === token);
+  const finder = session;
   if (finder === undefined) {
     return { error: 'There is no such user to log out' };
   }
-  const tokenLocate = data.sessions.findIndex(index => index.token === token);
-  data.sessions.splice(tokenLocate, 1);
+  const tokenLocate = data.sessions.userSessions.findIndex(index => index.token === session.token);
+  data.sessions.userSessions.splice(tokenLocate, 1);
   return { };
 }
 

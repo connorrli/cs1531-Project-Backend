@@ -200,7 +200,6 @@ function adminQuizCreateV2(
     numQuestions: 0,
     questions: [],
     duration: 0,
-    quizSessions: [],
     thumbnailUrl: '',
   };
   const trash = getTrash();
@@ -244,8 +243,8 @@ function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
   const quizIndex = findQuizIndex(data.quizzes, quizId);
   const quizToRemove = data.quizzes[quizIndex];
 
-  for (const session of quizToRemove.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizToRemove.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -440,8 +439,8 @@ function adminQuizTransferV2(
     }
   }
 
-  for (const session of quizTransfer.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizTransfer.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -522,7 +521,7 @@ function adminQuizQuestionDeleteV2(authUserId: number,
     throw HTTPError(400, 'ERROR 400: Invalid question');
   }
 
-  for (const session of quiz.quizSessions) {
+  for (const session of data.sessions.quizSessions) {
     if (session.state !== States.END) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
@@ -616,11 +615,12 @@ function adminQuizSessionStart(
   autoStartNum: number
 ): AdminQuizSessionStartReturn {
   quizSessionStartChecker(userId, quizId, autoStartNum);
+  const data = getData();
 
   const quiz = findQuizV2(getData().quizzes, quizId);
-  const sessionId = quiz.quizSessions.length + 1;
+  const sessionId = data.sessions.quizSessions.length + 1;
 
-  quiz.quizSessions.push({
+  data.sessions.quizSessions.push({
     // Though unsecure, spec doesn't require secure quiz sessions...
     sessionId,
     autoStartNum: autoStartNum,

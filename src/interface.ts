@@ -32,7 +32,6 @@ export interface Quiz {
 
 export interface QuizV2 extends Quiz {
   thumbnailUrl: string;
-  quizSessions: QuizSession[];
 }
 
 export interface QuizSession {
@@ -117,7 +116,10 @@ export interface UserSession {
 export interface DataStore {
   users: User[];
   quizzes: QuizV2[] & Quiz[];
-  sessions: UserSession[];
+  sessions: {
+    userSessions: UserSession[],
+    quizSessions: QuizSession[]
+  }
 }
 
 /**
