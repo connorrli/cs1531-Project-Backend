@@ -522,7 +522,7 @@ function adminQuizQuestionDeleteV2(authUserId: number,
   }
 
   for (const session of data.sessions.quizSessions) {
-    if (session.state !== States.END) {
+    if (session.state !== States.END && session.sessionId === quiz.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
