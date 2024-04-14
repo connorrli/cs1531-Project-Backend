@@ -254,3 +254,8 @@ export const playerJoinRequest = (name: string, sessionId: number) => {
   const response = request('POST', SERVER_URL + '/v1/player/join', { json: { name: name, sessionId: sessionId } });
   return JSON.parse(response.body.toString());
 };
+
+export const playerQuestionInfoRequest = (playerId: number, questionPosition: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}`);
+  return JSON.parse(response.body.toString());
+};
