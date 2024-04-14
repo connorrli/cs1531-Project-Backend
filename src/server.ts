@@ -69,6 +69,7 @@ import {
 import {
   adminPlayerJoin,
   adminPlayerQuestionInfo,
+  adminPlayerQuestionResults,
   adminPlayerSubmit
 } from './Iter3/player';
 
@@ -766,6 +767,13 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   const { name, sessionId } = req.body as { name: string, sessionId: number };
   const response = adminPlayerJoin(name, sessionId);
   save();
+  return res.json(response);
+});
+
+app.get('/v1/player/:playerId/question/:questionPosition/results', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const response = adminPlayerQuestionResults(playerId, questionPosition);
   return res.json(response);
 });
 

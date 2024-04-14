@@ -264,3 +264,8 @@ export const playerSubmitRequest = (answerIds: Array<number>, playerId: number, 
   const response = request('PUT', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/answer`, { json: { answerIds } });
   return JSON.parse(response.body.toString());
 };
+
+export const playerQuestionResultsRequest = (playerId: number, questionPosition: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/results`);
+  return JSON.parse(response.body.toString());
+};

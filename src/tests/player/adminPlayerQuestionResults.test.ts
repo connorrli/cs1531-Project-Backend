@@ -7,7 +7,8 @@ import {
   playerJoinRequest,
   quizSessionStateUpdateRequest,
   playerSubmitRequest,
-  playerQuestionInfoRequest
+  playerQuestionInfoRequest,
+  playerQuestionResultsRequest
 } from '../requests';
 
 const ERROR = { error: expect.any(String) };
@@ -50,43 +51,31 @@ beforeEach(() => {
   quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
   const answers = playerQuestionInfoRequest(player.playerId, 1).answers;
   answers1 = { answer1: answers[0].answerId, answer2: answers[1].answerId };
+  playerSubmitRequest([answers1.answer1], player.playerId, 1);
+  playerSubmitRequest([answers1.answer2], player2.playerId, 1);
+  quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
 });
 
-test('Success conditions', () => {
-  expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
-  expect(playerSubmitRequest([answers1.answer1, answers1.answer2], player.playerId, 1)).toStrictEqual({});
-  expect(playerSubmitRequest([answers1.answer2], player.playerId, 1)).toStrictEqual({});
-});
-test('Success conditions with two players', () => {
-  expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
-  expect(playerSubmitRequest([answers1.answer1], player2.playerId, 1)).toStrictEqual({});
-});
-
-test('Error conditions - bad playerid', () => {
-  expect(playerSubmitRequest([answers1.answer1], player.playerId + 1, 1)).toStrictEqual(ERROR);
+test('Expected behaviour', () => {
+  expect(playerQuestionResultsRequest(player.playerId, 1)).toStrictEqual({
+    questionId: expect.any(Number),
+    playersCorrectList: ['jimmy'],
+    averageAnswerTime: expect.any(Number),
+    percentCorrect: 50
+  });
 });
 
-test('Error conditions - invalid question position', () => {
-  expect(playerSubmitRequest([answers1.answer1], player.playerId, 3)).toStrictEqual(ERROR);
+test('nonexistant id', () => {
+  const nonid = Math.max(player.playerId, player2.playerId) + 1;
+  expect(playerQuestionResultsRequest(nonid, 1)).toStrictEqual(ERROR);
 });
 
-test('Error conditions - wrong session state', () => {
+test('bad question position', () => {
+  expect(playerQuestionResultsRequest(player.playerId, 2)).toStrictEqual(ERROR);
+  expect(playerQuestionResultsRequest(player.playerId, 3)).toStrictEqual(ERROR);
+});
+
+test('Wrong quiz session state', () => {
   quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'END');
-  expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual(ERROR);
-});
-
-test('Error conditions - quiz not up to this q', () => {
-  expect(playerSubmitRequest([answers1.answer1], player.playerId, 2)).toStrictEqual(ERROR);
-});
-
-test('Error conditions - answer id invalid', () => {
-  expect(playerSubmitRequest([answers1.answer1 + 1, answers1.answer2 + 1], player.playerId, 1)).toStrictEqual(ERROR);
-});
-
-test('Error conditions - dupe answer ids', () => {
-  expect(playerSubmitRequest([answers1.answer1, answers1.answer1], player.playerId, 1)).toStrictEqual(ERROR);
-});
-
-test('Error conditions - empty array', () => {
-  expect(playerSubmitRequest([], player.playerId, 1)).toStrictEqual(ERROR);
+  expect(playerQuestionResultsRequest(player.playerId, 1)).toStrictEqual(ERROR);
 });
