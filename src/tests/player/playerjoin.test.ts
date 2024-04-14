@@ -4,17 +4,18 @@ import {
   playerJoinRequest,
   quizCreateRequestV2,
   questionCreateRequestV2,
-  clearRequest
+  clearRequest,
+  quizSessionStateUpdateRequest
 } from '../requests';
 
-const ERROR = { error: expect.any(String) };
-
 let quizSession: { sessionId: number };
+let quiz: { quizId: number };
+let user: { token: string };
 
 beforeEach(() => {
   clearRequest();
-  const user = userCreateRequest('john@gmail.com', 'password123', 'john', 'doe');
-  const quiz = quizCreateRequestV2(user.token, 'quiz', 'm eow');
+  user = userCreateRequest('john@gmail.com', 'password123', 'john', 'doe');
+  quiz = quizCreateRequestV2(user.token, 'quiz', 'm eow');
   questionCreateRequestV2(user.token, quiz.quizId, {
     question: 'What course is this?',
     duration: 10,
@@ -33,6 +34,8 @@ test('Expected results under normal conditions', () => {
 });
 
 describe('Throws error under error conditions', () => {
+  const ERROR = { error: expect.any(String) };
+
   test('Same name', () => {
     playerJoinRequest('jimmy', quizSession.sessionId);
     expect(playerJoinRequest('jimmy', quizSession.sessionId)).toStrictEqual(ERROR);
@@ -44,8 +47,10 @@ describe('Throws error under error conditions', () => {
   });
 
   test('Not in lobby state', () => {
-    // state changing function needs to be called here
-    /* const response = playerJoinRequest('jimmy', quizSession.sessionId);
-    expect(response).toStrictEqual(ERROR); */
+    const newSession = quizSessionStartRequest(user.token, quiz.quizId, 5);
+    expect(newSession.state).toBeUndefined();
+    quizSessionStateUpdateRequest(user.token, quiz.quizId, quizSession.sessionId, 'NEXT_QUESTION');
+    const joinResponse = playerJoinRequest('Little Jimmy', quizSession.sessionId);
+    expect(joinResponse).toStrictEqual(ERROR);
   });
 });
