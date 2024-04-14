@@ -1,6 +1,7 @@
-import { getData } from '../data/dataStore';
+import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
+import { Answer, Player } from '../interface';
 
 export function adminPlayerJoin(name: string, sessionId: number) {
   if (name.length === 0) {
@@ -19,9 +20,14 @@ export function adminPlayerJoin(name: string, sessionId: number) {
     throw HTTPError(400, 'ERROR 400: Name already in use!');
   }
   const pseudorandId = parseInt(halfToken());
+  const quiz = data.quizzes.find(q => q.quizId === quizSession.metadata.quizId);
   const player = {
     playerId: pseudorandId,
-    name: name
+    name: name,
+    playerInfo: {
+      points: Array(quiz.questions.length).fill(0),
+      timeTaken: Array(quiz.questions.length).fill(-1)
+    }
   };
   quizSession.players.push(player);
 
@@ -51,10 +57,77 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
     throw HTTPError(400, 'bruh');
   }
   const question = { ...quizData.questions[questionPosition - 1] };
-  for (const answer of question.answers) {
-    delete answer.correct;
+  const answersReturn = [];
+  for (const obj of question.answers) {
+    answersReturn.push({ answerId: obj.answerId, answer: obj.answer, colour: obj.colour });
   }
-  return question;
+  return {
+    questionId: question.questionId,
+    question: question.question,
+    duration: question.duration,
+    thumbnailUrl: question.thumbnailUrl,
+    points: question.points,
+    answers: answersReturn
+  };
+}
+
+export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
+  const data = getData();
+  let sess;
+  for (const session of data.sessions.quizSessions) {
+    if (session.players.find(p => p.playerId === playerId) !== undefined) {
+      sess = session;
+    }
+  }
+  if (sess === undefined) {
+    throw HTTPError(400, 'ERROR 400: player does not exist');
+  }
+  if (sess.atQuestion !== questionPosition) {
+    throw HTTPError(400, `ERROR 400: Quiz either not at position ${questionPosition}, or ${questionPosition} is not a valid question position for this quiz`);
+  }
+  if (sess.state !== 'QUESTION_OPEN') {
+    throw HTTPError(400, 'ERROR 400: Quiz not in QUESTION_OPEN state');
+  }
+  const quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
+  if (quiz === undefined) {
+    throw HTTPError(400, 'what');
+  }
+
+  if (!(answerIds.length > 0)) {
+    throw HTTPError(400, 'ERROR 400: Need to submit at least one answer');
+  }
+
+  const checkedAns: Array<number> = [];
+  const validAns: Array<number> = [];
+  for (const ans of answerIds) {
+    for (const ansObj of quiz.questions[questionPosition - 1].answers) {
+      validAns.push(ansObj.answerId);
+    }
+    if (!(validAns.includes(ans))) {
+      throw HTTPError(400, 'ERROR 400: Answer ID does not exist in this question');
+    }
+    if (checkedAns.includes(ans)) {
+      throw HTTPError(400, 'ERROR 400: Duplicate answer ID(s)!');
+    }
+    checkedAns.push(ans);
+  }
+
+  const timer = getTimer(sess.sessionId);
+  if (timer.timeCreated === undefined) {
+    throw HTTPError(500, 'i give up');
+  }
+
+  const timeTaken = Date.now() - timer.timeCreated;
+  const player = sess.players.find(p => p.playerId === playerId);
+  player.playerInfo.timeTaken[questionPosition - 1] = timeTaken;
+
+  if (answerCorrect(quiz.questions[questionPosition - 1].answers, answerIds)) {
+    player.playerInfo.points[questionPosition - 1] = quiz.questions[questionPosition - 1].points;
+  } else {
+    player.playerInfo.points[questionPosition - 1] = 0;
+  }
+
+  return {};
 }
 
 function randPlayerName (): string {
@@ -77,4 +150,24 @@ function randPlayerName (): string {
     }
   }
   return string;
+}
+
+function answerCorrect (answers: Array<Answer>, given: Array<number>): boolean {
+  for (const ans of answers) {
+    if (given.includes(ans.answerId) !== ans.correct) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function recalculateAnswers (players: Player[], questions: number) {
+  for (let questionPosition = 1; questionPosition < questions; questionPosition++) {
+    players.sort((a, b) => a.playerInfo.timeTaken[questionPosition - 1] - b.playerInfo.timeTaken[questionPosition - 1]);
+    for (const pIndex in players) {
+      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1) {
+        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (parseInt(pIndex) + 1);
+      }
+    }
+  }
 }

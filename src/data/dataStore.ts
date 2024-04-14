@@ -3,6 +3,7 @@ import { DataStore } from '../interface';
 interface Timer {
   sessionId: number;
   timer: ReturnType<typeof setTimeout>;
+  timeCreated?: number
 }
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
