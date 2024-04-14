@@ -1,6 +1,8 @@
-import { getData } from '../data/dataStore';
+import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
+import { Answer } from '../interface';
+import { questionMoveRequest } from '../tests/requests';
 
 export function adminPlayerJoin(name: string, sessionId: number) {
   if (name.length === 0) {
@@ -56,14 +58,77 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
     throw HTTPError(400, 'bruh');
   }
   const question = { ...quizData.questions[questionPosition - 1] };
-  for (const answer of question.answers) {
-    delete answer.correct;
+  const answersReturn = [];
+  for (const obj of question.answers) {
+    answersReturn.push({ answerId: obj.answerId, answer: obj.answer, colour: obj.colour })
   }
-  return question;
+  return {
+    questionId: question.questionId,
+    question: question.question,
+    duration: question.duration,
+    thumbnailUrl: question.thumbnailUrl,
+    points: question.points,
+    answers: answersReturn
+  }
 }
 
 export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
-  return {};
+  const data = getData();
+  let sess = undefined;
+  for (const session of data.sessions.quizSessions) {
+    if (session.players.find(p => p.playerId === playerId) !== undefined) {
+      sess = session;
+    }
+  }
+  if (sess === undefined) {
+    throw HTTPError(400, 'ERROR 400: player does not exist');
+  }
+  if (sess.atQuestion != questionPosition) {
+    throw HTTPError(400, `ERROR 400: Quiz either not at position ${questionPosition}, or ${questionPosition} is not a valid question position for this quiz`);
+  }
+  if (sess.state !== 'QUESTION_OPEN') {
+    throw HTTPError(400, 'ERROR 400: Quiz not in QUESTION_OPEN state');
+  }
+  let quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
+  if (quiz === undefined) {
+    throw HTTPError(400, 'what');
+  }
+
+  if (!(answerIds.length > 0)) {
+    throw HTTPError(400, 'ERROR 400: Need to submit at least one answer');
+  }
+
+  let checkedAns: Array<number> = [];
+  let validAns: Array<number> = [];
+  for (const ans of answerIds) {
+    for (const ansObj of quiz.questions[questionPosition -1].answers) {
+      validAns.push(ansObj.answerId);
+    }
+    if (!(validAns.includes(ans))) {  
+      throw HTTPError(400, 'ERROR 400: Answer ID does not exist in this question');
+    }
+    if (checkedAns.includes(ans)) {
+      throw HTTPError(400, 'ERROR 400: Duplicate answer ID(s)!');
+    }
+    checkedAns.push(ans);
+  }
+
+  const timer = getTimer(sess.sessionId);
+  if (timer.timeCreated === undefined) {
+    throw HTTPError(500, 'i give up');
+  }
+
+  const timeTaken = Date.now() - timer.timeCreated;
+  const player = sess.players.find(p => p.playerId === playerId);
+  player.playerInfo.timeTaken[questionPosition - 1] = timeTaken;
+
+  if (answerCorrect(quiz.questions[questionPosition -1].answers, answerIds)) {
+    player.playerInfo.points[questionPosition - 1] = quiz.questions[questionPosition - 1].points;
+  } else {
+    player.playerInfo.points[questionPosition - 1] = 0;
+  }
+
+  return {}
 }
 
 function randPlayerName (): string {
@@ -86,4 +151,13 @@ function randPlayerName (): string {
     }
   }
   return string;
+}
+
+function answerCorrect (answers: Array<Answer>, given: Array<number>): Boolean {
+  for (const ans of answers) {
+    if (given.includes(ans.answerId) !== ans.correct) {
+      return false
+    }
+  }
+  return true
 }

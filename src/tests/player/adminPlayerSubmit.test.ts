@@ -55,6 +55,7 @@ beforeEach(() => {
 test('Success conditions', () => {
     expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
     expect(playerSubmitRequest([answers1.answer1, answers1.answer2], player.playerId, 1)).toStrictEqual({});
+    expect(playerSubmitRequest([answers1.answer2], player.playerId, 1)).toStrictEqual({});
 });
 
 test('Error conditions - bad playerid', () => {
