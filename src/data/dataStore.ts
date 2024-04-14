@@ -46,8 +46,8 @@ function setData(newData: DataStore) {
   data = newData;
 }
 
-function getTimer(sessionId: number) {
-  return timers.find(timer => timer.sessionId === sessionId).timer;
+function getTimer(sessionId: number): undefined | Timer {
+  return timers.find(timer => timer.sessionId === sessionId);
 }
 
 function getTimers() {

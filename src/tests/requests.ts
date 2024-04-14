@@ -241,6 +241,15 @@ export const quizSessionStartRequest = (token: string, quizId: number, autoStart
   return JSON.parse(response.body.toString());
 };
 
+export const quizSessionStateUpdateRequest = (token: string, quizId: number, sessionId: number, action: string) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token }, json: { action } });
+  return JSON.parse(response.body.toString());
+};
+
+/* ----------------------------------------------------------------------------------
+| PLAYER HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
+
 export const playerJoinRequest = (name: string, sessionId: number) => {
   const response = request('POST', SERVER_URL + '/v1/player/join', { json: { name: name, sessionId: sessionId } });
   return JSON.parse(response.body.toString());
