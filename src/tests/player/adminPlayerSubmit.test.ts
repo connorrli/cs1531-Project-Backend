@@ -59,10 +59,7 @@ test('Success conditions', () => {
 });
 test('Success conditions with two players', () => {
   expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
-  for (let i = 0; i < 10000000; i++);
   expect(playerSubmitRequest([answers1.answer1], player2.playerId, 1)).toStrictEqual({});
-  quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
-  quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
 });
 
 test('Error conditions - bad playerid', () => {
