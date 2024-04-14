@@ -775,7 +775,7 @@ app.get('/v1/player/:playerId/question/:questionPosition/results', (req: Request
   const questionPosition: number = parseInt(req.params.questionPosition);
   const response = adminPlayerQuestionResults(playerId, questionPosition);
   return res.json(response);
-})
+});
 
 app.put('/v1/player/:playerId/question/:questionPosition/answer', (req: Request, res: Response) => {
   const playerId: number = parseInt(req.params.playerId);

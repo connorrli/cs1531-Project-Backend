@@ -193,7 +193,7 @@ export function recalculateAnswers (players: Player[], questions: number) {
   }
 }
 
-export function answerResults (sessionId: number, questionPosition: number ) {
+export function answerResults (sessionId: number, questionPosition: number) {
   const data = getData();
   const sess = data.sessions.quizSessions.find(s => s.sessionId === sessionId);
   if (sess === undefined) {
@@ -201,7 +201,7 @@ export function answerResults (sessionId: number, questionPosition: number ) {
   }
   const quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
   let netTime = 0;
-  let playersCorrectList: Array<string> = [];
+  const playersCorrectList: Array<string> = [];
   for (const player of sess.players) {
     if (player.playerInfo.timeTaken[questionPosition - 1] !== -1) {
       netTime += player.playerInfo.timeTaken[questionPosition - 1];
@@ -215,5 +215,5 @@ export function answerResults (sessionId: number, questionPosition: number ) {
     playersCorrectList,
     averageAnswerTime: Math.floor((netTime / 1000) / sess.players.length),
     percentCorrect: Math.floor(playersCorrectList.length * 100 / sess.players.length)
-  }
+  };
 }
