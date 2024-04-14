@@ -30,7 +30,7 @@ export function adminPlayerJoin(name: string, sessionId: number) {
 
 export function adminPlayerQuestionInfo (playerId: number, questionPosition: number) {
   const data = getData();
-  let quiz = undefined;
+  let quiz;
   for (const session of data.sessions.quizSessions) {
     if (session.players.find(p => p.playerId === playerId) !== undefined) {
       quiz = session;
@@ -50,7 +50,7 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
   if (quizData === undefined) {
     throw HTTPError(400, 'bruh');
   }
-  const question = { ...quizData.questions[questionPosition - 1]};
+  const question = { ...quizData.questions[questionPosition - 1] };
   for (const answer of question.answers) {
     delete answer.correct;
   }

@@ -773,7 +773,7 @@ app.get('/v1/player/:playerId/question/:questionPosition', (req: Request, res: R
   const questionPosition: number = parseInt(req.params.questionPosition);
   const response = adminPlayerQuestionInfo(playerId, questionPosition);
   return res.json(response);
-})
+});
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
