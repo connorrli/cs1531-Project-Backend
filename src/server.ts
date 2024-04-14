@@ -67,7 +67,8 @@ import {
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
 import {
-  adminPlayerJoin
+  adminPlayerJoin,
+  adminPlayerQuestionInfo
 } from './Iter3/player';
 
 // Set up web app
@@ -767,6 +768,12 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+app.get('/v1/player/:playerId/question/:questionPosition', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const response = adminPlayerQuestionInfo(playerId, questionPosition);
+  return res.json(response);
+})
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
