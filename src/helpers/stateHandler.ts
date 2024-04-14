@@ -6,6 +6,7 @@ import { getTimer } from '../data/dataStore';
 import { QuizSession, QuizV2 } from '../interface';
 import HTTPError from 'http-errors';
 import { save } from '../server';
+import { recalculateAnswers } from '../Iter3/player';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
@@ -87,7 +88,7 @@ function handleGoToFinalResults(quizSession: QuizSession, timer: Timer) {
   ) {
     throw HTTPError(400, 'Cannot be applied in current state');
   }
-
+  recalculateAnswers(quizSession.players, quizSession.metadata.questions.length);
   if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
   quizSession.state = States.FINAL_RESULTS;
 }

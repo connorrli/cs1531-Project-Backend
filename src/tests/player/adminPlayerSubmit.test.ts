@@ -16,6 +16,7 @@ let john: { token: string };
 let quiz: { quizId: number };
 let session: { sessionId: number };
 let player: { playerId: number };
+let player2: { playerId: number };
 let q1: { questionId: number };
 let q2: { questionId: number };
 let answers1: { answer1: number, answer2: number };
@@ -46,6 +47,7 @@ beforeEach(() => {
     });
     session = quizSessionStartRequest(john.token, quiz.quizId, 5);
     player = playerJoinRequest('jimmy', session.sessionId);
+    player2 = playerJoinRequest('jimmytwo', session.sessionId);
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
     let answers = playerQuestionInfoRequest(player.playerId, 1).answers;
@@ -56,6 +58,13 @@ test('Success conditions', () => {
     expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
     expect(playerSubmitRequest([answers1.answer1, answers1.answer2], player.playerId, 1)).toStrictEqual({});
     expect(playerSubmitRequest([answers1.answer2], player.playerId, 1)).toStrictEqual({});
+});
+test('Success conditions with two players', () => {
+    expect(playerSubmitRequest([answers1.answer1], player.playerId, 1)).toStrictEqual({});
+    for (let i = 0; i < 10000000; i++);
+    expect(playerSubmitRequest([answers1.answer1], player2.playerId, 1)).toStrictEqual({});
+    quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
+    quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
 });
 
 test('Error conditions - bad playerid', () => {

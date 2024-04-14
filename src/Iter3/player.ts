@@ -1,7 +1,7 @@
 import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
-import { Answer } from '../interface';
+import { Answer, Player } from '../interface';
 import { questionMoveRequest } from '../tests/requests';
 
 export function adminPlayerJoin(name: string, sessionId: number) {
@@ -160,4 +160,16 @@ function answerCorrect (answers: Array<Answer>, given: Array<number>): Boolean {
     }
   }
   return true
+}
+
+export function recalculateAnswers (players: Player[], questions: number) {
+  for (let questionPosition = 1; questionPosition < questions; questionPosition++) {
+    players.sort((a, b) => a.playerInfo.timeTaken[questionPosition - 1] - b.playerInfo.timeTaken[questionPosition - 1]);
+    for (const pIndex in players) {
+      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1) {
+        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (parseInt(pIndex) + 1);
+      }
+    }
+  }
+  return;
 }
