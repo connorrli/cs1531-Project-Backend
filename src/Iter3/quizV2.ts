@@ -5,7 +5,7 @@
 // IMPORTS HAVE BEEN COMMENTED OUT TO PASS LINTING,
 // UNCOMMENT SPECIFIC IMPORTS ONCE THEY ARE REQUIRED PLEASE TY
 
-import { getData, setData } from '../data/dataStore';
+import { getData, getTimers, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
 import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession, Player } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
@@ -24,7 +24,7 @@ import {
 } from '../helpers/quiz/quizMiscHelpers';
 import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
-import { States } from '../helpers/stateHandler';
+import { States, stateMachine } from '../helpers/stateHandler';
 import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -544,7 +544,7 @@ function adminQuizQuestionDeleteV2(authUserId: number,
   }
 
   for (const session of data.sessions.quizSessions) {
-    if (session.state !== States.END) {
+    if (session.state !== States.END && session.sessionId === quiz.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -631,6 +631,27 @@ function adminQuizQuestionDuplicateV2(authUserId: number, quizId: number, source
   return { newQuestionId };
 }
 
+function adminQuizSessionStateUpdate(
+  userId: number,
+  quizId: number,
+  sessionId: number,
+  action: string
+): EmptyObject {
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const session = findQuizSession(quizId, sessionId);
+  if (typeof session === 'undefined') {
+    throw HTTPError(400, 'ERROR 400: Invalid quiz session');
+  }
+
+  const quiz = findQuizV2(getData().quizzes, quizId);
+  stateMachine(quiz, session, action);
+
+  return { };
+}
+
 function adminQuizSessionStart(
   userId: number,
   quizId: number,
@@ -661,6 +682,8 @@ function adminQuizSessionStart(
       thumbnailUrl: quiz.thumbnailUrl
     }
   });
+
+  getTimers().push({ sessionId, timer: undefined });
 
   return { sessionId };
 }
@@ -770,6 +793,7 @@ export {
   adminQuizQuestionDeleteV2,
   adminQuizQuestionMoveV2,
   adminQuizQuestionDuplicateV2,
+  adminQuizSessionStateUpdate,
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
   guestPlayerStatus,

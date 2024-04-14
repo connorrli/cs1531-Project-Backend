@@ -145,9 +145,11 @@ export function updateQuizDuration(quiz: Quiz) {
  */
 export function findQuizSession(quizId: number, quizSessionId: number): QuizSession | undefined {
   const data = getData();
-  const quiz = findQuiz(data.quizzes, quizId);
 
-  if (typeof quiz !== 'undefined' && 'quizSessions' in quiz) {
-    return quiz.quizSessions.find(session => session.sessionId === quizSessionId);
+  for (const session of data.sessions.quizSessions) {
+    if (session.sessionId === quizSessionId && session.metadata.quizId === quizId) {
+      return session;
+    }
   }
+  return undefined;
 }

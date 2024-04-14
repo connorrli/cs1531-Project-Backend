@@ -55,6 +55,7 @@ import {
   adminQuizQuestionUpdateV2,
   adminQuizRemoveV2,
   adminQuizRestoreV2,
+  adminQuizSessionStateUpdate,
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
   adminQuizTransferV2,
@@ -68,6 +69,10 @@ import {
   adminUserDetailsV2,
   adminUserPasswordUpdateV2
 } from './Iter3/authV2';
+import {
+  adminPlayerJoin,
+  adminPlayerQuestionInfo
+} from './Iter3/player';
 
 // Set up web app
 const app = express();
@@ -112,7 +117,7 @@ const loadTrash = () => {
 loadTrash();
 
 // Save current `data` dataStore object state into database.json
-const save = () => {
+export const save = () => {
   fs.writeFileSync('./database.json', JSON.stringify(getData(), null, 2));
 };
 
@@ -746,6 +751,32 @@ app.post('/v2/admin/quiz/:quizId/question/:questionId/duplicate', (req: Request,
   return res.json(response);
 });
 
+app.put('/v1/admin/quiz/:quizId/session/:sessionId', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizId);
+  const sessionId = parseInt(req.params.sessionId);
+  const token = req.header('token');
+  const action = req.body.action;
+
+  const session = getSessionV2(token);
+
+  const response = adminQuizSessionStateUpdate(session.userId, quizId, sessionId, action);
+  save();
+  return res.json(response);
+});
+
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const { name, sessionId } = req.body as { name: string, sessionId: number };
+  const response = adminPlayerJoin(name, sessionId);
+  save();
+  return res.json(response);
+});
+
+app.get('/v1/player/:playerId/question/:questionPosition', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const response = adminPlayerQuestionInfo(playerId, questionPosition);
+  return res.json(response);
+});
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);

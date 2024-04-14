@@ -5,12 +5,16 @@
 import { getTimer } from '../data/dataStore';
 import { QuizSession, QuizV2 } from '../interface';
 import HTTPError from 'http-errors';
+import { save } from '../server';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-type Timer = ReturnType<typeof setTimeout>;
+interface Timer {
+  sessionId: number;
+  timer: ReturnType<typeof setTimeout>;
+}
 
 export enum States {
   LOBBY = 'LOBBY',
@@ -83,7 +87,7 @@ function handleGoToFinalResults(quizSession: QuizSession, timer: Timer) {
     throw HTTPError(400, 'Cannot be applied in current state');
   }
 
-  clearTimeout(timer);
+  if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
   quizSession.state = States.FINAL_RESULTS;
 }
 
@@ -94,7 +98,7 @@ function handleGoToFinalResults(quizSession: QuizSession, timer: Timer) {
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
 function handleEnd(quizSession: QuizSession, timer: Timer) {
-  clearTimeout(timer);
+  if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
   quizSession.state = States.END;
 }
 
@@ -112,7 +116,8 @@ function handleGoToAnswer(quizSession: QuizSession, timer: Timer) {
     throw HTTPError(400, 'Cannot be applied in current state');
   }
 
-  clearTimeout(timer);
+  if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
+
   quizSession.state = States.ANSWER_SHOW;
 }
 
@@ -132,11 +137,12 @@ function handleSkipCountdown(
     throw HTTPError(400, 'Cannot be applied in current state');
   }
 
-  clearTimeout(timer);
+  if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
   quizSession.state = States.QUESTION_OPEN;
-  setTimeout(
+  timer.timer = setTimeout(
     () => {
       quizSession.state = States.QUESTION_CLOSE;
+      save();
     },
     quiz.questions[quizSession.atQuestion - 1].duration * 1000
   );
@@ -162,24 +168,21 @@ function handleNextQuestion(
     throw HTTPError(400, 'Cannot be applied in current state');
   }
 
-  clearTimeout(timer);
-
-  if (quizSession.atQuestion === quiz.numQuestions) {
-    stateMachine(quiz, quizSession, Actions.GO_TO_FINAL_RESULTS);
-    return;
-  }
+  if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
 
   quizSession.atQuestion++;
   quizSession.state = 'QUESTION_COUNTDOWN';
 
   // First wait for countdown to end
-  setTimeout(
+  timer.timer = setTimeout(
     () => {
       quizSession.state = States.QUESTION_OPEN;
+      save();
       // Then open question for specified duration
-      setTimeout(
+      timer.timer = setTimeout(
         () => {
           quizSession.state = States.QUESTION_CLOSE;
+          save();
         },
         quiz.questions[quizSession.atQuestion - 1].duration * 1000
       );
