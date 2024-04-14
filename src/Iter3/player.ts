@@ -1,7 +1,7 @@
 import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
-import { Answer, Player } from '../interface';
+import { Answer, Player, QuizSession } from '../interface';
 
 export function adminPlayerJoin(name: string, sessionId: number) {
   if (name.length === 0) {
@@ -73,7 +73,7 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
 
 export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
   const data = getData();
-  let sess;
+  let sess: QuizSession;
   for (const session of data.sessions.quizSessions) {
     if (session.players.find(p => p.playerId === playerId) !== undefined) {
       sess = session;
@@ -130,6 +130,27 @@ export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, q
   return {};
 }
 
+export function adminPlayerQuestionResults (playerId: number, questionPosition: number) {
+  const data = getData();
+  let sess: QuizSession;
+  for (const session of data.sessions.quizSessions) {
+    if (session.players.find(p => p.playerId === playerId) !== undefined) {
+      sess = session;
+    }
+  }
+  if (sess === undefined) {
+    throw HTTPError(400, 'ERROR 400: PlayerId is not a valid playerId');
+  }
+  if (sess.state !== 'ANSWER_SHOW') {
+    throw HTTPError(400, 'ERROR 400: Quiz session in wrong state');
+  }
+  if (sess.atQuestion !== questionPosition) {
+    throw HTTPError(400, `ERROR 400: Either ${questionPosition} is not a valid question position for this quiz, or quiz is not at question ${questionPosition}`);
+  }
+
+  return answerResults(sess.sessionId, questionPosition);
+}
+
 function randPlayerName (): string {
   let string: string = String.fromCharCode(Math.random() * 26 + 97);
   let newchar: string = String.fromCharCode(Math.random() * 26 + 97);
@@ -169,5 +190,30 @@ export function recalculateAnswers (players: Player[], questions: number) {
         players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (parseInt(pIndex) + 1);
       }
     }
+  }
+}
+
+export function answerResults (sessionId: number, questionPosition: number ) {
+  const data = getData();
+  const sess = data.sessions.quizSessions.find(s => s.sessionId === sessionId);
+  if (sess === undefined) {
+    throw HTTPError(400, 'Invalid session parsed!');
+  }
+  const quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
+  let netTime = 0;
+  let playersCorrectList: Array<string> = [];
+  for (const player of sess.players) {
+    if (player.playerInfo.timeTaken[questionPosition - 1] !== -1) {
+      netTime += player.playerInfo.timeTaken[questionPosition - 1];
+    }
+    if (player.playerInfo.points[questionPosition - 1] !== 0) {
+      playersCorrectList.push(player.name);
+    }
+  }
+  return {
+    questionId: quiz.questions[questionPosition - 1].questionId,
+    playersCorrectList,
+    averageAnswerTime: Math.floor((netTime / 1000) / sess.players.length),
+    percentCorrect: Math.floor(playersCorrectList.length * 100 / sess.players.length)
   }
 }
