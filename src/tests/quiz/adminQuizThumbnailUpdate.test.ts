@@ -1,17 +1,12 @@
 import request from 'sync-request-curl';
 import { url, port } from '../../config.json';
-import { userCreateRequest, quizCreateRequestV2, quizInfoRequestV2 } from '../requests';
+import { userCreateRequest, quizCreateRequestV2, quizInfoRequestV2, quizThumbnailRequest } from '../requests';
 const ERROR = { error: expect.any(String) };
 const SERVER_URL = `${url}:${port}`;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { qs: {} });
 });
-
-const quizThumbnailRequest = (token: string, quizId: number, imgUrl: string) => {
-  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, { headers: { token }, json: { imgUrl } });
-  return JSON.parse(response.body.toString());
-};
 
 describe('adminQuizthumbnailUpdate function tests', () => {
   test('Should return an error when quizId does not refer to a valid quiz', () => {
