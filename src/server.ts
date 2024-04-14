@@ -68,7 +68,8 @@ import {
 } from './Iter3/authV2';
 import {
   adminPlayerJoin,
-  adminPlayerQuestionInfo
+  adminPlayerQuestionInfo,
+  adminPlayerSubmit
 } from './Iter3/player';
 
 // Set up web app
@@ -764,6 +765,15 @@ app.put('/v1/admin/quiz/:quizId/session/:sessionId', (req: Request, res: Respons
 app.post('/v1/player/join', (req: Request, res: Response) => {
   const { name, sessionId } = req.body as { name: string, sessionId: number };
   const response = adminPlayerJoin(name, sessionId);
+  save();
+  return res.json(response);
+});
+
+app.put('/v1/player/:playerId/question/:questionPosition/answer', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const answerIds: Array<number> = req.body.answerIds;
+  const response = adminPlayerSubmit(answerIds, playerId, questionPosition);
   save();
   return res.json(response);
 });

@@ -19,9 +19,14 @@ export function adminPlayerJoin(name: string, sessionId: number) {
     throw HTTPError(400, 'ERROR 400: Name already in use!');
   }
   const pseudorandId = parseInt(halfToken());
+  const quiz = data.quizzes.find(q => q.quizId === quizSession.metadata.quizId);
   const player = {
     playerId: pseudorandId,
-    name: name
+    name: name,
+    playerInfo: {
+      points: Array(quiz.questions.length).fill(0),
+      timeTaken: Array(quiz.questions.length).fill(-1)
+    }
   };
   quizSession.players.push(player);
 
@@ -55,6 +60,10 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
     delete answer.correct;
   }
   return question;
+}
+
+export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
+  return {};
 }
 
 function randPlayerName (): string {

@@ -14,6 +14,7 @@ import { save } from '../server';
 interface Timer {
   sessionId: number;
   timer: ReturnType<typeof setTimeout>;
+  timeCreated?: number;
 }
 
 export enum States {
@@ -146,6 +147,8 @@ function handleSkipCountdown(
     },
     quiz.questions[quizSession.atQuestion - 1].duration * 1000
   );
+  //setting question start to be now
+  timer.timeCreated = Date.now();
 }
 
 /**
@@ -189,4 +192,6 @@ function handleNextQuestion(
     },
     3 * 1000
   );
+  //adding the time the question will open to the timer
+  timer.timeCreated = Date.now() + 3000; 
 }
