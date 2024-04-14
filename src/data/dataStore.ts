@@ -10,7 +10,10 @@ interface Timer {
 let data : DataStore = {
   users: [],
   quizzes: [],
-  sessions: [],
+  sessions: {
+    userSessions: [],
+    quizSessions: []
+  },
 };
 
 const timers : Timer[] = [];

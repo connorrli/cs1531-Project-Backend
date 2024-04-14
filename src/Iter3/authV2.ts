@@ -47,19 +47,12 @@ interface AdminUserDetailsReturn { user: UserDetails; }
   *
   * @returns {object} - Returns empty object if successful, otherwise error
 */
-function adminAuthLogoutV2(token: string): EmptyObject | ErrorObject {
+function adminAuthLogoutV2(session: UserSession): EmptyObject | ErrorObject {
   const data = getData();
   // const session = data.sessions; - This isn't being used yet ?
 
-  if (token.length === 0) {
-    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
-  }
-  const finder = (data.sessions).find(user => user.token === token);
-  if (finder === undefined) {
-    throw HTTPError(401, `ERROR 401: Token ${token} is invalid`);
-  }
-  const tokenLocate = data.sessions.findIndex(index => index.token === token);
-  data.sessions.splice(tokenLocate, 1);
+  const tokenLocate = data.sessions.userSessions.findIndex(index => index.token === session.token);
+  data.sessions.userSessions.splice(tokenLocate, 1);
   return { };
 }
 

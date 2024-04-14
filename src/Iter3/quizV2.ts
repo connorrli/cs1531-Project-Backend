@@ -80,7 +80,7 @@ export interface AdminQuizInfoReturn {
 
 interface AdminQuizSessionStartReturn { sessionId: number }
 
-export interface playerStatusReturn {
+interface guestPlayerStatusReturn {
   state: string;
   numQuestions: number;
   atQuestion: number;
@@ -93,9 +93,13 @@ interface everyChatMessage {
   timeSent: number;
 }
 
-export interface allChatMessagesReturn {
-  messages: everyChatMessage[];
+interface allChatMessagesReturn { messages: everyChatMessage[] }
+
+/*interface chatMessage {
+  messageBody: string;
 }
+
+interface sendChatMessageReturn { message: chatMessage }*/ /// May not need these items
 
 /**
  * Describes type for empty object.
@@ -218,7 +222,6 @@ function adminQuizCreateV2(
     numQuestions: 0,
     questions: [],
     duration: 0,
-    quizSessions: [],
     thumbnailUrl: '',
   };
   const trash = getTrash();
@@ -262,8 +265,8 @@ function adminQuizRemoveV2(authUserId: number, quizId: number): EmptyObject {
   const quizIndex = findQuizIndex(data.quizzes, quizId);
   const quizToRemove = data.quizzes[quizIndex];
 
-  for (const session of quizToRemove.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizToRemove.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -458,8 +461,8 @@ function adminQuizTransferV2(
     }
   }
 
-  for (const session of quizTransfer.quizSessions) {
-    if (session.state !== States.END) {
+  for (const session of data.sessions.quizSessions) {
+    if (session.state !== States.END && session.sessionId === quizTransfer.quizId) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
   }
@@ -540,7 +543,7 @@ function adminQuizQuestionDeleteV2(authUserId: number,
     throw HTTPError(400, 'ERROR 400: Invalid question');
   }
 
-  for (const session of quiz.quizSessions) {
+  for (const session of data.sessions.quizSessions) {
     if (session.state !== States.END) {
       throw HTTPError(400, 'ERROR 400: This quiz still has an active session');
     }
@@ -634,11 +637,12 @@ function adminQuizSessionStart(
   autoStartNum: number
 ): AdminQuizSessionStartReturn {
   quizSessionStartChecker(userId, quizId, autoStartNum);
+  const data = getData();
 
   const quiz = findQuizV2(getData().quizzes, quizId);
-  const sessionId = quiz.quizSessions.length + 1;
+  const sessionId = data.sessions.quizSessions.length + 1;
 
-  quiz.quizSessions.push({
+  data.sessions.quizSessions.push({
     // Though unsecure, spec doesn't require secure quiz sessions...
     sessionId,
     autoStartNum: autoStartNum,
@@ -688,38 +692,66 @@ function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: 
 }
 
 // Status of guest player
-function playerStatus(playerId: number): playerStatusReturn{
+function guestPlayerStatus(playerId: number): guestPlayerStatusReturn {
   const data = getData();
 
-  const findAllPlayers = data.players // Edit this
-  const player = findAllPlayers.find 
+  const findPlayers = data.sessions.quizSessions.players; // find all players in the session
+  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
+
+  if (player === undefined) {
+    throw HTTPError (400, 'ERROR 400: Player ID does not exist');
+  }
+
+  return {
+    state: ,
+    numQuestions: ,
+    atQuestion:
+  }
 }
 
 // View all chat messages
 function allChatMessages(playerId: number): allChatMessagesReturn {
   
-  const player = "playerStatus function"(playerId);
-  const quizSessionId = player.SessionId;
-
-  const quizSession = quizSessions.find((q) => q.quizSessionId === quizSessionId);
-
-  const allChat: allChatMessagesReturn[] = quizSession.messages;
-  return allChat;
-
-}
-
-function adminQuizList(authUserId: number): AdminQuizListReturn { ////////////////////////////
   const data = getData();
-  const ownedQuizzes : OwnedQuizObject[] = [];
+  const findPlayers = data.sessions // find all the players in the session
+  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
 
-  for (const quiz of data.quizzes) {
-    if (quiz.quizOwner === authUserId) {
-      const obj : OwnedQuizObject = { quizId: quiz.quizId, name: quiz.name };
-      ownedQuizzes.push(obj);
-    }
+  if (player === undefined) {
+    throw HTTPError (400, 'ERROR 400: Player ID does not exist');
   }
-  return { quizzes: ownedQuizzes };
+
+  //might need a loop here to get all the messages
+
+  const messages : everyChatMessage[] = {
+    messageBody: ,
+    playerId: ,
+    playerName: ,
+    timeSent: 
+  }
+
+  return { messages };
 }
+
+// Send a message into the chat
+function sendChatMessage(playerId: number, message: string): EmptyObject{
+
+  const data = getData();
+  const findPlayers = data.sessions // find all the players in the session
+  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
+
+  if (player === undefined) {
+    throw HTTPError (400, 'ERROR 400: Player ID does not exist.');
+  }
+
+  if (message.length < 1 || message.length > 100) {
+    throw HTTPError (400, 'ERROR 400: Message is < 1 or > 100 characters.');
+  }
+
+  // push message into the chat
+
+  return {};
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -740,5 +772,7 @@ export {
   adminQuizQuestionDuplicateV2,
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
-  allChatMessages
+  guestPlayerStatus,
+  allChatMessages,
+  sendChatMessage
 };
