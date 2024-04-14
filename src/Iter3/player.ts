@@ -2,7 +2,6 @@ import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
 import { Answer, Player } from '../interface';
-import { questionMoveRequest } from '../tests/requests';
 
 export function adminPlayerJoin(name: string, sessionId: number) {
   if (name.length === 0) {
@@ -60,7 +59,7 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
   const question = { ...quizData.questions[questionPosition - 1] };
   const answersReturn = [];
   for (const obj of question.answers) {
-    answersReturn.push({ answerId: obj.answerId, answer: obj.answer, colour: obj.colour })
+    answersReturn.push({ answerId: obj.answerId, answer: obj.answer, colour: obj.colour });
   }
   return {
     questionId: question.questionId,
@@ -69,12 +68,12 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
     thumbnailUrl: question.thumbnailUrl,
     points: question.points,
     answers: answersReturn
-  }
+  };
 }
 
 export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
   const data = getData();
-  let sess = undefined;
+  let sess;
   for (const session of data.sessions.quizSessions) {
     if (session.players.find(p => p.playerId === playerId) !== undefined) {
       sess = session;
@@ -83,13 +82,13 @@ export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, q
   if (sess === undefined) {
     throw HTTPError(400, 'ERROR 400: player does not exist');
   }
-  if (sess.atQuestion != questionPosition) {
+  if (sess.atQuestion !== questionPosition) {
     throw HTTPError(400, `ERROR 400: Quiz either not at position ${questionPosition}, or ${questionPosition} is not a valid question position for this quiz`);
   }
   if (sess.state !== 'QUESTION_OPEN') {
     throw HTTPError(400, 'ERROR 400: Quiz not in QUESTION_OPEN state');
   }
-  let quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
+  const quiz = data.quizzes.find(q => q.quizId === sess.metadata.quizId);
   if (quiz === undefined) {
     throw HTTPError(400, 'what');
   }
@@ -98,13 +97,13 @@ export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, q
     throw HTTPError(400, 'ERROR 400: Need to submit at least one answer');
   }
 
-  let checkedAns: Array<number> = [];
-  let validAns: Array<number> = [];
+  const checkedAns: Array<number> = [];
+  const validAns: Array<number> = [];
   for (const ans of answerIds) {
-    for (const ansObj of quiz.questions[questionPosition -1].answers) {
+    for (const ansObj of quiz.questions[questionPosition - 1].answers) {
       validAns.push(ansObj.answerId);
     }
-    if (!(validAns.includes(ans))) {  
+    if (!(validAns.includes(ans))) {
       throw HTTPError(400, 'ERROR 400: Answer ID does not exist in this question');
     }
     if (checkedAns.includes(ans)) {
@@ -122,13 +121,13 @@ export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, q
   const player = sess.players.find(p => p.playerId === playerId);
   player.playerInfo.timeTaken[questionPosition - 1] = timeTaken;
 
-  if (answerCorrect(quiz.questions[questionPosition -1].answers, answerIds)) {
+  if (answerCorrect(quiz.questions[questionPosition - 1].answers, answerIds)) {
     player.playerInfo.points[questionPosition - 1] = quiz.questions[questionPosition - 1].points;
   } else {
     player.playerInfo.points[questionPosition - 1] = 0;
   }
 
-  return {}
+  return {};
 }
 
 function randPlayerName (): string {
@@ -153,13 +152,13 @@ function randPlayerName (): string {
   return string;
 }
 
-function answerCorrect (answers: Array<Answer>, given: Array<number>): Boolean {
+function answerCorrect (answers: Array<Answer>, given: Array<number>): boolean {
   for (const ans of answers) {
     if (given.includes(ans.answerId) !== ans.correct) {
-      return false
+      return false;
     }
   }
-  return true
+  return true;
 }
 
 export function recalculateAnswers (players: Player[], questions: number) {
@@ -171,5 +170,4 @@ export function recalculateAnswers (players: Player[], questions: number) {
       }
     }
   }
-  return;
 }

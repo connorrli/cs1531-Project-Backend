@@ -263,4 +263,4 @@ export const playerQuestionInfoRequest = (playerId: number, questionPosition: nu
 export const playerSubmitRequest = (answerIds: Array<number>, playerId: number, questionPosition: number) => {
   const response = request('PUT', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/answer`, { json: { answerIds } });
   return JSON.parse(response.body.toString());
-}
+};
