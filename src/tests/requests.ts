@@ -232,6 +232,11 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   return JSON.parse(response.body.toString());
 };
 
+export const quizThumbnailRequest = (token: string, quizId: number, imgUrl: string) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, { headers: { token }, json: { imgUrl } });
+  return JSON.parse(response.body.toString());
+};
+
 /* ----------------------------------------------------------------------------------
 | QUIZ (SESSION) HTTP WRAPPERS
 ------------------------------------------------------------------------------------ */
