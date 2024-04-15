@@ -41,6 +41,7 @@ export interface QuizSession {
   atQuestion: number;
   metadata: Omit<QuizV2, 'quizOwner' | 'quizSessions'>;
   players: Player[];
+  messages: chatMessages[];
 }
 
 export interface Player {
@@ -50,6 +51,13 @@ export interface Player {
     points: Array<number>,
     timeTaken: Array<number>
   }
+}
+
+export interface chatMessages {
+  messageBody: string;
+  playerId: number;
+  playerName: string;
+  timeSent: number;
 }
 
 /**

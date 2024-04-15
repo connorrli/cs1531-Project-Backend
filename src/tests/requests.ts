@@ -283,3 +283,25 @@ export const playerQuestionResultsRequest = (playerId: number, questionPosition:
   const response = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/results`);
   return JSON.parse(response.body.toString());
 };
+
+// 'statusOfGuestPlayer' function
+export const guestPlayerStatus = (playerId: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}`);
+  return JSON.parse(response.body.toString());
+};
+
+/* ----------------------------------------------------------------------------------
+| CHAT ITEMS HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
+
+// 'allChatMessages' function
+export const allChatMessages = (playerId: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}/chat`);
+  return JSON.parse(response.body.toString());
+};
+
+// 'sendChatMessage' function
+export const sendChatMessage = (playerId: number, message: string) => {
+  const response = request('POST', SERVER_URL + `/v1/player/${playerId}/chat`, { json: { message: message } });
+  return JSON.parse(response.body.toString());
+};
