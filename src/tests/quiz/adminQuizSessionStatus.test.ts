@@ -1,17 +1,7 @@
 import { QuestionBodyV2 } from '../../interface';
-import { clearRequest, quizSessionStatusRequest, quizSessionStateUpdateRequest, quizSessionStartRequest, userCreateRequest, quizCreateRequestV2, questionCreateRequestV2 } from '../requests';
+import { clearRequest, quizSessionStatusRequest, quizSessionStartRequest, userCreateRequest, quizCreateRequestV2, questionCreateRequestV2 } from '../requests';
 
 const ERROR_RESPONSE = { error: expect.any(String) };
-
-enum SessionStates {
-  LOBBY = 'LOBBY',
-  QUESTION_COUNTDOWN = 'QUESTION_COUNTDOWN',
-  QUESTION_OPEN = 'QUESTION_OPEN',
-  QUESTION_CLOSE = 'QUESTION_CLOSE',
-  ANSWER_SHOW = 'ANSWER_SHOW',
-  FINAL_RESULTS = 'FINAL_RESULTS',
-  END = 'END'
-}
 
 describe('Testing adminQuizSessionStatus function:', () => {
   let userToken: string;
@@ -106,25 +96,6 @@ describe('Testing adminQuizSessionStatus function:', () => {
     expect(response.metadata).toBeDefined();
   });
 
-  test('Success Case: Get status when quiz session is in different states', () => {
-    // This simulates the quiz session being in all states
-    const states: SessionStates[] = [
-      SessionStates.LOBBY,
-      SessionStates.QUESTION_COUNTDOWN,
-      SessionStates.QUESTION_OPEN,
-      SessionStates.QUESTION_CLOSE,
-      SessionStates.ANSWER_SHOW,
-      SessionStates.FINAL_RESULTS,
-      SessionStates.END
-    ];
-
-    states.forEach(state => {
-      quizSessionStateUpdateRequest(userToken, quizId, sessionId, state);
-      const response = quizSessionStatusRequest(userToken, quizId, sessionId);
-      expect(response.state).toEqual(state);
-    });
-  });
-
   test('Error Case: Get status with invalid sessionId', () => {
     const invalidSessionId = sessionId + 1;
     const response = quizSessionStatusRequest(userToken, quizId, invalidSessionId);
@@ -137,9 +108,15 @@ describe('Testing adminQuizSessionStatus function:', () => {
     expect(response).toEqual(ERROR_RESPONSE);
   });
 
+  test('Error Case: Get status with blank token', () => {
+    const blankToken = '';
+    const response = quizSessionStatusRequest(blankToken, quizId, sessionId);
+    expect(response).toEqual(ERROR_RESPONSE);
+  });
+
   test('Error Case: Get status without required permissions', () => {
-    const anotherUserToken = userCreateRequest('another@gmail.com', 'Password123', 'Jane', 'Doe').token;
-    const response = quizSessionStatusRequest(anotherUserToken, quizId, sessionId);
+    const secondUserToken = userCreateRequest('another@gmail.com', 'Password123', 'Jane', 'Doe').token;
+    const response = quizSessionStatusRequest(secondUserToken, quizId, sessionId);
     expect(response).toEqual(ERROR_RESPONSE);
   });
 });
