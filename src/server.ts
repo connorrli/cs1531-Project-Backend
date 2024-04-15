@@ -59,6 +59,9 @@ import {
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
   adminQuizTransferV2,
+  guestPlayerStatus,
+  allChatMessages,
+  sendChatMessage,
   adminQuizSessionStatus
 } from './Iter3/quizV2';
 import {
@@ -827,6 +830,35 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const userId = session.userId;
   const response = adminQuizSessionStatus(quizId, sessionId, userId);
 
+  return res.json(response);
+});
+
+// statusOfGuestPlayer GET request route
+app.get('/v1/player/:playerId', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId);
+
+  const response = guestPlayerStatus(playerId);
+
+  return res.json(response);
+});
+
+// allChatMessages GET request route
+app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId);
+
+  const response = allChatMessages(playerId);
+
+  return res.json(response);
+});
+
+// sendChatMessage POST request route
+app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId);
+  const sendMessage = req.body.message;
+
+  const response = sendChatMessage(playerId, sendMessage);
+
+  save();
   return res.json(response);
 });
 
