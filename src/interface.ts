@@ -47,6 +47,10 @@ export interface QuizSession {
 export interface Player {
   playerId: number;
   name: string;
+  playerInfo: {
+    points: Array<number>,
+    timeTaken: Array<number>
+  }
 }
 
 export interface chatMessages {

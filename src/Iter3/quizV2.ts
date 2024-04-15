@@ -7,7 +7,7 @@
 
 import { getData, getTimers, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession } from '../interface';
+import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession, Player } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
@@ -79,6 +79,22 @@ export interface AdminQuizInfoReturn {
 }
 
 interface AdminQuizSessionStartReturn { sessionId: number }
+interface AdminQuizSessionStatusReturn {
+  state: string;
+  atQuestion: number;
+  players: Player[];
+  metadata: {
+    quizId: number;
+    name: string;
+    timeCreated: number;
+    timeLastEdited: number;
+    description: string;
+    numQuestions: number;
+    questions: QuestionV2[];
+    duration: number;
+    thumbnailUrl: string;
+  };
+}
 
 interface guestPlayerStatusReturn {
   state: string;
@@ -693,7 +709,7 @@ function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: 
   const data = getData();
 
   if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
-    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+    throw HTTPError(403, 'ERROR 403: Does not refer to a valid quiz or the user is not the owner of the quiz');
   }
 
   const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
@@ -713,6 +729,48 @@ function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: 
   quiz.timeLastEdited = getCurrentTime();
 
   return {};
+}
+
+/**
+ * Get the status of a particular quiz session
+ *
+ * @param {number} quizId - The ID of the quiz.
+ * @param {number} sessionId - The ID of the session.
+ * @param {number} userId - User ID.
+ *
+ * @returns {object} - Returns the status of the quiz session.
+ */
+function adminQuizSessionStatus(quizId: number, sessionId: number, userId: number): AdminQuizSessionStatusReturn {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: Valid token is provided, but user is not an owner of this quiz');
+  }
+
+  const session = data.sessions.quizSessions.find(session => session.sessionId === sessionId);
+
+  if (!session) {
+    throw HTTPError(400, 'ERROR 400: Session Id does not refer to a valid session within this quiz');
+  }
+
+  const response = {
+    state: session.state,
+    atQuestion: session.atQuestion,
+    players: session.players,
+    metadata: {
+      quizId: session.metadata.quizId,
+      name: session.metadata.name,
+      timeCreated: session.metadata.timeCreated,
+      timeLastEdited: session.metadata.timeLastEdited,
+      description: session.metadata.description,
+      numQuestions: session.metadata.numQuestions,
+      questions: session.metadata.questions,
+      duration: session.metadata.duration,
+      thumbnailUrl: session.metadata.thumbnailUrl
+    }
+  };
+
+  return response;
 }
 
 // function to find playerId
@@ -805,5 +863,6 @@ export {
   findSessionFromPlayerId,
   guestPlayerStatus,
   allChatMessages,
-  sendChatMessage
+  sendChatMessage,
+  adminQuizSessionStatus
 };

@@ -232,17 +232,31 @@ export const questionDuplicateRequestV2 = (token: string, quizId: number, questi
   return JSON.parse(response.body.toString());
 };
 
+// 'quizThumbnailRequest' function
+export const quizThumbnailRequest = (token: string, quizId: number, imgUrl: string) => {
+  const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, { headers: { token }, json: { imgUrl } });
+  return JSON.parse(response.body.toString());
+};
+
 /* ----------------------------------------------------------------------------------
 | QUIZ (SESSION) HTTP WRAPPERS
 ------------------------------------------------------------------------------------ */
 
+// 'quizSessionStartRequest' function
 export const quizSessionStartRequest = (token: string, quizId: number, autoStartNum: number) => {
   const response = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, { headers: { token }, json: { autoStartNum } });
   return JSON.parse(response.body.toString());
 };
 
+// 'quizSessionStateUpdateRequest' function
 export const quizSessionStateUpdateRequest = (token: string, quizId: number, sessionId: number, action: string) => {
   const response = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token }, json: { action } });
+  return JSON.parse(response.body.toString());
+};
+
+// 'quizSessionStatusRequest' function
+export const quizSessionStatusRequest = (token: string, quizId: number, sessionId: number) => {
+  const response = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`, { headers: { token } });
   return JSON.parse(response.body.toString());
 };
 
@@ -260,15 +274,25 @@ export const playerQuestionInfoRequest = (playerId: number, questionPosition: nu
   return JSON.parse(response.body.toString());
 };
 
-/* ----------------------------------------------------------------------------------
-| CHAT ITEMS HTTP WRAPPERS
------------------------------------------------------------------------------------- */
+export const playerSubmitRequest = (answerIds: Array<number>, playerId: number, questionPosition: number) => {
+  const response = request('PUT', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/answer`, { json: { answerIds } });
+  return JSON.parse(response.body.toString());
+};
+
+export const playerQuestionResultsRequest = (playerId: number, questionPosition: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}/question/${questionPosition}/results`);
+  return JSON.parse(response.body.toString());
+};
 
 // 'statusOfGuestPlayer' function
 export const guestPlayerStatus = (playerId: number) => {
   const response = request('GET', SERVER_URL + `/v1/player/${playerId}`);
   return JSON.parse(response.body.toString());
 };
+
+/* ----------------------------------------------------------------------------------
+| CHAT ITEMS HTTP WRAPPERS
+------------------------------------------------------------------------------------ */
 
 // 'allChatMessages' function
 export const allChatMessages = (playerId: number) => {

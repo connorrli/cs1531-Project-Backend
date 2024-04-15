@@ -6,6 +6,7 @@ import { getTimer } from '../data/dataStore';
 import { QuizSession, QuizV2 } from '../interface';
 import HTTPError from 'http-errors';
 import { save } from '../server';
+import { recalculateAnswers } from '../Iter3/player';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
@@ -14,6 +15,7 @@ import { save } from '../server';
 interface Timer {
   sessionId: number;
   timer: ReturnType<typeof setTimeout>;
+  timeCreated?: number;
 }
 
 export enum States {
@@ -86,7 +88,7 @@ function handleGoToFinalResults(quizSession: QuizSession, timer: Timer) {
   ) {
     throw HTTPError(400, 'Cannot be applied in current state');
   }
-
+  recalculateAnswers(quizSession.players, quizSession.metadata.questions.length);
   if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
   quizSession.state = States.FINAL_RESULTS;
 }
@@ -146,6 +148,8 @@ function handleSkipCountdown(
     },
     quiz.questions[quizSession.atQuestion - 1].duration * 1000
   );
+  // setting question start to be now
+  timer.timeCreated = Date.now();
 }
 
 /**
@@ -189,4 +193,6 @@ function handleNextQuestion(
     },
     3 * 1000
   );
+  // adding the time the question will open to the timer
+  timer.timeCreated = Date.now() + 3000;
 }

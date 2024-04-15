@@ -61,7 +61,8 @@ import {
   adminQuizTransferV2,
   guestPlayerStatus,
   allChatMessages,
-  sendChatMessage
+  sendChatMessage,
+  adminQuizSessionStatus
 } from './Iter3/quizV2';
 import {
   adminAuthLogoutV2,
@@ -71,7 +72,9 @@ import {
 } from './Iter3/authV2';
 import {
   adminPlayerJoin,
-  adminPlayerQuestionInfo
+  adminPlayerQuestionInfo,
+  adminPlayerQuestionResults,
+  adminPlayerSubmit
 } from './Iter3/player';
 
 // Set up web app
@@ -771,12 +774,29 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+app.get('/v1/player/:playerId/question/:questionPosition/results', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const response = adminPlayerQuestionResults(playerId, questionPosition);
+  return res.json(response);
+});
+
+app.put('/v1/player/:playerId/question/:questionPosition/answer', (req: Request, res: Response) => {
+  const playerId: number = parseInt(req.params.playerId);
+  const questionPosition: number = parseInt(req.params.questionPosition);
+  const answerIds: Array<number> = req.body.answerIds;
+  const response = adminPlayerSubmit(answerIds, playerId, questionPosition);
+  save();
+  return res.json(response);
+});
+
 app.get('/v1/player/:playerId/question/:questionPosition', (req: Request, res: Response) => {
   const playerId: number = parseInt(req.params.playerId);
   const questionPosition: number = parseInt(req.params.questionPosition);
   const response = adminPlayerQuestionInfo(playerId, questionPosition);
   return res.json(response);
 });
+
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
@@ -798,6 +818,18 @@ app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) =
   const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
 
   save();
+  return res.json(response);
+});
+
+// GET /v1/admin/quiz/{quizid}/session/{sessionid} route
+app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionId = parseInt(req.params.sessionid);
+  const token = req.header('token');
+  const session = getSessionV2(token);
+  const userId = session.userId;
+  const response = adminQuizSessionStatus(quizId, sessionId, userId);
+
   return res.json(response);
 });
 
