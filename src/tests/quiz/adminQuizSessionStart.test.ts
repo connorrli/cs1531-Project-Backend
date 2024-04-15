@@ -5,6 +5,7 @@ import {
   questionDeleteRequestV2,
   quizCreateRequestV2,
   quizSessionStartRequest,
+  quizSessionsRequest,
   quizTrashRequestV2,
   userCreateRequest
 } from '../requests';
@@ -45,16 +46,16 @@ describe('Testing adminQuizSessionStart route/function:', () => {
     const response = quizSessionStartRequest(userToken, quizId, VALID_AUTO_START);
     expect(response).toStrictEqual(SUCCESS_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(true);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(true);
   });
   test('autoStartNum > 50', () => {
     const response = quizSessionStartRequest(userToken, quizId, 51);
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
   });
   test('Current number of active sessions > 10', () => {
     for (let i = 0; i < 10; i++) {
@@ -65,8 +66,8 @@ describe('Testing adminQuizSessionStart route/function:', () => {
     const response = quizSessionStartRequest(userToken, quizId, VALID_AUTO_START);
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
   });
   test('Quiz has no questions', () => {
     questionDeleteRequestV2(userToken, quizId, questionId);
@@ -74,8 +75,8 @@ describe('Testing adminQuizSessionStart route/function:', () => {
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
   });
   test('Quiz is in trash', () => {
     quizTrashRequestV2(userToken, quizId);
@@ -83,16 +84,15 @@ describe('Testing adminQuizSessionStart route/function:', () => {
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    // Can't get active / inactive sessions for this case because it's in trash
   });
   test('Token is invalid', () => {
     const response = quizSessionStartRequest(userToken + 1, quizId, VALID_AUTO_START);
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.length).toStrictEqual(0);
   });
   test('User is not owner of quiz', () => {
     const userToken2 = userCreateRequest('anotheruser@gmail.com', 'Password12345', 'Sally', 'Seashells').token;
@@ -100,8 +100,8 @@ describe('Testing adminQuizSessionStart route/function:', () => {
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    const sessions = quizSessionsRequest(userToken, quizId);
+    expect(sessions.activeSessions.length).toStrictEqual(0);
   });
   test('Quiz is in trash but user is not owner of quiz', () => {
     const userToken2 = userCreateRequest('anotheruser@gmail.com', 'Password12345', 'Sally', 'Seashells').token;
@@ -111,7 +111,6 @@ describe('Testing adminQuizSessionStart route/function:', () => {
 
     expect(response).toStrictEqual(ERROR_RESPONSE);
 
-    // const sessions = quizSessionsViewRequest(userToken, quizId);
-    // expect(sessions.activeSessions.includes(response.sessionId)).toStrictEqual(false);
+    // Can't get active / inactive sessions for this case because it's in trash
   });
 });
