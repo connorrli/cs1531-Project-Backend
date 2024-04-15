@@ -264,7 +264,7 @@ export const quizSessionStatusRequest = (token: string, quizId: number, sessionI
 export const quizSessionsRequest = (token: string, quizId: number) => {
   const response = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/sessions`, { headers: { token } });
   return JSON.parse(response.body.toString());
-}
+};
 
 /* ----------------------------------------------------------------------------------
 | PLAYER HTTP WRAPPERS
