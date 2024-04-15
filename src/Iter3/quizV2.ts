@@ -839,6 +839,29 @@ function sendChatMessage(playerId: number, message: string): EmptyObject {
   return {};
 }
 
+function adminQuizSessions(session: UserSession, quizId: number) {
+  if (!isValidQuiz(quizId) || !isOwner(session.userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: User is not owner of quiz');
+  }
+
+  const quizSessions = getData().sessions.quizSessions;
+  const activeSessions = [];
+  const inactiveSessions = [];
+
+  for (const session of quizSessions) {
+    if (session.metadata.quizId === quizId) {
+      if (session.state === States.END) {
+        inactiveSessions.push(session.sessionId);
+      } else {
+        activeSessions.push(session.sessionId);
+      }
+    }
+  }
+
+  // Since sessionId is created in order, sorting should not be necessary
+  return { activeSessions, inactiveSessions };
+}
+
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////////// EXPORTS /////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -864,5 +887,6 @@ export {
   guestPlayerStatus,
   allChatMessages,
   sendChatMessage,
-  adminQuizSessionStatus
+  adminQuizSessionStatus,
+  adminQuizSessions,
 };
