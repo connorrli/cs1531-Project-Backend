@@ -804,9 +804,8 @@ app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) =
 // statusOfGuestPlayer GET request route
 app.get('/v1/player/:playerId', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerId);
-  const session = getSessionV2(playerId);  // needed?
 
-  const response = guestPlayerStatus(session); // playerId
+  const response = guestPlayerStatus(playerId);
 
   return res.json(response);
 });
@@ -814,21 +813,18 @@ app.get('/v1/player/:playerId', (req: Request, res: Response) => {
 // allChatMessages GET request route
 app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerId);
-  const session = getSessionV2(playerId); // needed?
 
-  const response = allChatMessages(session); //find where playerId is hidden in
+  const response = allChatMessages(playerId);
 
   return res.json(response);
 });
 
-// sendChatMessage GET request route
+// sendChatMessage POST request route
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerId);
   const sendMessage = req.body.message;
 
-  const session = getSessionV2(playerId); // needed?
-
-  const response = sendChatMessage(session, sendMessage); //playerId
+  const response = sendChatMessage(playerId, sendMessage);
 
   save();
   return res.json(response);

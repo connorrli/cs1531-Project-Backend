@@ -7,7 +7,7 @@
 
 import { getData, getTimers, setData } from '../data/dataStore';
 import { isValidQuiz, isOwner } from '../helpers/checkForErrors';
-import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession, Player } from '../interface';
+import { QuestionBodyV2, QuestionV2, QuizV2, UserSession, QuizSession } from '../interface';
 import { getTrash, setTrash } from '../data/trash';
 import { quizQuestionCreateCheckerV2 } from '../helpers/quiz/quizQuestionCreateErrors';
 import {
@@ -95,15 +95,15 @@ interface everyChatMessage {
 
 interface allChatMessagesReturn { messages: everyChatMessage[] }
 
-/*interface chatMessage {
+/* interface chatMessage {
   messageBody: string;
 }
 
-interface sendChatMessageReturn { message: chatMessage }*/ /// May not need these items
+interface sendChatMessageReturn { message: chatMessage } */ /// May not need these items
 
 /**
  * Describes type for empty object.
- */
+*/
 type EmptyObject = Record<string, never>
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -680,7 +680,8 @@ function adminQuizSessionStart(
       questions: quiz.questions,
       duration: quiz.duration,
       thumbnailUrl: quiz.thumbnailUrl
-    }
+    },
+    messages: []
   });
 
   getTimers().push({ sessionId, timer: undefined });
@@ -714,64 +715,69 @@ function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: 
   return {};
 }
 
+// function to find playerId
+function findSessionFromPlayerId(playerId: number): QuizSession | undefined {
+  const quizSessions = getData().sessions.quizSessions;
+
+  for (const session of quizSessions) {
+    for (const player of session.players) {
+      if (playerId === player.playerId) {
+        return session;
+      }
+    }
+  }
+  return undefined;
+}
+
 // Status of guest player
 function guestPlayerStatus(playerId: number): guestPlayerStatusReturn {
-  const data = getData();
+  const session = findSessionFromPlayerId(playerId);
 
-  const findPlayers = data.sessions.quizSessions.players; // find all players in the session
-  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
-
-  if (player === undefined) {
-    throw HTTPError (400, 'ERROR 400: Player ID does not exist');
+  if (session === undefined) {
+    throw HTTPError(400, 'ERROR 400: Player ID does not exist');
   }
 
   return {
-    state: ,
-    numQuestions: ,
-    atQuestion:
-  }
+    state: session.state,
+    numQuestions: session.metadata.questions.length,
+    atQuestion: session.atQuestion
+  };
 }
 
 // View all chat messages
 function allChatMessages(playerId: number): allChatMessagesReturn {
-  
-  const data = getData();
-  const findPlayers = data.sessions // find all the players in the session
-  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
+  const session = findSessionFromPlayerId(playerId);
 
-  if (player === undefined) {
-    throw HTTPError (400, 'ERROR 400: Player ID does not exist');
+  if (session === undefined) {
+    throw HTTPError(400, 'ERROR 400: Player ID does not exist');
   }
 
-  //might need a loop here to get all the messages
-
-  const messages : everyChatMessage[] = {
-    messageBody: ,
-    playerId: ,
-    playerName: ,
-    timeSent: 
-  }
-
+  const messages = session.messages;
   return { messages };
 }
 
 // Send a message into the chat
-function sendChatMessage(playerId: number, message: string): EmptyObject{
+function sendChatMessage(playerId: number, message: string): EmptyObject {
+  const session = findSessionFromPlayerId(playerId);
+  const player = session.players;
+  const findPlayer = player.find(p => p.playerId === playerId);
 
-  const data = getData();
-  const findPlayers = data.sessions // find all the players in the session
-  const player = findPlayers.find(user => user.playerId === playerId );  //need to find playerId
-
-  if (player === undefined) {
-    throw HTTPError (400, 'ERROR 400: Player ID does not exist.');
+  if (session === undefined) {
+    throw HTTPError(400, 'ERROR 400: Player ID does not exist.');
   }
 
   if (message.length < 1 || message.length > 100) {
-    throw HTTPError (400, 'ERROR 400: Message is < 1 or > 100 characters.');
+    throw HTTPError(400, 'ERROR 400: Message is < 1 or > 100 characters.');
   }
 
-  // push message into the chat
-
+  if ('sessionId' in session) {
+    session.messages.push({
+      messageBody: message,
+      playerId: playerId,
+      playerName: findPlayer.name,
+      timeSent: Math.floor(Date.now() / 1000)
+    });
+  }
   return {};
 }
 
@@ -796,6 +802,7 @@ export {
   adminQuizSessionStateUpdate,
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
+  findSessionFromPlayerId,
   guestPlayerStatus,
   allChatMessages,
   sendChatMessage

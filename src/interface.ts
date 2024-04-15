@@ -41,7 +41,7 @@ export interface QuizSession {
   atQuestion: number;
   metadata: Omit<QuizV2, 'quizOwner' | 'quizSessions'>;
   players: Player[];
-  messages: chatMessage[];
+  messages: chatMessages[];
 }
 
 export interface Player {
@@ -49,7 +49,7 @@ export interface Player {
   name: string;
 }
 
-export interface chatMessage {
+export interface chatMessages {
   messageBody: string;
   playerId: number;
   playerName: string;
