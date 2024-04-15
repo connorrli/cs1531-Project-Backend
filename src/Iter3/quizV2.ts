@@ -687,7 +687,7 @@ function adminQuizThumbnailUpdate(quizId: number, userId: number, thumbnailUrl: 
   const data = getData();
 
   if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
-    throw HTTPError(403, 'ERROR 400: Does not refer to a valid quiz and the quiz is invalid');
+    throw HTTPError(403, 'ERROR 403: Does not refer to a valid quiz or the user is not the owner of the quiz');
   }
 
   const lowerCaseThumbnailUrl = thumbnailUrl.toLowerCase();
