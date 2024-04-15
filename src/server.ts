@@ -58,7 +58,8 @@ import {
   adminQuizSessionStateUpdate,
   adminQuizThumbnailUpdate,
   adminQuizSessionStart,
-  adminQuizTransferV2
+  adminQuizTransferV2,
+  adminQuizSessionStatus
 } from './Iter3/quizV2';
 import {
   adminAuthLogoutV2,
@@ -792,6 +793,7 @@ app.get('/v1/player/:playerId/question/:questionPosition', (req: Request, res: R
   const response = adminPlayerQuestionInfo(playerId, questionPosition);
   return res.json(response);
 });
+
 // adminQuizThumbnailUpdate PUT request route
 app.put('/v1/admin/quiz/:quizId/thumbnail', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizId);
@@ -813,6 +815,18 @@ app.post('/v1/admin/quiz/:quizId/session/start', (req: Request, res: Response) =
   const response = adminQuizSessionStart(session.userId, quizId, autoStartNum);
 
   save();
+  return res.json(response);
+});
+
+// GET /v1/admin/quiz/{quizid}/session/{sessionid} route
+app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionId = parseInt(req.params.sessionid);
+  const token = req.header('token');
+  const session = getSessionV2(token);
+  const userId = session.userId;
+  const response = adminQuizSessionStatus(quizId, sessionId, userId);
+
   return res.json(response);
 });
 
