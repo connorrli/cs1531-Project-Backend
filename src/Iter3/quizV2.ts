@@ -97,6 +97,8 @@ interface AdminQuizSessionStatusReturn {
   };
 }
 
+interface url { url: string }
+
 interface QuizResults {
   usersRankedByScore: UsersRankedByScore[]
   questionResults: QuestionResult[];
@@ -845,6 +847,25 @@ function adminQuizSessionResults(quizId: number, sessionId: number, userId: numb
   return response;
 }
 
+function adminQuizSessionResultsCsv(quizId: number, sessionId: number, userId: number): url {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: Valid token is provided, but user is not an owner of this quiz');
+  }
+
+  const session = data.sessions.quizSessions.find(session => session.sessionId === sessionId);
+
+  if (!session) {
+    throw HTTPError(400, 'ERROR 400: Session Id does not refer to a valid session within this quiz');
+  }
+
+  if (session.state !== States.FINAL_RESULTS) {
+    throw HTTPError(400, 'ERROR 400: Session is not in FINAL_RESULTS state');
+  }
+  return { url: 'test' };
+}
+
 // function to find playerId
 function findSessionFromPlayerId(playerId: number): QuizSession | undefined {
   const quizSessions = getData().sessions.quizSessions;
@@ -962,4 +983,5 @@ export {
   adminQuizSessionStatus,
   adminQuizSessions,
   adminQuizSessionResults,
+  adminQuizSessionResultsCsv
 };

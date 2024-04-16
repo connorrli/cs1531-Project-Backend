@@ -126,7 +126,7 @@ describe('Testing adminQuizSessionResults function ERROR CASES:', () => {
   });
 });
 
-describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
+describe('Testing adminQuizSessionResultsCsv function SUCCESS CASE:', () => {
   let john: { token: string };
   let quiz: { quizId: number };
   let session: { sessionId: number };
@@ -179,8 +179,9 @@ describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
   });
   test('Expected behaviour', () => {
-    expect(quizSessionResultsCsvRequest(john.token, quiz.quizId, session.sessionId)).toStrictEqual({
+    expect(quizSessionResultsCsvRequest(john.token, quiz.quizId, session.sessionId)).toStrictEqual(
+      // This should be changed to an object rather than just a string
       VALID_URL
-    });
+    );
   });
 });
