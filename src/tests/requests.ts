@@ -266,6 +266,12 @@ export const quizSessionsRequest = (token: string, quizId: number) => {
   return JSON.parse(response.body.toString());
 };
 
+// 'quizSessionResultsRequest' function
+export const quizSessionResultsRequest = (token: string, quizId: number, sessionId: number) => {
+  const response = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}/results`, { headers: { token } });
+  return JSON.parse(response.body.toString());
+};
+
 /* ----------------------------------------------------------------------------------
 | PLAYER HTTP WRAPPERS
 ------------------------------------------------------------------------------------ */

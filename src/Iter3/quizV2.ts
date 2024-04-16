@@ -26,6 +26,7 @@ import { getCurrentTime } from '../helpers/globalHelpers';
 import HTTPError from 'http-errors';
 import { States, stateMachine } from '../helpers/stateHandler';
 import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
+import { answerResults } from './player';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -94,6 +95,23 @@ interface AdminQuizSessionStatusReturn {
     duration: number;
     thumbnailUrl: string;
   };
+}
+
+interface QuizResults {
+  usersRankedByScore: UsersRankedByScore[]
+  questionResults: QuestionResult[];
+}
+
+interface UsersRankedByScore {
+  name: string;
+  score: number;
+}
+
+interface QuestionResult {
+  questionId: number;
+  playersCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
 }
 
 interface guestPlayerStatusReturn {
@@ -773,6 +791,60 @@ function adminQuizSessionStatus(quizId: number, sessionId: number, userId: numbe
   return response;
 }
 
+/**
+ * Get the results of a particular quiz session
+ *
+ * @param {number} quizId - The ID of the quiz.
+ * @param {number} sessionId - The ID of the session.
+ * @param {number} userId - User ID.
+ *
+ * @returns {object} - Returns the results of the quiz session.
+ */
+function adminQuizSessionResults(quizId: number, sessionId: number, userId: number): QuizResults {
+  const data = getData();
+
+  if (!isValidQuiz(quizId) || !isOwner(userId, quizId)) {
+    throw HTTPError(403, 'ERROR 403: Valid token is provided, but user is not an owner of this quiz');
+  }
+
+  const session = data.sessions.quizSessions.find(session => session.sessionId === sessionId);
+
+  if (!session) {
+    throw HTTPError(400, 'ERROR 400: Session Id does not refer to a valid session within this quiz');
+  }
+
+  if (session.state !== States.FINAL_RESULTS) {
+    throw HTTPError(400, 'ERROR 400: Session is not in FINAL_RESULTS state');
+  }
+
+  const players = session.players;
+  const playerPointsMap = new Map<string, number>();
+  for (const player of players) {
+    const totalPoints = player.playerInfo.points.reduce((total, current) => total + current, 0);
+    playerPointsMap.set(player.name, totalPoints);
+  }
+  const sortedPlayers = Array.from(playerPointsMap.entries()).sort((a, b) => b[1] - a[1]);
+  const usersRankedByScore = sortedPlayers.map(([name, score]) => ({ name, score }));
+
+  const quiz = data.quizzes.find(q => q.quizId === session.metadata.quizId);
+  if (!quiz) {
+    throw HTTPError(400, 'ERROR 400: Quiz not found');
+  }
+  const questionResults = [];
+
+  for (let i = 0; i < quiz.questions.length; i++) {
+    const result = answerResults(sessionId, i + 1);
+    questionResults.push(result);
+  }
+
+  const response = {
+    usersRankedByScore: usersRankedByScore,
+    questionResults: questionResults
+  };
+
+  return response;
+}
+
 // function to find playerId
 function findSessionFromPlayerId(playerId: number): QuizSession | undefined {
   const quizSessions = getData().sessions.quizSessions;
@@ -889,4 +961,5 @@ export {
   sendChatMessage,
   adminQuizSessionStatus,
   adminQuizSessions,
+  adminQuizSessionResults,
 };
