@@ -873,7 +873,7 @@ function adminQuizSessionResultsCsv(quizId: number, sessionId: number, userId: n
     header.push(`question${i}rank`);
   }
   const csvWriter = createCsvWriter({
-    path: `crv-results/${sessionId.toString()}`,
+    path: `csv-results/${sessionId.toString()}`,
     header: header
   });
 
