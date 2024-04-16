@@ -76,7 +76,8 @@ import {
   adminPlayerJoin,
   adminPlayerQuestionInfo,
   adminPlayerQuestionResults,
-  adminPlayerSubmit
+  adminPlayerSubmit,
+  adminQuizPlayerResults
 } from './Iter3/player';
 
 // Set up web app
@@ -884,6 +885,13 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
 
   const response = sendChatMessage(playerId, sendMessage);
 
+  save();
+  return res.json(response);
+});
+
+app.get('/v1/player/:playerId/results', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId);
+  const response = adminQuizPlayerResults(playerId);
   save();
   return res.json(response);
 });

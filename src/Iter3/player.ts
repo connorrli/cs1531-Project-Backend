@@ -193,6 +193,49 @@ export function recalculateAnswers (players: Player[], questions: number) {
   }
 }
 
+export function adminQuizPlayerResults(playerId: number) {
+  const data = getData();
+  let quiz: QuizSession | undefined;
+
+  for (const session of data.sessions.quizSessions) {
+    if (session.players.some(p => p.playerId === playerId)) {
+      quiz = session;
+      break;
+    }
+  }
+
+  if (!quiz) {
+    throw HTTPError(400, 'ERROR 400: No session found with the specified player ID');
+  }
+
+  if (quiz.state !== 'FINAL_RESULTS') {
+    throw HTTPError(400, 'ERROR 400: Quiz is not in the FINAL_RESULTS state');
+  }
+
+  const questionResultsArray = [];
+  for (let i = 1; i <= quiz.metadata.questions.length; i++) {
+    questionResultsArray.push(answerResults(quiz.sessionId, i));
+  }
+
+  const players = quiz.players;
+
+  players.sort((x, y) => {
+    const xTotalPoints = x.playerInfo.points.reduce((a, b) => a + b, 0);
+    const yTotalPoints = y.playerInfo.points.reduce((a, b) => a + b, 0);
+
+    return yTotalPoints - xTotalPoints;
+  });
+
+  const reducedPlayers = [];
+  for (const player of players) {
+    let points = 0;
+    for (const point of player.playerInfo.points) points += point;
+    reducedPlayers.push({ name: player.name, score: points });
+  }
+
+  return { usersRankedByScore: reducedPlayers, questionResults: questionResultsArray };
+}
+
 export function answerResults (sessionId: number, questionPosition: number) {
   const data = getData();
   const sess = data.sessions.quizSessions.find(s => s.sessionId === sessionId);
@@ -210,6 +253,7 @@ export function answerResults (sessionId: number, questionPosition: number) {
       playersCorrectList.push(player.name);
     }
   }
+
   return {
     questionId: quiz.questions[questionPosition - 1].questionId,
     playersCorrectList,

@@ -302,6 +302,11 @@ export const guestPlayerStatus = (playerId: number) => {
   return JSON.parse(response.body.toString());
 };
 
+export const playerResultsRequest = (playerId: number) => {
+  const response = request('GET', SERVER_URL + `/v1/player/${playerId}/results`);
+  return JSON.parse(response.body.toString());
+};
+
 /* ----------------------------------------------------------------------------------
 | CHAT ITEMS HTTP WRAPPERS
 ------------------------------------------------------------------------------------ */
