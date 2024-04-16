@@ -883,7 +883,7 @@ function adminQuizSessionResultsCsv(quizId: number, sessionId: number, userId: n
   for (const player of session.players) {
     const playerArr: Array<string> = [player.name];
     for (let i = 0; i < session.metadata.questions.length; i++) {
-      playerArr.push(player.playerInfo.points[i].toString());
+      playerArr.push((Math.round(player.playerInfo.points[i] * 10) / 10).toString());
       playerArr.push(getPlayerRank(session, player.playerId, i).toString());
     }
     playersScoreAndRank.push(playerArr);
@@ -985,6 +985,10 @@ function adminQuizSessions(session: UserSession, quizId: number) {
 function getPlayerRank (session: QuizSession, playerId: number, qIndex: number) {
   const sortedPlayers = session.players.slice(0).sort((a, b) => b.playerInfo.points[qIndex] - a.playerInfo.points[qIndex] )
   const rank = sortedPlayers.findIndex(p => p.playerId === playerId) + 1;
+  const zeroRank = sortedPlayers.findIndex(p => p.playerInfo.points[qIndex] === 0) + 1;
+  if (sortedPlayers[rank - 1].playerInfo.points[qIndex] === 0) {
+    return zeroRank
+  }
   return rank
 }
 
