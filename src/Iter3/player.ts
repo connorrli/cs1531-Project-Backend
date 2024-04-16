@@ -228,9 +228,11 @@ export function adminQuizPlayerResults(playerId: number) {
 
   const reducedPlayers = [];
   for (const player of players) {
-    reducedPlayers.push({name: player.name, score: player.playerInfo.points});
+    let points = 0;
+    for (const point of player.playerInfo.points) points += point;
+    reducedPlayers.push({name: player.name, score: points});
   }
-  console.log({usersRankedByScore: reducedPlayers, questionResults: questionResultsArray});
+
   return {usersRankedByScore: reducedPlayers, questionResults: questionResultsArray};
 }
 
@@ -251,6 +253,7 @@ export function answerResults (sessionId: number, questionPosition: number) {
       playersCorrectList.push(player.name);
     }
   }
+  
   return {
     questionId: quiz.questions[questionPosition - 1].questionId,
     playersCorrectList,

@@ -64,7 +64,12 @@ describe('Under normal working conditions', () => {
             usersRankedByScore: [{
                 name: 'jimmy',
                 score: 0,
-            }],
+            },
+            {
+                name: 'jimmytwo',
+                score: 0,
+            }
+        ],
 
             questionResults: [{
                 questionId: expect.any(Number),
@@ -108,19 +113,18 @@ describe('Under normal working conditions', () => {
             usersRankedByScore: [
                 {
                   name: 'jimmy',
-                  score: expect.any(Number)
+                  score: 5
                 },
                 {
                   name: 'jimmytwo',
-                  score: expect.any(Number)
+                  score: 5
                 }
             ],
         
             questionResults: [{
                 questionId: expect.any(Number),
                 playersCorrectList: [
-                    'jimmy',
-                    'jimmytwo'
+                    'jimmy'
                 ],
                 averageAnswerTime: expect.any(Number),
                 percentCorrect: 50
@@ -129,7 +133,6 @@ describe('Under normal working conditions', () => {
             {
                 questionId: expect.any(Number),
                 playersCorrectList: [
-                    'jimmy',
                     'jimmytwo'
                 ],
                 averageAnswerTime: expect.any(Number),
