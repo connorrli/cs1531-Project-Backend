@@ -22,7 +22,13 @@ type EmptyObject = Record<string, never>
 */
 function clear(): EmptyObject {
   setData({ users: [], quizzes: [], sessions: { userSessions: [], quizSessions: [] } });
+  const timers = getTimers();
+
+  for (const timer of timers) {
+    clearTimeout(timer.timer);
+  }
   getTimers().length = 0;
+
   return {};
 }
 
