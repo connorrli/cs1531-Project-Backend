@@ -178,7 +178,6 @@ describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
   });
   test('Expected behaviour', () => {
-    console.log(quizSessionResultsRequest(john.token, quiz.quizId, session.sessionId));
     expect(quizSessionResultsRequest(john.token, quiz.quizId, session.sessionId)).toStrictEqual({
       usersRankedByScore: [
         {
