@@ -62,7 +62,8 @@ import {
   guestPlayerStatus,
   allChatMessages,
   sendChatMessage,
-  adminQuizSessionStatus
+  adminQuizSessionStatus,
+  adminQuizSessionResults
 } from './Iter3/quizV2';
 import {
   adminAuthLogoutV2,
@@ -829,6 +830,18 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const session = getSessionV2(token);
   const userId = session.userId;
   const response = adminQuizSessionStatus(quizId, sessionId, userId);
+
+  return res.json(response);
+});
+
+// GET /v1/admin/quiz/{quizid}/session/{sessionid}/results route
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
+  const quizId = parseInt(req.params.quizid);
+  const sessionId = parseInt(req.params.sessionid);
+  const token = req.header('token');
+  const session = getSessionV2(token);
+  const userId = session.userId;
+  const response = adminQuizSessionResults(quizId, sessionId, userId);
 
   return res.json(response);
 });
