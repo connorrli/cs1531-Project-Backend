@@ -212,9 +212,9 @@ export function adminQuizPlayerResults(playerId: number) {
     throw HTTPError(400, 'ERROR 400: Quiz is not in the FINAL_RESULTS state');
   }
 
-  let questionResultsArray = [];
+  const questionResultsArray = [];
   for (let i = 1; i <= quiz.metadata.questions.length; i++) {
-    questionResultsArray.push(answerResults(quiz.sessionId, i))
+    questionResultsArray.push(answerResults(quiz.sessionId, i));
   }
 
   const players = quiz.players;
@@ -222,7 +222,7 @@ export function adminQuizPlayerResults(playerId: number) {
   players.sort((x, y) => {
     const xTotalPoints = x.playerInfo.points.reduce((a, b) => a + b, 0);
     const yTotalPoints = y.playerInfo.points.reduce((a, b) => a + b, 0);
-    
+
     return yTotalPoints - xTotalPoints;
   });
 
@@ -230,10 +230,10 @@ export function adminQuizPlayerResults(playerId: number) {
   for (const player of players) {
     let points = 0;
     for (const point of player.playerInfo.points) points += point;
-    reducedPlayers.push({name: player.name, score: points});
+    reducedPlayers.push({ name: player.name, score: points });
   }
 
-  return {usersRankedByScore: reducedPlayers, questionResults: questionResultsArray};
+  return { usersRankedByScore: reducedPlayers, questionResults: questionResultsArray };
 }
 
 export function answerResults (sessionId: number, questionPosition: number) {
@@ -253,7 +253,7 @@ export function answerResults (sessionId: number, questionPosition: number) {
       playersCorrectList.push(player.name);
     }
   }
-  
+
   return {
     questionId: quiz.questions[questionPosition - 1].questionId,
     playersCorrectList,
