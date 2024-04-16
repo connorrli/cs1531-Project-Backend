@@ -1,6 +1,6 @@
 import { QuestionBodyV2 } from '../../interface';
 import { clearRequest, quizSessionResultsRequest, quizSessionStartRequest, userCreateRequest, quizCreateRequestV2, questionCreateRequestV2, quizSessionStatusRequest } from '../requests';
-import { playerJoinRequest, quizSessionStateUpdateRequest, playerQuestionInfoRequest, playerSubmitRequest, playerQuestionResultsRequest } from '../requests';
+import { playerJoinRequest, quizSessionStateUpdateRequest, playerQuestionInfoRequest, playerSubmitRequest } from '../requests';
 
 const ERROR_RESPONSE = { error: expect.any(String) };
 
@@ -123,9 +123,7 @@ describe('Testing adminQuizSessionResults function ERROR CASES:', () => {
     const response = quizSessionResultsRequest(userToken, quizId, sessionId);
     expect(response).toEqual(ERROR_RESPONSE);
   });
-
 });
-
 
 describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
   let john: { token: string };
