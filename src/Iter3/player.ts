@@ -257,7 +257,7 @@ export function answerResults (sessionId: number, questionPosition: number) {
   }
 
   playersCorrectList.sort();
-  
+
   return {
     questionId: quiz.questions[questionPosition - 1].questionId,
     playersCorrectList,
