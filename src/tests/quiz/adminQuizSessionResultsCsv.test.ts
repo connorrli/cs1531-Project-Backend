@@ -3,7 +3,7 @@ import { clearRequest, quizSessionResultsCsvRequest, quizSessionStartRequest, us
 import { playerJoinRequest, quizSessionStateUpdateRequest, playerQuestionInfoRequest, playerSubmitRequest } from '../requests';
 
 const ERROR_RESPONSE = { error: expect.any(String) };
-const VALUD_URL = { url: expect.any(String) }
+const VALID_URL = { url: expect.any(String) };
 
 enum States {
   LOBBY = 'LOBBY',
@@ -180,7 +180,7 @@ describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
   });
   test('Expected behaviour', () => {
     expect(quizSessionResultsCsvRequest(john.token, quiz.quizId, session.sessionId)).toStrictEqual({
-        VALUD_URL
+      VALID_URL
     });
   });
 });
