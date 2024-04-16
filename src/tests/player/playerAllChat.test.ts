@@ -101,9 +101,6 @@ test('2 guest players join and send messages', () => {
   const response1 = allChatMessages(guest1.playerId);
   const response2 = allChatMessages(guest2.playerId);
 
-  console.log(response1);
-  console.log(response2);
-
   expect(response1).toStrictEqual({
     messages: [
       {
