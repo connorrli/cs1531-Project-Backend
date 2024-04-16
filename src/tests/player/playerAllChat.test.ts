@@ -99,7 +99,7 @@ test('2 guest players join and send messages', () => {
   sendChatMessage(guest2.playerId, 'Guest 2 here');
 
   const response1 = allChatMessages(guest1.playerId);
-  const response2 = allChatMessages(guest2.playerId);
+  allChatMessages(guest2.playerId);
 
   expect(response1).toStrictEqual({
     messages: [
