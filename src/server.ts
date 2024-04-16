@@ -909,6 +909,11 @@ app.get('/v1/player/:playerId/results', (req: Request, res: Response) => {
   return res.json(response);
 });
 
+app.get('/v1/csv-results/:sessionId', (req: Request, res: Response) => {
+  const sessionId= req.params.sessionId as string;
+  res.sendFile(`../crv-results/${sessionId}`);
+});
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

@@ -185,9 +185,11 @@ function answerCorrect (answers: Array<Answer>, given: Array<number>): boolean {
 export function recalculateAnswers (players: Player[], questions: number) {
   for (let questionPosition = 1; questionPosition < questions; questionPosition++) {
     players.sort((a, b) => a.playerInfo.timeTaken[questionPosition - 1] - b.playerInfo.timeTaken[questionPosition - 1]);
+    let rank = 1;
     for (const pIndex in players) {
-      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1) {
-        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (parseInt(pIndex) + 1);
+      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1 && players[pIndex].playerInfo.points[questionPosition - 1] !== 0) {
+        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (rank);
+        rank++;
       }
     }
   }
@@ -254,6 +256,8 @@ export function answerResults (sessionId: number, questionPosition: number) {
     }
   }
 
+  playersCorrectList.sort();
+  
   return {
     questionId: quiz.questions[questionPosition - 1].questionId,
     playersCorrectList,

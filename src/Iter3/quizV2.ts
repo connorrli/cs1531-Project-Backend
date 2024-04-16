@@ -27,12 +27,15 @@ import HTTPError from 'http-errors';
 import { States, stateMachine } from '../helpers/stateHandler';
 import { quizSessionStartChecker } from '../helpers/quiz/quizSessionStartErrors';
 import { answerResults } from './player';
+import { url, port } from '../config.json';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
 const INDEX_NOT_FOUND = -1;
+const createCsvWriter = require('csv-writer').createArrayCsvWriter;
+const SERVER_URL = `${url}:${port}`; 
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
@@ -863,7 +866,31 @@ function adminQuizSessionResultsCsv(quizId: number, sessionId: number, userId: n
   if (session.state !== States.FINAL_RESULTS) {
     throw HTTPError(400, 'ERROR 400: Session is not in FINAL_RESULTS state');
   }
-  return { url: 'test' };
+  let header: Array<string> = ['Player'];
+  
+  for (let i = 1; i <= session.metadata.questions.length; i++) {
+    header.push(`question${i}score`);
+    header.push(`question${i}rank`);
+  }
+  const csvWriter = createCsvWriter({
+    path: `crv-results/${sessionId.toString()}`,
+    header: header
+  });
+  
+
+  const playersScoreAndRank = [];
+
+  for (const player of session.players) {
+    const playerArr: Array<string> = [player.name];
+    for (let i = 0; i < session.metadata.questions.length; i++) {
+      playerArr.push(player.playerInfo.points[i].toString());
+      playerArr.push(getPlayerRank(session, player.playerId, i).toString());
+    }
+    playersScoreAndRank.push(playerArr);
+  }
+  
+  csvWriter.writeRecords(playersScoreAndRank);
+  return { url: SERVER_URL + `/v1/csv-results/${sessionId}` };
 }
 
 // function to find playerId
@@ -953,6 +980,12 @@ function adminQuizSessions(session: UserSession, quizId: number) {
 
   // Since sessionId is created in order, sorting should not be necessary
   return { activeSessions, inactiveSessions };
+}
+
+function getPlayerRank (session: QuizSession, playerId: number, qIndex: number) {
+  const sortedPlayers = session.players.slice(0).sort((a, b) => b.playerInfo.points[qIndex] - a.playerInfo.points[qIndex] )
+  const rank = sortedPlayers.findIndex(p => p.playerId === playerId) + 1;
+  return rank
 }
 
 /// ////////////////////////////////////////////////////////////////////////////////
