@@ -43,7 +43,6 @@ test('Correct output for 1 message from 1 player', () => {
   sendChatMessage(guest1.playerId, 'hello');
 
   const response = allChatMessages(guest1.playerId);
-  console.log(response);
 
   expect(response).toStrictEqual({
     messages: [
@@ -64,7 +63,6 @@ test('3 consecutive messages from 1 player', () => {
   sendChatMessage(guest1.playerId, 'the weather is good today');
 
   const response = allChatMessages(guest1.playerId);
-  console.log(response);
 
   expect(response).toStrictEqual({
     messages: [
