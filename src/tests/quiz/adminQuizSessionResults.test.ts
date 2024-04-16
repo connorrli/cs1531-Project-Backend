@@ -198,7 +198,7 @@ describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
             'jimmy'
           ],
           averageAnswerTime: expect.any(Number),
-          percentageCorrect: 50
+          percentCorrect: 50
         },
         {
           questionId: expect.any(Number),
@@ -206,7 +206,7 @@ describe('Testing adminQuizSessionResults function SUCCESS CASE:', () => {
             'jimmy'
           ],
           averageAnswerTime: expect.any(Number),
-          percentageCorrect: 50
+          percentCorrect: 50
         }
       ]
     });
