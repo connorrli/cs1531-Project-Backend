@@ -3,10 +3,10 @@
 /// ////////////////////////////////////////////////////////////////////////////////
 
 import { getTimer } from '../data/dataStore';
-import { QuizSession, QuizV2 } from '../interface';
+import { QuizSession } from '../interface';
 import HTTPError from 'http-errors';
 import { save } from '../server';
-import { recalculateAnswers } from '../Iter3/player';
+import { recalculateAnswers } from './quiz/quizMiscHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////// LOCAL INTERFACES & TYPES /////////////////////////////
@@ -50,16 +50,16 @@ export enum Actions {
  *
  * @returns - Nothing
  */
-export function stateMachine(quiz: QuizV2, quizSession: QuizSession, action: string) {
+export function stateMachine(quizSession: QuizSession, action: string) {
   // I've decided not to clear the timer until the action is verified as valid
   const timer = getTimer(quizSession.sessionId);
 
   switch (action) {
     case Actions.NEXT_QUESTION:
-      handleNextQuestion(quiz, quizSession, timer);
+      handleNextQuestion(quizSession, timer);
       break;
     case Actions.SKIP_COUNTDOWN:
-      handleSkipCountdown(quiz, quizSession, timer);
+      handleSkipCountdown(quizSession, timer);
       break;
     case Actions.GO_TO_ANSWER:
       handleGoToAnswer(quizSession, timer);
@@ -130,11 +130,7 @@ function handleGoToAnswer(quizSession: QuizSession, timer: Timer) {
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
-function handleSkipCountdown(
-  quiz: QuizV2,
-  quizSession: QuizSession,
-  timer: Timer
-) {
+function handleSkipCountdown(quizSession: QuizSession, timer: Timer) {
   if (quizSession.state !== States.QUESTION_COUNTDOWN) {
     throw HTTPError(400, 'Cannot be applied in current state');
   }
@@ -146,7 +142,7 @@ function handleSkipCountdown(
       quizSession.state = States.QUESTION_CLOSE;
       save();
     },
-    quiz.questions[quizSession.atQuestion - 1].duration * 1000
+    quizSession.metadata.questions[quizSession.atQuestion - 1].duration * 1000
   );
   // setting question start to be now
   timer.timeCreated = Date.now();
@@ -159,11 +155,7 @@ function handleSkipCountdown(
  * @param quizSession - An object for a quiz session, described in interface.ts
  * @param timer - A timer object that is linked to a quiz session, described in dataStore.ts
  */
-function handleNextQuestion(
-  quiz: QuizV2,
-  quizSession: QuizSession,
-  timer: Timer
-) {
+function handleNextQuestion(quizSession: QuizSession, timer: Timer) {
   if (
     quizSession.state !== States.QUESTION_CLOSE &&
     quizSession.state !== States.ANSWER_SHOW &&
@@ -173,6 +165,10 @@ function handleNextQuestion(
   }
 
   if (typeof timer.timer !== 'undefined') clearTimeout(timer.timer);
+
+  if (quizSession.atQuestion === quizSession.metadata.numQuestions) {
+    return;
+  }
 
   quizSession.atQuestion++;
   quizSession.state = 'QUESTION_COUNTDOWN';
@@ -188,7 +184,7 @@ function handleNextQuestion(
           quizSession.state = States.QUESTION_CLOSE;
           save();
         },
-        quiz.questions[quizSession.atQuestion - 1].duration * 1000
+        quizSession.metadata.questions[quizSession.atQuestion - 1].duration * 1000
       );
     },
     3 * 1000
