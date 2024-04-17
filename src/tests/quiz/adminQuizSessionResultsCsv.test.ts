@@ -132,6 +132,7 @@ describe('Testing adminQuizSessionResultsCsv function SUCCESS CASE:', () => {
   let session: { sessionId: number };
   let player: { playerId: number };
   let player2: { playerId: number };
+  let player3: { playerId: number };
   let answers1: { answer1: number, answer2: number };
   let answers2: { answer1: number, answer2: number };
 
@@ -162,12 +163,14 @@ describe('Testing adminQuizSessionResultsCsv function SUCCESS CASE:', () => {
     session = quizSessionStartRequest(john.token, quiz.quizId, 5);
     player = playerJoinRequest('jimmy', session.sessionId);
     player2 = playerJoinRequest('jimmytwo', session.sessionId);
+    player3 = playerJoinRequest('scuppy', session.sessionId);
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
     const answers1Array = playerQuestionInfoRequest(player.playerId, 1).answers;
     answers1 = { answer1: answers1Array[0].answerId, answer2: answers1Array[1].answerId };
     playerSubmitRequest([answers1.answer1], player.playerId, 1);
     playerSubmitRequest([answers1.answer2], player2.playerId, 1);
+    playerSubmitRequest([answers1.answer1], player3.playerId, 1);
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'NEXT_QUESTION');
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'SKIP_COUNTDOWN');
@@ -175,6 +178,7 @@ describe('Testing adminQuizSessionResultsCsv function SUCCESS CASE:', () => {
     answers2 = { answer1: answers2Array[0].answerId, answer2: answers2Array[1].answerId };
     playerSubmitRequest([answers2.answer1], player.playerId, 2);
     playerSubmitRequest([answers2.answer2], player2.playerId, 2);
+    playerSubmitRequest([answers2.answer2], player3.playerId, 2);
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_ANSWER');
     quizSessionStateUpdateRequest(john.token, quiz.quizId, session.sessionId, 'GO_TO_FINAL_RESULTS');
   });
