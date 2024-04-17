@@ -3,7 +3,7 @@
 /// ////////////////////////////////////////////////////////////////////////////////
 
 import { getData } from '../../data/dataStore';
-import { Answer, AnswerReq, Question, QuestionV2, Quiz, QuizSession, QuizV2 } from '../../interface';
+import { Answer, AnswerReq, Player, Question, QuestionV2, Quiz, QuizSession, QuizV2 } from '../../interface';
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////// CONSTANTS ////////////////////////////////////
@@ -152,4 +152,63 @@ export function findQuizSession(quizId: number, quizSessionId: number): QuizSess
     }
   }
   return undefined;
+}
+
+/**
+ *
+ * @returns
+ */
+export function randPlayerName (): string {
+  let string: string = String.fromCharCode(Math.random() * 26 + 97);
+  let newchar: string = String.fromCharCode(Math.random() * 26 + 97);
+  while (string.length < 5) {
+    if (string.includes(newchar)) {
+      newchar = String.fromCharCode(Math.random() * 26 + 97);
+    } else {
+      string += newchar;
+    }
+  }
+  let newint = Math.floor((Math.random() * 10)).toString();
+  string += newint;
+  while (string.length < 8) {
+    if (string.includes(newint)) {
+      newint = Math.floor((Math.random() * 10)).toString();
+    } else {
+      string += newint;
+    }
+  }
+  return string;
+}
+
+/**
+ *
+ * @param answers
+ * @param given
+ * @returns
+ */
+export function answerCorrect (answers: Array<Answer>, given: Array<number>): boolean {
+  for (const ans of answers) {
+    if (given.includes(ans.answerId) !== ans.correct) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ *
+ * @param players
+ * @param questions
+ */
+export function recalculateAnswers (players: Player[], questions: number) {
+  for (let questionPosition = 1; questionPosition < questions; questionPosition++) {
+    players.sort((a, b) => a.playerInfo.timeTaken[questionPosition - 1] - b.playerInfo.timeTaken[questionPosition - 1]);
+    let rank = 1;
+    for (const pIndex in players) {
+      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1 && players[pIndex].playerInfo.points[questionPosition - 1] !== 0) {
+        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (rank);
+        rank++;
+      }
+    }
+  }
 }

@@ -1,8 +1,15 @@
 import { getData, getTimer } from '../data/dataStore';
 import HTTPError from 'http-errors';
 import { halfToken } from '../helpers/sessionHandler';
-import { Answer, Player, QuizSession } from '../interface';
+import { QuizSession } from '../interface';
+import { answerCorrect, randPlayerName } from '../helpers/quiz/quizMiscHelpers';
 
+/**
+ *
+ * @param name
+ * @param sessionId
+ * @returns
+ */
 export function adminPlayerJoin(name: string, sessionId: number) {
   if (name.length === 0) {
     name = randPlayerName();
@@ -34,6 +41,12 @@ export function adminPlayerJoin(name: string, sessionId: number) {
   return { playerId: player.playerId };
 }
 
+/**
+ *
+ * @param playerId
+ * @param questionPosition
+ * @returns
+ */
 export function adminPlayerQuestionInfo (playerId: number, questionPosition: number) {
   const data = getData();
   let quiz;
@@ -71,6 +84,13 @@ export function adminPlayerQuestionInfo (playerId: number, questionPosition: num
   };
 }
 
+/**
+ *
+ * @param answerIds
+ * @param playerId
+ * @param questionPosition
+ * @returns
+ */
 export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, questionPosition: number) {
   const data = getData();
   let sess: QuizSession;
@@ -130,6 +150,12 @@ export function adminPlayerSubmit (answerIds: Array<number>, playerId: number, q
   return {};
 }
 
+/**
+ *
+ * @param playerId
+ * @param questionPosition
+ * @returns
+ */
 export function adminPlayerQuestionResults (playerId: number, questionPosition: number) {
   const data = getData();
   let sess: QuizSession;
@@ -151,50 +177,11 @@ export function adminPlayerQuestionResults (playerId: number, questionPosition: 
   return answerResults(sess.sessionId, questionPosition);
 }
 
-function randPlayerName (): string {
-  let string: string = String.fromCharCode(Math.random() * 26 + 97);
-  let newchar: string = String.fromCharCode(Math.random() * 26 + 97);
-  while (string.length < 5) {
-    if (string.includes(newchar)) {
-      newchar = String.fromCharCode(Math.random() * 26 + 97);
-    } else {
-      string += newchar;
-    }
-  }
-  let newint = Math.floor((Math.random() * 10)).toString();
-  string += newint;
-  while (string.length < 8) {
-    if (string.includes(newint)) {
-      newint = Math.floor((Math.random() * 10)).toString();
-    } else {
-      string += newint;
-    }
-  }
-  return string;
-}
-
-function answerCorrect (answers: Array<Answer>, given: Array<number>): boolean {
-  for (const ans of answers) {
-    if (given.includes(ans.answerId) !== ans.correct) {
-      return false;
-    }
-  }
-  return true;
-}
-
-export function recalculateAnswers (players: Player[], questions: number) {
-  for (let questionPosition = 1; questionPosition < questions; questionPosition++) {
-    players.sort((a, b) => a.playerInfo.timeTaken[questionPosition - 1] - b.playerInfo.timeTaken[questionPosition - 1]);
-    let rank = 1;
-    for (const pIndex in players) {
-      if (players[pIndex].playerInfo.timeTaken[questionPosition - 1] !== -1 && players[pIndex].playerInfo.points[questionPosition - 1] !== 0) {
-        players[pIndex].playerInfo.points[questionPosition - 1] = players[pIndex].playerInfo.points[questionPosition - 1] * 1 / (rank);
-        rank++;
-      }
-    }
-  }
-}
-
+/**
+ *
+ * @param playerId
+ * @returns
+ */
 export function adminQuizPlayerResults(playerId: number) {
   const data = getData();
   let quiz: QuizSession | undefined;
@@ -238,6 +225,12 @@ export function adminQuizPlayerResults(playerId: number) {
   return { usersRankedByScore: reducedPlayers, questionResults: questionResultsArray };
 }
 
+/**
+ *
+ * @param sessionId
+ * @param questionPosition
+ * @returns
+ */
 export function answerResults (sessionId: number, questionPosition: number) {
   const data = getData();
   const sess = data.sessions.quizSessions.find(s => s.sessionId === sessionId);
