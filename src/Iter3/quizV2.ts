@@ -685,8 +685,7 @@ function adminQuizSessionStateUpdate(
     throw HTTPError(400, 'ERROR 400: Invalid quiz session');
   }
 
-  const quiz = findQuizV2(getData().quizzes, quizId);
-  stateMachine(quiz, session, action);
+  stateMachine(session, action);
 
   return { };
 }
@@ -936,8 +935,6 @@ function allChatMessages(playerId: number): allChatMessagesReturn {
 // Send a message into the chat
 function sendChatMessage(playerId: number, message: string): EmptyObject {
   const session = findSessionFromPlayerId(playerId);
-  const player = session.players;
-  const findPlayer = player.find(p => p.playerId === playerId);
 
   if (session === undefined) {
     throw HTTPError(400, 'ERROR 400: Player ID does not exist.');
@@ -946,6 +943,9 @@ function sendChatMessage(playerId: number, message: string): EmptyObject {
   if (message.length < 1 || message.length > 100) {
     throw HTTPError(400, 'ERROR 400: Message is < 1 or > 100 characters.');
   }
+
+  const player = session.players;
+  const findPlayer = player.find(p => p.playerId === playerId);
 
   if ('sessionId' in session) {
     session.messages.push({
