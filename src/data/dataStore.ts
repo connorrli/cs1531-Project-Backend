@@ -1,4 +1,8 @@
 import { DataStore } from '../interface';
+import HTTPError from 'http-errors';
+import request, { HttpVerb } from 'sync-request';
+import { DEPLOYED_URL } from '../submission';
+
 
 interface Timer {
   sessionId: number;
@@ -19,6 +23,40 @@ let data : DataStore = {
 
 const timers : Timer[] = [];
 
+const requestHelper = (method: HttpVerb, path: string, payload: object) => {
+  let json = {};
+  let qs = {};
+  if (['POST', 'DELETE'].includes(method)) {
+    qs = payload;
+  } else {
+    json = payload;
+  }
+
+  const res = request(method, DEPLOYED_URL + path, { qs, json, timeout: 20000 });
+  return JSON.parse(res.body.toString());
+};
+
+const getData = (): DataStore => {
+  try {
+    const res = requestHelper('GET', '/data', {});
+    return res.data;
+  } catch (e) {
+    return {
+      users: [],
+      quizzes: [],
+      sessions: {
+        userSessions: [],
+        quizSessions: []
+      },
+    };
+  }
+};
+
+const setData = (newData: DataStore) => {
+  requestHelper('PUT', '/data', { data: newData });
+};
+
+
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY
 
 // YOU SHOULDNT NEED TO MODIFY THE FUNCTIONS BELOW IN ITERATION 1
@@ -37,16 +75,6 @@ Example usage
     setData(store)
 */
 
-// Use get() to access the data
-function getData() {
-  return data;
-}
-
-// Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData: DataStore) {
-  data = newData;
-}
-
 function getTimer(sessionId: number): undefined | Timer {
   return timers.find(timer => timer.sessionId === sessionId);
 }
@@ -55,4 +83,4 @@ function getTimers() {
   return timers;
 }
 
-export { getData, setData, getTimer, getTimers };
+export { requestHelper, getData, setData, getTimer, getTimers };

@@ -1,5 +1,6 @@
 // Import statements of various packages/libraries that we will leverage for the project
 import express, { json, Request, Response } from 'express';
+import { createClient } from '@vercel/kv';
 import { echo } from './newecho';
 import HTTPError from 'http-errors';
 import morgan from 'morgan';
@@ -97,6 +98,14 @@ app.use('/docs', sui.serve, sui.setup(YAML.parse(file), { swaggerOptions: { docE
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || '127.0.0.1';
 
+const KV_REST_API_URL = "https://ultimate-escargot-50964.upstash.io";
+const KV_REST_API_TOKEN = "AccUASQgMTExOTc2MzYtMjUzZS00ZWM0LWE2ZDQtM2ZiYWY3NTMxMjRlNWY3MzQ2ZDQyZWZiNDM3YmEwOWVjNGIwODQyM2U2OTE=";
+
+const database = createClient({
+  url: KV_REST_API_URL,
+  token: KV_REST_API_TOKEN,
+});
+
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
@@ -104,6 +113,7 @@ const HOST: string = process.env.IP || '127.0.0.1';
 /// ////////////////////////////////////////////////////////////////////////////////
 /// ////////////////////////////// DATA FUNCTIONS //////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
+
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
@@ -132,6 +142,34 @@ export const save = () => {
 const saveTrash = () => {
   fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash(), null, 2));
 };
+
+app.get('/data', async (req: Request, res: Response) => {
+  const data = await database.hgetall("data");
+  res.status(200).json(data);
+});
+
+app.put('/data', async (req: Request, res: Response) => {
+  const { data } = req.body;
+  await database.hset("data", { data });
+  return res.status(200).json({});
+});
+
+app.get('/trashdata', async (req: Request, res: Response) => {
+  const data = await database.hgetall("trashData");
+  res.status(200).json(data);
+});
+
+app.put('/trashdata', async (req: Request, res: Response) => {
+  const { trashData } = req.body;
+  await database.hset("trashData", { trashData });
+  return res.status(200).json({});
+});
+
+app.get('/', (req: Request, res: Response) => {
+  console.log('Print to terminal: someone accessed our root url!');
+  res.json({ message: "Welcome to F15A_BOOST's Project-Backend Deploy Server's root URL!" });
+});
+
 
 /// ////////////////////////////////////////////////////////////////////////////////
 /// //////////////////////////// ITERATION 2 ROUTES ////////////////////////////////

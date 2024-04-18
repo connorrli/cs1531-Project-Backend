@@ -1,4 +1,5 @@
 import { TrashStore } from '../interface';
+import { requestHelper } from './dataStore';
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 let trash : TrashStore = {
@@ -10,19 +11,26 @@ let trash : TrashStore = {
 /**
   * Fetches the trash object containing trashed items
   *
-  * @returns {object} - Returns a trash object
 */
-function getTrash() {
-  return trash;
-}
+const getTrash = (): TrashStore => {
+  try {
+    const res = requestHelper('GET', '/trashdata', {});
+    return res.trashData;
+  } catch (e) {
+    return {
+      users: [],
+      quizzes: [],
+      sessions: [],
+    };
+  }
+};
 
 /**
   * Sets the trash object with new data
   *
-  * @param {object} newTrash - New trash object
 */
-function setTrash(newTrash: TrashStore) {
-  trash = newTrash;
-}
+const setTrash = (newData: TrashStore) => {
+  requestHelper('PUT', '/trashdata', { trashData: newData });
+};
 
 export { getTrash, setTrash };
