@@ -113,9 +113,6 @@ const database = createClient({
 /// ////////////////////////////// DATA FUNCTIONS //////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-loadTrash();
-load();
-
 app.get('/data', async (req: Request, res: Response) => {
   const data = await database.hgetall("data");
   res.status(200).json(data);
@@ -945,6 +942,8 @@ app.use(errorHandler());
 // start server
 const server = app.listen(PORT, HOST, () => {
   // DO NOT CHANGE THIS LINE
+  loadTrash();
+  load();
   console.log(`⚡️ Server started on port ${PORT} at ${HOST}`);
 });
 
