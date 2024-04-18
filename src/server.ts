@@ -11,7 +11,6 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { setData, getData } from './data/dataStore';
 import { getSession, getSessionV2 } from './helpers/sessionHandler';
 import {
   adminUserDetails,
