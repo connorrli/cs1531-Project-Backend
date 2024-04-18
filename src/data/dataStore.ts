@@ -1,7 +1,4 @@
 import { DataStore } from '../interface';
-import HTTPError from 'http-errors';
-import request, { HttpVerb } from 'sync-request';
-import { DEPLOYED_URL } from '../submission';
 
 
 interface Timer {
@@ -23,37 +20,14 @@ let data : DataStore = {
 
 const timers : Timer[] = [];
 
-const requestHelper = (method: HttpVerb, path: string, payload: object) => {
-  let json = {};
-  let qs = {};
-  if (['POST', 'DELETE'].includes(method)) {
-    qs = payload;
-  } else {
-    json = payload;
-  }
-
-  const res = request(method, DEPLOYED_URL + path, { qs, json, timeout: 20000 });
-  return JSON.parse(res.body.toString());
-};
-
 const getData = (): DataStore => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    return res.data;
-  } catch (e) {
-    return {
-      users: [],
-      quizzes: [],
-      sessions: {
-        userSessions: [],
-        quizSessions: []
-      },
-    };
-  }
+  return data;
 };
 
 const setData = (newData: DataStore) => {
-  requestHelper('PUT', '/data', { data: newData });
+  data = newData;
+
+  return;
 };
 
 
@@ -83,4 +57,4 @@ function getTimers() {
   return timers;
 }
 
-export { requestHelper, getData, setData, getTimer, getTimers };
+export { getData, setData, getTimer, getTimers };

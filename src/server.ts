@@ -81,6 +81,8 @@ import {
   adminPlayerSubmit,
   adminQuizPlayerResults
 } from './Iter3/player';
+import { DEPLOYED_URL } from './submission';
+import request, { HttpVerb } from 'sync-request';
 
 // Set up web app
 const app = express();
@@ -114,31 +116,58 @@ const database = createClient({
 /// ////////////////////////////// DATA FUNCTIONS //////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
+const requestHelper = (method: HttpVerb, path: string, payload: object) => {
+  let json = {};
+  let qs = {};
+  if (['POST', 'DELETE'].includes(method)) {
+    qs = payload;
+  } else {
+    json = payload;
+  }
+
+  const res = request(method, DEPLOYED_URL + path, { qs, json, timeout: 20000 });
+  return JSON.parse(res.body.toString());
+};
 
 // Loads the database.json file and sets the data into dataStore if it exists
 const load = () => {
-  if (fs.existsSync('./database.json')) {
-    const file = fs.readFileSync('./database.json', { encoding: 'utf8' });
-    setData(JSON.parse(file));
+  try {
+    const res = requestHelper('GET', '/data', {});
+    setData(res.data);
+  } catch (e) {
+    setData({
+      users: [],
+      quizzes: [],
+      sessions: {
+        userSessions: [],
+        quizSessions: [],
+      }
+    });
   }
 };
 
 // Loads the trashbase.json file and sets the trash into trashStore if it exists
 const loadTrash = () => {
-  if (fs.existsSync('./trashbase.json')) {
-    const file = fs.readFileSync('./trashbase.json', { encoding: 'utf8' });
-    setTrash(JSON.parse(file));
+  try {
+    const res = requestHelper('GET', '/trashdata', {});
+    setData(res.data);
+  } catch (e) {
+    setTrash({
+      users: [],
+      quizzes: [],
+      sessions: [],
+    });
   }
 };
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
-  fs.writeFileSync('./database.json', JSON.stringify(getData(), null, 2));
+  requestHelper('PUT', '/data', { data: getData() });
 };
 
 // Save current `trash` trashStore object state into trashbase.json
 const saveTrash = () => {
-  fs.writeFileSync('./trashbase.json', JSON.stringify(getTrash(), null, 2));
+  requestHelper('PUT', '/trashdata', { data: getTrash() });
 };
 
 app.get('/data', async (req: Request, res: Response) => {
@@ -977,3 +1006,10 @@ const server = app.listen(PORT, HOST, () => {
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
 });
+
+export {
+  save,
+  saveTrash,
+  load,
+  loadTrash
+};
