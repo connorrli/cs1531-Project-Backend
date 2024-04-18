@@ -7,7 +7,7 @@ import { getTrash, setTrash } from "./trash";
 export const loadTrash = () => {
   try {
     const res = requestHelper('GET', '/trashdata', {});
-    setData(res.trashdata);
+    setTrash(res.trashdata);
   } catch (e) {
     setTrash({
       users: [],
