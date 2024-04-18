@@ -7,7 +7,7 @@ import { getTrash, setTrash } from "./trash";
 export const loadTrash = () => {
   try {
     const res = requestHelper('GET', '/trashdata', {});
-    setTrash(res.trashdata);
+    setTrash(res.trashData);
   } catch (e) {
     setTrash({
       users: [],
@@ -22,6 +22,8 @@ export const load = () => {
   try {
     const res = requestHelper('GET', '/data', {});
     setData(res.data);
+
+    return;
   } catch (e) {
     setData({
       users: [],
@@ -49,7 +51,7 @@ export const requestHelper = (method: HttpVerb, path: string, payload: object) =
 
 // Save current `trash` trashStore object state into trashbase.json
 export const saveTrash = () => {
-  requestHelper('PUT', '/trashdata', { trashdata: getTrash() });
+  requestHelper('PUT', '/trashdata', { trashData: getTrash() });
 };
 
 // Save current `data` dataStore object state into database.json

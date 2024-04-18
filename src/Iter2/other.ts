@@ -25,7 +25,7 @@ function clear(): EmptyObject {
   const timers = getTimers();
 
   for (const timer of timers) {
-    clearTimeout(timer.timer);
+    if (typeof timer.timer != undefined) clearTimeout(timer.timer);
   }
   getTimers().length = 0;
 
