@@ -122,7 +122,6 @@ const load = () => {
     setData(JSON.parse(file));
   }
 };
-load();
 
 // Loads the trashbase.json file and sets the trash into trashStore if it exists
 const loadTrash = () => {
@@ -131,7 +130,6 @@ const loadTrash = () => {
     setTrash(JSON.parse(file));
   }
 };
-loadTrash();
 
 // Save current `data` dataStore object state into database.json
 export const save = () => {
