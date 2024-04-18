@@ -1,4 +1,3 @@
-// Import statements of various packages/libraries that we will leverage for the project
 import express, { json, Request, Response } from 'express';
 import { createClient } from '@vercel/kv';
 import { echo } from './newecho';
