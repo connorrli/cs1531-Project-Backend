@@ -47,6 +47,7 @@ export const loadTrash = () => {
   }
 };
 
+
 // Save current `data` dataStore object state into database.json
 export const save = () => {
   requestHelper('PUT', '/data', { data: getData() });
