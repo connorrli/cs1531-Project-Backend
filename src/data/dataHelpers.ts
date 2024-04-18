@@ -32,7 +32,6 @@ export const load = () => {
     });
   }
 };
-load();
 
 // Loads the trashbase.json file and sets the trash into trashStore if it exists
 export const loadTrash = () => {
@@ -47,7 +46,6 @@ export const loadTrash = () => {
     });
   }
 };
-loadTrash();
 
 // Save current `data` dataStore object state into database.json
 export const save = () => {
