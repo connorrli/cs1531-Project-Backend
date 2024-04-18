@@ -132,7 +132,7 @@ const loadTrash = () => {
 };
 
 // Save current `data` dataStore object state into database.json
-export const save = () => {
+const save = () => {
   fs.writeFileSync('./database.json', JSON.stringify(getData(), null, 2));
 };
 

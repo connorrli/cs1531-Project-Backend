@@ -5,7 +5,6 @@
 import { getTimer } from '../data/dataStore';
 import { QuizSession } from '../interface';
 import HTTPError from 'http-errors';
-import { save } from '../server';
 import { recalculateAnswers } from './quiz/quizMiscHelpers';
 
 /// ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +139,6 @@ function handleSkipCountdown(quizSession: QuizSession, timer: Timer) {
   timer.timer = setTimeout(
     () => {
       quizSession.state = States.QUESTION_CLOSE;
-      save();
     },
     quizSession.metadata.questions[quizSession.atQuestion - 1].duration * 1000
   );
@@ -177,12 +175,10 @@ function handleNextQuestion(quizSession: QuizSession, timer: Timer) {
   timer.timer = setTimeout(
     () => {
       quizSession.state = States.QUESTION_OPEN;
-      save();
       // Then open question for specified duration
       timer.timer = setTimeout(
         () => {
           quizSession.state = States.QUESTION_CLOSE;
-          save();
         },
         quizSession.metadata.questions[quizSession.atQuestion - 1].duration * 1000
       );
