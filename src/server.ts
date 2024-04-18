@@ -81,8 +81,7 @@ import {
   adminPlayerSubmit,
   adminQuizPlayerResults
 } from './Iter3/player';
-import { DEPLOYED_URL } from './submission';
-import request, { HttpVerb } from 'sync-request';
+import { save, saveTrash, load, loadTrash } from './data/dataHelpers';
 
 // Set up web app
 const app = express();
@@ -116,61 +115,8 @@ const database = createClient({
 /// ////////////////////////////// DATA FUNCTIONS //////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
 
-const requestHelper = (method: HttpVerb, path: string, payload: object) => {
-  let json = {};
-  let qs = {};
-  if (['POST', 'DELETE'].includes(method)) {
-    qs = payload;
-  } else {
-    json = payload;
-  }
-
-  const res = request(method, DEPLOYED_URL + path, { qs, json, timeout: 20000 });
-  return JSON.parse(res.body.toString());
-};
-
-// Loads the database.json file and sets the data into dataStore if it exists
-const load = () => {
-  try {
-    const res = requestHelper('GET', '/data', {});
-    setData(res.data);
-  } catch (e) {
-    setData({
-      users: [],
-      quizzes: [],
-      sessions: {
-        userSessions: [],
-        quizSessions: [],
-      }
-    });
-  }
-};
 load();
-
-// Loads the trashbase.json file and sets the trash into trashStore if it exists
-const loadTrash = () => {
-  try {
-    const res = requestHelper('GET', '/trashdata', {});
-    setData(res.data);
-  } catch (e) {
-    setTrash({
-      users: [],
-      quizzes: [],
-      sessions: [],
-    });
-  }
-};
 loadTrash();
-
-// Save current `data` dataStore object state into database.json
-const save = () => {
-  requestHelper('PUT', '/data', { data: getData() });
-};
-
-// Save current `trash` trashStore object state into trashbase.json
-const saveTrash = () => {
-  requestHelper('PUT', '/trashdata', { data: getTrash() });
-};
 
 app.get('/data', async (req: Request, res: Response) => {
   const data = await database.hgetall("data");
