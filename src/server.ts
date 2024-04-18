@@ -145,6 +145,7 @@ const load = () => {
     });
   }
 };
+load();
 
 // Loads the trashbase.json file and sets the trash into trashStore if it exists
 const loadTrash = () => {
@@ -159,6 +160,7 @@ const loadTrash = () => {
     });
   }
 };
+loadTrash();
 
 // Save current `data` dataStore object state into database.json
 const save = () => {
