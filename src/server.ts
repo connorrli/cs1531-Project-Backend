@@ -163,12 +163,6 @@ app.put('/trashdata', async (req: Request, res: Response) => {
   return res.status(200).json({});
 });
 
-app.get('/', (req: Request, res: Response) => {
-  console.log('Print to terminal: someone accessed our root url!');
-  res.json({ message: "Welcome to F15A_BOOST's Project-Backend Deploy Server's root URL!" });
-});
-
-
 /// ////////////////////////////////////////////////////////////////////////////////
 /// //////////////////////////// ITERATION 2 ROUTES ////////////////////////////////
 /// ////////////////////////////////////////////////////////////////////////////////
