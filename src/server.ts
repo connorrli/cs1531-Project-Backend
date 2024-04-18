@@ -954,10 +954,3 @@ const server = app.listen(PORT, HOST, () => {
 process.on('SIGINT', () => {
   server.close(() => console.log('Shutting down server gracefully.'));
 });
-
-export {
-  save,
-  saveTrash,
-  load,
-  loadTrash
-};
